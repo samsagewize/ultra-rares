@@ -1,0 +1,10 @@
+{
+  "name": "ultra-rares-utility-contracts",
+  "private": true,
+  "scripts": {
+    "compile": "node compile.mjs"
+  },
+  "devDependencies": {
+    "solc": "0.8.30"
+  }
+}
