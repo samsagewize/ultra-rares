@@ -59,12 +59,13 @@
         <div class="scooped-heading">
           <p class="eyebrow">Live from OpenSea</p>
           <h2 id="scooped-title">Recently<br />Scooped</h2>
+          <p class="live-status" role="status">Loading live data…</p>
         </div>
 
         <div class="market-stats" aria-label="Collection market statistics">
-          <div><span>Total volume</span><strong>4.1523 ETH</strong><small>$7,824.53</small></div>
-          <div><span>Floor</span><strong>0.03689 ETH</strong><small>$69.01</small></div>
-          <div><span>Collectors</span><strong>184</strong><small>of 420 rares</small></div>
+          <div><span>Total volume</span><strong data-stat="volume-native">4.1523 ETH</strong><small data-stat="volume-usd">$7,824.53</small></div>
+          <div><span>Floor</span><strong data-stat="floor-native">0.03689 ETH</strong><small data-stat="floor-usd">$69.01</small></div>
+          <div><span>Collectors</span><strong data-stat="owners">184</strong><small data-stat="supply">of 420 rares</small></div>
         </div>
 
         <div class="scooped-grid">
@@ -107,5 +108,6 @@
       <p><a href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">View on OpenSea ↗</a></p>
     </footer>
 
+    <script src="market.js"></script>
   </body>
 </html>
