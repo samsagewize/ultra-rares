@@ -348,41 +348,6 @@ h1 {
 .scoop-info small { font-size: 8px; letter-spacing: .12em; }
 .all-activity { display: inline-block; margin-top: 9vh; border-bottom: 3px solid var(--ink); padding-bottom: 8px; font-size: 11px; font-weight: 900; letter-spacing: .12em; }
 
-.hood { display: grid; grid-template-columns: .72fr 1.28fr; gap: 7vw; padding: 14vh 6vw; color: var(--acid); background: var(--ink); }
-.hood-intro h1, .hood-intro h2 { max-width: none; margin: 18px 0 28px; font-size: clamp(100px, 14vw, 210px); line-height: .72; letter-spacing: -.1em; }
-.hood-intro > p:last-child { max-width: 31ch; font-size: 14px; font-weight: 800; line-height: 1.35; }
-.hood-tool { border-top: 3px solid var(--acid); }
-.hood-step { display: grid; grid-template-columns: 55px 1fr; gap: 18px; padding: 34px 0; border-bottom: 3px solid var(--acid); transition: opacity .25s ease; }
-.hood-step.is-locked { opacity: .38; }
-.step-number { font-size: 11px; font-weight: 900; letter-spacing: .12em; }
-.hood-step h2, .hood-step h3 { margin: 0 0 9px; font-size: clamp(28px, 4vw, 52px); line-height: .9; letter-spacing: -.06em; }
-.hood-step p { max-width: 52ch; font-size: 11px; font-weight: 700; line-height: 1.45; }
-.hood-button, .manual-token-form button { display: inline-block; margin-top: 14px; border: 2px solid var(--acid); padding: 13px 17px; color: var(--ink); background: var(--acid); font-size: 10px; font-weight: 900; letter-spacing: .1em; cursor: pointer; }
-.hood-button.secondary { color: var(--acid); background: transparent; }
-.hood-button:hover, .manual-token-form button:hover { color: var(--acid); background: var(--ink); }
-.wallet-status { margin-bottom: 0; color: #fff; overflow-wrap: anywhere; }
-.owned-nfts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
-.nft-choice { border: 2px solid var(--acid); padding: 14px 9px; color: var(--acid); background: transparent; font-weight: 900; cursor: pointer; }
-.nft-choice:hover, .nft-choice.selected { color: var(--ink); background: var(--acid); }
-.manual-token-form { margin-top: 20px; }
-.manual-token-form label { display: block; margin-bottom: 8px; font-size: 9px; font-weight: 900; letter-spacing: .12em; }
-.manual-token-form > div { display: flex; max-width: 330px; }
-.manual-token-form input { min-width: 0; flex: 1; border: 2px solid var(--acid); padding: 12px; color: var(--acid); background: transparent; font: inherit; }
-.manual-token-form button { margin: 0; }
-.selected-rare { margin: 17px 0; border: 2px dashed var(--acid); padding: 18px; font-size: 13px; font-weight: 900; }
-.compatibility-note { margin: 18px 0 8px; padding: 18px; color: var(--ink); background: var(--acid); transform: rotate(-.5deg); }
-.compatibility-note strong { font-size: 15px; }
-.compatibility-note p { margin-bottom: 0; }
-.safety-note { opacity: .7; }
-
-.hood-page { background: var(--ink); }
-.hood-standalone { min-height: calc(100svh - 70px); padding-top: 150px; }
-.claim-soon { display: grid; width: min(250px, 70vw); aspect-ratio: 1; margin-top: 50px; place-items: center; border: 4px solid var(--acid); border-radius: 45% 55% 49% 51% / 52% 43% 57% 48%; font-size: clamp(32px, 5vw, 60px); font-weight: 900; line-height: .8; text-align: center; transform: rotate(-5deg); }
-.liquidity-note { max-width: 390px; margin-top: 48px; border-top: 3px solid var(--acid); border-bottom: 3px solid var(--acid); padding: 20px 0; }
-.liquidity-note span { display: block; margin-bottom: 12px; font-size: 9px; font-weight: 900; letter-spacing: .16em; }
-.liquidity-note strong { display: block; font-size: clamp(19px, 2.2vw, 30px); line-height: .95; }
-.liquidity-note p { margin: 14px 0 0; font-size: 9px; font-weight: 700; line-height: 1.45; opacity: .72; }
-.claim-disabled:disabled { opacity: .55; cursor: not-allowed; }
 
 .manifesto {
   display: grid;
@@ -433,8 +398,6 @@ footer {
   .market-stats > div { border-right: 0; border-bottom: 3px solid var(--ink); }
   .market-stats > div:last-child { border-bottom: 0; }
   .scooped-grid { grid-template-columns: repeat(2, 1fr); gap: 38px 14px; }
-  .hood { grid-template-columns: 1fr; padding: 90px 24px; }
-  .owned-nfts { grid-template-columns: repeat(2, 1fr); }
   footer { padding: 22px; }
 }
 

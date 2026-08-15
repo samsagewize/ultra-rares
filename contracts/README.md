@@ -50,3 +50,16 @@ For the prototype, the vault owner checkpoints reward accrual. Production must r
 The vault cannot mint Stock Tokens. It only transfers existing ERC-20 inventory. It supports a replaceable eligibility module because Robinhood Stock Tokens are regulated tokenized debt securities with geographic and investor restrictions. A failed transfer reverts the entire redemption, including the credit burn.
 
 Asset exchange rates in this prototype are administrator-configured. Do not use them on mainnet. A production implementation needs delayed, oracle-governed rates that correctly handle Stock Token corporate-action multipliers, trading halts, decimals, inventory capacity, and eligibility.
+
+## Proposed Last Rares launch architecture
+
+This is the recorded product direction, not yet implemented or approved for mainnet:
+
+1. Deploy the fixed-cap **RARE** token with immutable allocations for the liquidity curve, Ultra Rares holder airdrop, team vesting, and ecosystem treasury.
+2. Let existing Ultra Rares holders claim the airdrop once per eligible NFT from a snapshot-based distributor.
+3. Deploy a separate **Last Rares** ERC-721 collection and pre-mint its full supply directly to a custody vault.
+4. The vault approves only the auction contract. Last Rares cannot be sold through a public mint and leave the vault only after a completed auction.
+5. Auctions accept RARE only. Winning RARE is routed according to a published policy; losing bids are claimable back by their bidders.
+6. Team tokens use an onchain vesting schedule rather than an immediately spendable wallet allocation.
+
+Before implementation, fix the Last Rares supply, RARE maximum supply, allocation percentages, vesting period, curve design, auction format, reserve price, auction duration, and per-wallet limits. These parameters must not be improvised at deployment time.
