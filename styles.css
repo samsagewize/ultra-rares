@@ -330,6 +330,34 @@ h1 {
   letter-spacing: .12em;
 }
 
+.origin-embed {
+  grid-column: 1 / -1;
+  margin-top: 8vh;
+}
+
+.origin-embed iframe {
+  display: block;
+  width: 100%;
+  height: min(72vh, 760px);
+  min-height: 520px;
+  border: 3px solid var(--acid);
+  background: var(--paper);
+}
+
+.origin-embed > p {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0;
+  border-bottom: 3px solid currentColor;
+  padding: 13px 2px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.origin-embed a { border-bottom: 1px solid currentColor; }
+
 .scooped {
   padding: 13vh 5vw;
   border-top: 5px solid var(--ink);
@@ -438,6 +466,10 @@ footer {
   .origin { grid-template-columns: 1fr; padding: 80px 24px; }
   .origin h2 { margin-top: 28px; }
   .origin-note { grid-column: 1; margin-top: 48px; }
+  .origin-embed { margin-top: 56px; }
+  .origin-embed iframe { height: 68vh; min-height: 480px; }
+  .origin-embed > p { display: block; line-height: 1.8; }
+  .origin-embed > p a { display: table; }
   .scooped { padding: 90px 24px; }
   .scooped-heading { display: block; }
   .live-status { display: inline-block; margin-top: 24px; }
