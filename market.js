@@ -67,7 +67,7 @@ function createActivityCard(sale) {
 
 function renderActivity(activity) {
   const cards = activity.map(createActivityCard);
-  activityGrid.replaceChildren(...cards);
+  if (activityGrid) activityGrid.replaceChildren(...cards);
 
   if (!tickerTrack) return;
   const tickerSales = [...activity, ...activity];
