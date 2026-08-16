@@ -285,6 +285,51 @@ h1 {
 .rare-meta p { margin: 0; }
 .number { font-weight: 800; font-size: 12px; }
 
+.origin {
+  display: grid;
+  grid-template-columns: .72fr 1.28fr;
+  gap: 6vw;
+  padding: 11vh 6vw;
+  border-top: 5px solid var(--ink);
+  background: var(--ink);
+  color: var(--acid);
+}
+
+.origin > .eyebrow { margin: 7px 0 0; }
+
+.origin h2 {
+  margin: 0;
+  max-width: 9ch;
+  font-size: clamp(54px, 8vw, 126px);
+  line-height: .82;
+  letter-spacing: -.08em;
+}
+
+.origin-note {
+  grid-column: 2;
+  max-width: 690px;
+  margin-top: 6vh;
+  border-top: 3px solid currentColor;
+  padding-top: 22px;
+}
+
+.origin-note p {
+  margin: 0 0 34px;
+  font-size: clamp(18px, 2vw, 30px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -.035em;
+}
+
+.origin-note a {
+  display: inline-block;
+  border-bottom: 3px solid currentColor;
+  padding-bottom: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
 .scooped {
   padding: 13vh 5vw;
   border-top: 5px solid var(--ink);
@@ -390,6 +435,9 @@ footer {
   .parade-track img { width: 190px; }
   .section-heading h2 { position: static; }
   .rare-card { margin-top: 36px; }
+  .origin { grid-template-columns: 1fr; padding: 80px 24px; }
+  .origin h2 { margin-top: 28px; }
+  .origin-note { grid-column: 1; margin-top: 48px; }
   .scooped { padding: 90px 24px; }
   .scooped-heading { display: block; }
   .live-status { display: inline-block; margin-top: 24px; }
