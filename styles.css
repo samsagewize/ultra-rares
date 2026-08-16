@@ -419,6 +419,8 @@ h1 {
 .scoop-info p { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 7px; font-size: 11px; font-weight: 900; letter-spacing: .06em; }
 .scoop-info p:first-child { padding-bottom: 9px; border-bottom: 2px solid var(--ink); font-size: 15px; }
 .scoop-info small { font-size: 8px; letter-spacing: .12em; }
+.scoop-info .scoop-metadata { margin-top: 10px; color: color-mix(in srgb, var(--ink) 68%, transparent); font-size: 9px; }
+.scoop-info .scoop-metadata time { font-weight: 900; }
 .all-activity { display: inline-block; margin-top: 9vh; border-bottom: 3px solid var(--ink); padding-bottom: 8px; font-size: 11px; font-weight: 900; letter-spacing: .12em; }
 
 
