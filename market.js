@@ -8,6 +8,7 @@ const statElements = {
 };
 const liveStatus = document.querySelector('.live-status');
 const activityGrid = document.querySelector('.scooped-grid');
+const tickerTrack = document.querySelector('[data-sales-ticker]');
 
 const formatEth = (value, maximumFractionDigits = 5) => `${Number(value).toLocaleString('en-US', { maximumFractionDigits })} ETH`;
 const formatUsd = (value) => Number(value).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
@@ -67,6 +68,34 @@ function createActivityCard(sale) {
 function renderActivity(activity) {
   const cards = activity.map(createActivityCard);
   activityGrid.replaceChildren(...cards);
+
+  if (!tickerTrack) return;
+  const tickerSales = [...activity, ...activity];
+  const tickerItems = tickerSales.map((sale, index) => {
+    const item = document.createElement('a');
+    item.className = 'ticker-item';
+    item.href = sale.itemUrl;
+    item.target = '_blank';
+    item.rel = 'noopener noreferrer';
+    if (index >= activity.length) item.setAttribute('aria-hidden', 'true');
+
+    const image = document.createElement('img');
+    image.src = sale.imageUrl;
+    image.alt = index < activity.length ? `Ultra Rare number ${sale.tokenId}` : '';
+    image.loading = 'lazy';
+
+    const copy = document.createElement('span');
+    const name = document.createElement('strong');
+    name.textContent = sale.name || `#${sale.tokenId}`;
+    const price = document.createElement('small');
+    price.textContent = sale.priceNative === null ? 'Sold' : `${Number(sale.priceNative).toLocaleString('en-US', { maximumFractionDigits: 6 })} ${sale.priceSymbol}`;
+    const buyer = document.createElement('small');
+    buyer.textContent = `To ${sale.buyer}`;
+    copy.append(name, price, buyer);
+    item.append(image, copy);
+    return item;
+  });
+  tickerTrack.replaceChildren(...tickerItems);
 }
 
 async function refreshMarketData() {
