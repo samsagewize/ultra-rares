@@ -113,9 +113,14 @@ button { font: inherit; text-transform: inherit; }
   transition: width .45s cubic-bezier(.2, .8, .2, 1), box-shadow .45s ease;
 }
 
+.sales-ticker:hover,
 .sales-ticker.has-breaking-sale { width: clamp(340px, 38vw, 540px); box-shadow: -18px 0 0 var(--ink); }
 .sales-ticker.has-breaking-sale .ticker-track { animation-play-state: paused; }
 .sales-ticker.has-breaking-sale .ticker-heading::after { content: " · NEW SCOOP"; }
+.sales-ticker:hover .ticker-item { grid-template-columns: 105px 1fr; flex-basis: 135px; min-height: 135px; }
+.sales-ticker:hover .ticker-item img { width: 105px; height: 105px; }
+.sales-ticker:hover .ticker-item strong { font-size: 22px; }
+.sales-ticker:hover .ticker-item small { font-size: 9px; }
 
 .ticker-heading,
 .ticker-footer {
@@ -151,12 +156,17 @@ button { font: inherit; text-transform: inherit; }
   min-height: 94px;
   padding: 10px;
   border-bottom: 2px solid var(--ink);
+  transition: min-height .35s ease, flex-basis .35s ease, grid-template-columns .35s ease;
 }
 
 .ticker-item.is-new-sale { grid-template-columns: minmax(150px, 44%) 1fr; flex-basis: 240px; min-height: 240px; background: var(--ink); color: var(--acid); animation: sale-pop .55s cubic-bezier(.2, 1.4, .4, 1); }
 .ticker-item.is-new-sale img { width: 100%; height: 200px; border-color: var(--acid); }
 .ticker-item.is-new-sale strong { font-size: clamp(28px, 4vw, 58px); }
 .ticker-item.is-new-sale small { font-size: 10px; }
+.sales-ticker:hover .ticker-item.is-new-sale { grid-template-columns: minmax(150px, 44%) 1fr; flex-basis: 240px; min-height: 240px; }
+.sales-ticker:hover .ticker-item.is-new-sale img { width: 100%; height: 200px; }
+.sales-ticker:hover .ticker-item.is-new-sale strong { font-size: clamp(28px, 4vw, 58px); }
+.sales-ticker:hover .ticker-item.is-new-sale small { font-size: 10px; }
 
 .ticker-item img {
   display: block;
@@ -165,6 +175,7 @@ button { font: inherit; text-transform: inherit; }
   border: 2px solid var(--ink);
   border-radius: 48% 52% 45% 55% / 52% 46% 54% 48%;
   object-fit: cover;
+  transition: width .35s ease, height .35s ease;
 }
 
 .ticker-item span { min-width: 0; }
