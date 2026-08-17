@@ -110,7 +110,12 @@ button { font: inherit; text-transform: inherit; }
   height: 100svh;
   border-left: 4px solid var(--ink);
   background: var(--acid);
+  transition: width .45s cubic-bezier(.2, .8, .2, 1), box-shadow .45s ease;
 }
+
+.sales-ticker.has-breaking-sale { width: clamp(340px, 38vw, 540px); box-shadow: -18px 0 0 var(--ink); }
+.sales-ticker.has-breaking-sale .ticker-track { animation-play-state: paused; }
+.sales-ticker.has-breaking-sale .ticker-heading::after { content: " · NEW SCOOP"; }
 
 .ticker-heading,
 .ticker-footer {
@@ -148,6 +153,11 @@ button { font: inherit; text-transform: inherit; }
   border-bottom: 2px solid var(--ink);
 }
 
+.ticker-item.is-new-sale { grid-template-columns: minmax(150px, 44%) 1fr; flex-basis: 240px; min-height: 240px; background: var(--ink); color: var(--acid); animation: sale-pop .55s cubic-bezier(.2, 1.4, .4, 1); }
+.ticker-item.is-new-sale img { width: 100%; height: 200px; border-color: var(--acid); }
+.ticker-item.is-new-sale strong { font-size: clamp(28px, 4vw, 58px); }
+.ticker-item.is-new-sale small { font-size: 10px; }
+
 .ticker-item img {
   display: block;
   width: 66px;
@@ -163,6 +173,7 @@ button { font: inherit; text-transform: inherit; }
 .ticker-item small { margin-top: 3px; font-size: 7px; font-weight: 900; letter-spacing: .05em; }
 
 @keyframes ticker-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+@keyframes sale-pop { from { transform: scale(.82); opacity: .2; } to { transform: scale(1); opacity: 1; } }
 
 .wordmark {
   display: block;

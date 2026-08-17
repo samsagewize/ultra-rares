@@ -78,7 +78,7 @@ module.exports = async function handler(request, response) {
 
     if (!activity.length) throw new Error('No recent sales were found');
 
-    response.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    response.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=120');
     return response.status(200).json({
       activity,
       source: 'OpenSea collection activity',

@@ -9,6 +9,9 @@ const statElements = {
 const liveStatus = document.querySelector('.live-status');
 const activityGrid = document.querySelector('.scooped-grid');
 const tickerTrack = document.querySelector('[data-sales-ticker]');
+const salesTicker = document.querySelector('.sales-ticker');
+let latestSaleId = null;
+let breakingSaleTimer = null;
 
 const formatEth = (value, maximumFractionDigits = 5) => `${Number(value).toLocaleString('en-US', { maximumFractionDigits })} ETH`;
 const formatUsd = (value) => Number(value).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
@@ -65,7 +68,7 @@ function createActivityCard(sale) {
   return card;
 }
 
-function renderActivity(activity) {
+function renderActivity(activity, newSaleId = null) {
   const cards = activity.map(createActivityCard);
   if (activityGrid) activityGrid.replaceChildren(...cards);
 
@@ -74,6 +77,7 @@ function renderActivity(activity) {
   const tickerItems = tickerSales.map((sale, index) => {
     const item = document.createElement('a');
     item.className = 'ticker-item';
+    if (index === 0 && (sale.id || sale.transactionHash) === newSaleId) item.classList.add('is-new-sale');
     item.href = sale.itemUrl;
     item.target = '_blank';
     item.rel = 'noopener noreferrer';
@@ -96,6 +100,15 @@ function renderActivity(activity) {
     return item;
   });
   tickerTrack.replaceChildren(...tickerItems);
+}
+
+function announceNewSale(saleId) {
+  if (!salesTicker || !saleId) return;
+  salesTicker.classList.remove('has-breaking-sale');
+  void salesTicker.offsetWidth;
+  salesTicker.classList.add('has-breaking-sale');
+  clearTimeout(breakingSaleTimer);
+  breakingSaleTimer = setTimeout(() => salesTicker.classList.remove('has-breaking-sale'), 12000);
 }
 
 async function refreshMarketData() {
@@ -121,7 +134,14 @@ async function refreshMarketData() {
     statElements.supply.textContent = `of ${Number(stats.totalSupply).toLocaleString('en-US')} rares`;
   }
 
-  if (activityResult.status === 'fulfilled') renderActivity(activityResult.value.activity);
+  if (activityResult.status === 'fulfilled') {
+    const activity = activityResult.value.activity;
+    const currentSaleId = activity[0]?.id || activity[0]?.transactionHash || null;
+    const newSaleId = latestSaleId && currentSaleId !== latestSaleId ? currentSaleId : null;
+    renderActivity(activity, newSaleId);
+    if (newSaleId) announceNewSale(newSaleId);
+    latestSaleId = currentSaleId;
+  }
 
   if (statsResult.status === 'fulfilled' || activityResult.status === 'fulfilled') {
     const updatedAt = activityResult.status === 'fulfilled' ? activityResult.value.updatedAt : statsResult.value.updatedAt;
@@ -137,4 +157,4 @@ async function refreshMarketData() {
 refreshMarketData();
 setInterval(() => {
   if (!document.hidden) refreshMarketData();
-}, 60000);
+}, 20000);
