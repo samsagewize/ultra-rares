@@ -26,6 +26,7 @@ contract RareNftClaimVault {
     uint256 public configuredRewardsTotal;
     bool public allocationsLocked;
     bool public claimingEnabled;
+    uint256 public claimDeadline;
     uint256 private locked = 1;
 
     mapping(uint256 tokenId => uint256 amount) private tokenReward;
@@ -41,6 +42,8 @@ contract RareNftClaimVault {
     error AllocationsNotLocked();
     error ClaimsAlreadyEnabled();
     error ClaimsNotEnabled();
+    error ClaimWindowClosed();
+    error ClaimWindowStillOpen();
     error AlreadyClaimed(uint256 tokenId);
     error NoReward(uint256 tokenId);
     error InsufficientInventory();
@@ -54,8 +57,10 @@ contract RareNftClaimVault {
     event TokenRewardUpdated(uint256 indexed tokenId, uint256 amount);
     event AllocationsLocked();
     event ClaimsEnabled();
+    event ClaimDeadlineSet(uint256 deadline);
     event RareClaimed(address indexed holder, uint256 indexed tokenId, uint256 amount);
     event PreLaunchWithdrawal(address indexed recipient, uint256 amount);
+    event PostClaimWithdrawal(address indexed recipient, uint256 amount);
     event OwnershipTransferStarted(address indexed previousOwner, address indexed pendingOwner);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -127,6 +132,7 @@ contract RareNftClaimVault {
 
     function claimable(uint256 tokenId, address holder) external view returns (uint256 amount) {
         if (collection.totalSupply() != eligibleSupply) return 0;
+        if (claimDeadline != 0 && block.timestamp >= claimDeadline) return 0;
         if (!claimingEnabled || claimed[tokenId] || collection.ownerOf(tokenId) != holder) return 0;
         return rewardFor(tokenId);
     }
@@ -137,19 +143,22 @@ contract RareNftClaimVault {
         emit AllocationsLocked();
     }
 
-    /// @notice Irreversibly opens claims and permanently disables owner withdrawals.
-    function enableClaimsForever() external onlyOwner {
+    /// @notice Irreversibly opens a 30-day claim window.
+    function enableClaims() external onlyOwner {
         if (!allocationsLocked) revert AllocationsNotLocked();
         if (claimingEnabled) revert ClaimsAlreadyEnabled();
         uint256 required = requiredInventory();
         if (required == 0) revert InvalidAmount();
         if (rareToken.balanceOf(address(this)) < required) revert InsufficientInventory();
         claimingEnabled = true;
+        claimDeadline = block.timestamp + 30 days;
+        emit ClaimDeadlineSet(claimDeadline);
         emit ClaimsEnabled();
     }
 
     function claim(uint256[] calldata tokenIds) external nonReentrant returns (uint256 totalAmount) {
         if (!claimingEnabled) revert ClaimsNotEnabled();
+        if (block.timestamp >= claimDeadline) revert ClaimWindowClosed();
         uint256 currentSupply = collection.totalSupply();
         if (currentSupply != eligibleSupply) revert CollectionSupplyChanged(currentSupply);
         uint256 length = tokenIds.length;
@@ -176,6 +185,17 @@ contract RareNftClaimVault {
         if (recipient == address(0) || amount == 0) revert InvalidAmount();
         _safeTransfer(recipient, amount);
         emit PreLaunchWithdrawal(recipient, amount);
+    }
+
+    /// @notice Recovers unclaimed RARE only after the 30-day claim window has ended.
+    function withdrawAfterDeadline(address recipient) external onlyOwner nonReentrant returns (uint256 amount) {
+        if (!claimingEnabled) revert ClaimsNotEnabled();
+        if (block.timestamp < claimDeadline) revert ClaimWindowStillOpen();
+        if (recipient == address(0)) revert ZeroAddress();
+        amount = rareToken.balanceOf(address(this));
+        if (amount == 0) revert InvalidAmount();
+        _safeTransfer(recipient, amount);
+        emit PostClaimWithdrawal(recipient, amount);
     }
 
     function transferOwnership(address newOwner) external onlyOwner {

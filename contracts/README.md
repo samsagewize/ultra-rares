@@ -37,7 +37,7 @@ This is prototype code, not audited production code.
 
 ## Inventory-backed NFT claim vault
 
-`RareNftClaimVault.sol` is the claim contract for the already-deployed RARE token. It does not mint tokens. The owner explicitly approves and deposits RARE inventory, configures a default amount per NFT plus optional token-specific overrides, locks the allocation schedule, and irreversibly enables claims.
+`RareNftClaimVault.sol` is the claim contract for the already-deployed RARE token. It does not mint tokens. The owner explicitly approves and deposits RARE inventory, configures a default amount per NFT plus optional token-specific overrides, locks the allocation schedule, and starts a fixed 30-day claim window.
 
 Each Ultra Rares token ID can claim once. Ownership is checked at claim time, so the connected wallet must still own the NFT. Claim state follows the NFT token ID rather than a wallet, preventing a transferred NFT from claiming twice.
 
@@ -60,7 +60,8 @@ Recommended launch order:
 3. Approve only the exact RARE funding amount, then call `fund`.
 4. Reconcile vault inventory against the complete allocation schedule.
 5. Call `lockAllocations` only after review.
-6. Call `enableClaimsForever` only after an independent security review. This permanently disables owner withdrawals.
+6. Call `enableClaims` only after an independent security review. This starts an exact 30-day claim window that cannot be extended.
+7. After the deadline, the administrator may call `withdrawAfterDeadline(recipient)` to recover all unclaimed RARE. Claims cannot be made after the deadline.
 
 Current equal allocation plan (RARE uses 18 decimals):
 

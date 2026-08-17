@@ -14,6 +14,7 @@ const buttons = {
   fund: document.querySelector('[data-fund-vault]'),
   lock: document.querySelector('[data-lock-vault]'),
   enable: document.querySelector('[data-enable-claims]'),
+  withdraw: document.querySelector('[data-withdraw-remainder]'),
 };
 const status = document.querySelector('[data-admin-status]');
 const output = document.querySelector('[data-vault-output]');
@@ -61,8 +62,9 @@ function showVault() {
   if (!vault) return;
   output.hidden = false;
   addressOutput.textContent = vault;
-  buttons.reward.disabled = false;
-  buttons.approve.disabled = false;
+    buttons.reward.disabled = false;
+    buttons.approve.disabled = false;
+    buttons.withdraw.disabled = false;
 }
 
 buttons.connect.addEventListener('click', async () => {
@@ -115,9 +117,15 @@ buttons.lock.addEventListener('click', async () => {
 });
 
 buttons.enable.addEventListener('click', async () => {
-  if (!confirm('Permanently open claims? Administrator withdrawals will be disabled forever.')) return;
-  try { await send(vault, callData('enableClaimsForever()'), 'Open claims'); buttons.enable.disabled = true; }
+  if (!confirm('Start the 30-day claim window now? The deadline cannot be extended.')) return;
+  try { await send(vault, callData('enableClaims()'), 'Open claims'); buttons.enable.disabled = true; }
   catch (error) { setStatus(error.message || 'Opening claims failed.'); }
+});
+
+buttons.withdraw.addEventListener('click', async () => {
+  if (!confirm('Withdraw all unclaimed RARE to the administrator wallet? This works only after the 30-day deadline.')) return;
+  try { await send(vault, callData('withdrawAfterDeadline(address)', [addressWord(ADMIN)]), 'Withdraw remainder'); }
+  catch (error) { setStatus(error.message || 'The claim window may still be open, or no RARE remains.'); }
 });
 
 document.querySelector('[data-copy-vault]').addEventListener('click', async () => {

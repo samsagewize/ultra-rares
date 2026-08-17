@@ -32,7 +32,8 @@
         <button type="button" data-approve-funding disabled>4. Approve exact funding</button>
         <button type="button" data-fund-vault disabled>5. Deposit 27,691,860 RARE</button>
         <button type="button" data-lock-vault disabled>6. Lock allocations</button>
-        <button type="button" class="danger-step" data-enable-claims disabled>7. Permanently open claims</button>
+        <button type="button" class="danger-step" data-enable-claims disabled>7. Open 30-day claims</button>
+        <button type="button" data-withdraw-remainder disabled>After 30 days: withdraw remainder</button>
         <div class="claim-status" data-admin-status role="status" aria-live="polite">Connect only with the configured administrator wallet.</div>
         <div class="vault-address-output" data-vault-output hidden>
           <span>Deployed vault</span><code data-deployed-vault></code>
@@ -42,7 +43,7 @@
       <section class="request-notes">
         <p><strong>Never share secrets</strong><span>This page never asks for a seed phrase or private key.</span></p>
         <p><strong>Test first</strong><span>Deployment is irreversible. Independent review is recommended before funding.</span></p>
-        <p><strong>Final step</strong><span>Opening claims permanently disables administrator withdrawals.</span></p>
+        <p><strong>Final step</strong><span>Opening starts an exact 30-day window. After it closes, the administrator can recover unclaimed RARE.</span></p>
       </section>
     </main>
     <script src="vault-admin.js"></script>
