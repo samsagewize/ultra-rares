@@ -20,12 +20,6 @@
     </header>
 
     <main class="rare-main">
-      <section class="rare-token-intro" aria-labelledby="rare-title">
-        <p class="eyebrow">For Ultra Rares holders / Robinhood Chain</p>
-        <h1 id="rare-title">Check<br />$RARE.</h1>
-        <p class="rare-token-copy">Paste a wallet to see whether it is on the current Ultra Rares holder list and marked for $RARE.</p>
-      </section>
-
       <section class="rare-chart" aria-labelledby="rare-chart-title">
         <div class="rare-chart-heading">
           <div>
@@ -66,34 +60,6 @@
           <div class="goal-scale"><span>$0</span><strong>$1M goal</strong></div>
         </div>
 
-        <form class="rare-request-form roadmap-request" data-rare-check novalidate>
-          <p class="eyebrow" id="request-title">Holder checker</p>
-          <label for="wallet-address">Wallet address</label>
-          <div class="wallet-entry">
-            <input id="wallet-address" name="wallet" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x…" aria-describedby="wallet-help" required />
-            <button type="submit">Check wallet ↗</button>
-          </div>
-          <p id="wallet-help">Use the Robinhood Chain wallet that currently holds your Ultra Rare NFT.</p>
-          <div class="request-result" data-check-result role="status" aria-live="polite"></div>
-        </form>
-
-        <div class="claim-vault" data-claim-vault data-vault-address="">
-          <div class="claim-vault-heading">
-            <p class="eyebrow">Onchain claim vault</p>
-            <h2>Connect.<br />Check. Claim.</h2>
-            <p>Each eligible Ultra Rare token ID can claim its configured `$RARE` allocation once from the funded vault.</p>
-          </div>
-          <div class="claim-vault-controls">
-            <p class="vault-state" data-vault-state>Vault contract ready for deployment · claims not live yet</p>
-            <button type="button" class="connect-wallet" data-connect-wallet>Connect wallet</button>
-            <button type="button" data-find-owned disabled>Find all my Ultra Rares</button>
-            <label for="claim-token-ids">Your Ultra Rare token IDs</label>
-            <input id="claim-token-ids" type="text" inputmode="numeric" placeholder="Example: 78, 101, 420" data-claim-token-ids disabled />
-            <button type="button" class="claim-rare" data-claim-rare disabled>Claim all selected $RARE</button>
-            <p class="claim-status" data-claim-status role="status" aria-live="polite">Deploy and fund the vault before enabling claims.</p>
-          </div>
-        </div>
-
         <div class="milestone-grid" aria-label="RARE distribution milestones">
           <div class="dex-milestone"><span>DEX milestone</span><strong>$70K</strong><small>DEX payment will be made</small></div>
           <div><span>Distribution 01</span><strong>$100K</strong></div>
@@ -101,17 +67,6 @@
         <p class="roadmap-disclaimer">Market-cap data is supplied by a third-party DEX feed and can change quickly. Milestones describe the project roadmap, not a promise of token value or returns.</p>
       </section>
 
-      <section class="rare-request-panel" aria-label="RARE token and holder tools">
-        <div class="token-contract">
-          <p class="eyebrow">Official RARE token</p>
-          <code>0x1d522a4c3e1f3d97b585903474b2544cf9feeffb</code>
-          <div class="token-actions">
-            <button type="button" data-copy-contract>Copy contract</button>
-            <a href="https://robinhoodchain.blockscout.com/token/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb" target="_blank" rel="noopener noreferrer">View on explorer ↗</a>
-          </div>
-        </div>
-
-      </section>
     </main>
 
     <footer>
@@ -119,6 +74,5 @@
       <p><a href="index.html">Back to the collection ↗</a></p>
     </footer>
     <script src="rare.js"></script>
-    <script src="vault.js"></script>
   </body>
 </html>
