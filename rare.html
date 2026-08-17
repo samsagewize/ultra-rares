@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Request RARE tokens as an Ultra Rares holder." />
+    <meta name="description" content="Check whether an Ultra Rares holder wallet is marked for RARE." />
     <title>$RARE — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
     <link rel="stylesheet" href="styles.css" />
@@ -22,8 +22,8 @@
     <main class="rare-main">
       <section class="rare-token-intro" aria-labelledby="rare-title">
         <p class="eyebrow">For Ultra Rares holders / Robinhood Chain</p>
-        <h1 id="rare-title">Request<br />$RARE.</h1>
-        <p class="rare-token-copy">Paste the wallet holding your Ultra Rare. We’ll check ownership onchain and create your token request.</p>
+        <h1 id="rare-title">Check<br />$RARE.</h1>
+        <p class="rare-token-copy">Paste a wallet to see whether it is on the current Ultra Rares holder list and marked for $RARE.</p>
       </section>
 
       <section class="rare-roadmap" aria-labelledby="roadmap-title">
@@ -46,15 +46,15 @@
           <div class="goal-scale"><span>$0</span><strong>$1M goal</strong></div>
         </div>
 
-        <form class="rare-request-form roadmap-request" data-rare-request novalidate>
-          <p class="eyebrow" id="request-title">Holder request</p>
+        <form class="rare-request-form roadmap-request" data-rare-check novalidate>
+          <p class="eyebrow" id="request-title">Holder checker</p>
           <label for="wallet-address">Wallet address</label>
           <div class="wallet-entry">
             <input id="wallet-address" name="wallet" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x…" aria-describedby="wallet-help" required />
-            <button type="submit">Request RARE ↗</button>
+            <button type="submit">Check wallet ↗</button>
           </div>
           <p id="wallet-help">Use the Robinhood Chain wallet that currently holds your Ultra Rare NFT.</p>
-          <div class="request-result" data-request-result role="status" aria-live="polite"></div>
+          <div class="request-result" data-check-result role="status" aria-live="polite"></div>
         </form>
 
         <div class="milestone-grid" aria-label="RARE distribution milestones">
@@ -94,8 +94,8 @@
         </div>
 
         <div class="request-notes">
-          <p><strong>Holder check</strong><span>Your NFT balance is checked directly on Robinhood Chain.</span></p>
-          <p><strong>Manual review</strong><span>A request does not automatically transfer tokens or guarantee an allocation.</span></p>
+          <p><strong>Live holder check</strong><span>Your NFT balance is checked directly on Robinhood Chain.</span></p>
+          <p><strong>Marked status</strong><span>Status is based on current ownership and can change if the NFT moves to another wallet.</span></p>
           <p><strong>Stay safe</strong><span>Never enter a seed phrase or private key. This form only asks for a public wallet address.</span></p>
         </div>
       </section>

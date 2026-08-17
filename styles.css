@@ -728,6 +728,7 @@ footer {
 .request-result:empty { padding: 0; }
 .request-result.is-success { border-color: var(--ink); color: var(--acid); background: var(--ink); }
 .request-result.is-error { border-color: var(--ink); background: var(--acid); }
+.request-result strong { font-size: clamp(16px, 2vw, 25px); letter-spacing: -.02em; }
 .request-notes { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 9vh; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
 .request-notes p { display: flex; flex-direction: column; gap: 13px; margin: 0; padding: 24px; border-right: 3px solid var(--ink); }
 .request-notes p:last-child { border-right: 0; }

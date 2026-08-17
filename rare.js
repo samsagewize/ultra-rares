@@ -1,5 +1,5 @@
-const requestForm = document.querySelector('[data-rare-request]');
-const result = document.querySelector('[data-request-result]');
+const requestForm = document.querySelector('[data-rare-check]');
+const result = document.querySelector('[data-check-result]');
 const walletInput = document.querySelector('#wallet-address');
 const copyContractButton = document.querySelector('[data-copy-contract]');
 const copyHoldersButton = document.querySelector('[data-copy-holders]');
@@ -71,32 +71,33 @@ requestForm.addEventListener('submit', async (event) => {
 
   const submitButton = requestForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
-  submitButton.textContent = 'Checking holder…';
+  submitButton.textContent = 'Checking wallet…';
   result.textContent = 'Checking this wallet on Robinhood Chain…';
 
   try {
-    const response = await fetch('/api/rare-request', {
+    const response = await fetch('/api/rare-check', {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ wallet }),
     });
     const payload = await response.json();
-    if (!response.ok) throw new Error(payload.error || 'Request could not be submitted');
+    if (!response.ok) throw new Error(payload.error || 'Wallet could not be checked');
 
     result.innerHTML = '';
     const heading = document.createElement('strong');
-    heading.textContent = 'Request received.';
+    heading.textContent = payload.marked ? '✓ You are marked for $RARE' : 'Not marked for $RARE';
     const details = document.createElement('span');
-    details.textContent = ` ${payload.nftBalance} Ultra Rare${payload.nftBalance === 1 ? '' : 's'} verified · Request ${payload.requestId}`;
+    details.textContent = payload.marked
+      ? ` · ${payload.nftBalance} Ultra Rare${payload.nftBalance === 1 ? '' : 's'} verified in this wallet.`
+      : ' · No Ultra Rare NFT was found in this wallet.';
     result.append(heading, details);
-    result.classList.add('is-success');
-    requestForm.reset();
+    result.classList.add(payload.marked ? 'is-success' : 'is-error');
   } catch (error) {
     result.textContent = error.message;
     result.classList.add('is-error');
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = 'Request RARE ↗';
+    submitButton.textContent = 'Check wallet ↗';
   }
 });
 
