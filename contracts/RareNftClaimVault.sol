@@ -9,6 +9,7 @@ interface IERC20ClaimToken {
 
 interface IERC721ClaimCollection {
     function ownerOf(uint256 tokenId) external view returns (address);
+    function totalSupply() external view returns (uint256);
 }
 
 /// @title Ultra Rares NFT Claim Vault
@@ -17,9 +18,12 @@ interface IERC721ClaimCollection {
 contract RareNftClaimVault {
     IERC721ClaimCollection public immutable collection;
     IERC20ClaimToken public immutable rareToken;
+    uint256 public immutable eligibleSupply;
     address public owner;
     address public pendingOwner;
     uint256 public defaultRewardPerNft;
+    uint256 public configuredRewardCount;
+    uint256 public configuredRewardsTotal;
     bool public allocationsLocked;
     bool public claimingEnabled;
     uint256 private locked = 1;
@@ -40,6 +44,8 @@ contract RareNftClaimVault {
     error AlreadyClaimed(uint256 tokenId);
     error NoReward(uint256 tokenId);
     error InsufficientInventory();
+    error UnsupportedCollectionSupply(uint256 actualSupply);
+    error CollectionSupplyChanged(uint256 actualSupply);
     error TransferFailed();
     error Reentrancy();
 
@@ -69,14 +75,20 @@ contract RareNftClaimVault {
         if (collection_ == address(0) || rareToken_ == address(0) || owner_ == address(0)) revert ZeroAddress();
         collection = IERC721ClaimCollection(collection_);
         rareToken = IERC20ClaimToken(rareToken_);
+        uint256 supply = IERC721ClaimCollection(collection_).totalSupply();
+        if (supply != 420) revert UnsupportedCollectionSupply(supply);
+        eligibleSupply = supply;
         owner = owner_;
         emit OwnershipTransferred(address(0), owner_);
     }
 
     function fund(uint256 amount) external nonReentrant {
         if (amount == 0) revert InvalidAmount();
+        uint256 balanceBefore = rareToken.balanceOf(address(this));
         _safeTransferFrom(msg.sender, address(this), amount);
-        emit VaultFunded(msg.sender, amount);
+        uint256 received = rareToken.balanceOf(address(this)) - balanceBefore;
+        if (received == 0) revert InvalidAmount();
+        emit VaultFunded(msg.sender, received);
     }
 
     function setDefaultReward(uint256 amount) external onlyOwner {
@@ -90,10 +102,23 @@ contract RareNftClaimVault {
         uint256 length = tokenIds.length;
         if (length == 0 || length != amounts.length || length > 420) revert InvalidBatch();
         for (uint256 i; i < length; ++i) {
-            tokenRewardConfigured[tokenIds[i]] = true;
-            tokenReward[tokenIds[i]] = amounts[i];
-            emit TokenRewardUpdated(tokenIds[i], amounts[i]);
+            uint256 tokenId = tokenIds[i];
+            collection.ownerOf(tokenId); // Reverts if the token does not exist.
+            if (tokenRewardConfigured[tokenId]) {
+                configuredRewardsTotal -= tokenReward[tokenId];
+            } else {
+                tokenRewardConfigured[tokenId] = true;
+                configuredRewardCount += 1;
+            }
+            tokenReward[tokenId] = amounts[i];
+            configuredRewardsTotal += amounts[i];
+            emit TokenRewardUpdated(tokenId, amounts[i]);
         }
+    }
+
+    /// @notice Exact inventory needed to cover every NFT allocation.
+    function requiredInventory() public view returns (uint256) {
+        return defaultRewardPerNft * (eligibleSupply - configuredRewardCount) + configuredRewardsTotal;
     }
 
     function rewardFor(uint256 tokenId) public view returns (uint256) {
@@ -101,6 +126,7 @@ contract RareNftClaimVault {
     }
 
     function claimable(uint256 tokenId, address holder) external view returns (uint256 amount) {
+        if (collection.totalSupply() != eligibleSupply) return 0;
         if (!claimingEnabled || claimed[tokenId] || collection.ownerOf(tokenId) != holder) return 0;
         return rewardFor(tokenId);
     }
@@ -115,12 +141,17 @@ contract RareNftClaimVault {
     function enableClaimsForever() external onlyOwner {
         if (!allocationsLocked) revert AllocationsNotLocked();
         if (claimingEnabled) revert ClaimsAlreadyEnabled();
+        uint256 required = requiredInventory();
+        if (required == 0) revert InvalidAmount();
+        if (rareToken.balanceOf(address(this)) < required) revert InsufficientInventory();
         claimingEnabled = true;
         emit ClaimsEnabled();
     }
 
     function claim(uint256[] calldata tokenIds) external nonReentrant returns (uint256 totalAmount) {
         if (!claimingEnabled) revert ClaimsNotEnabled();
+        uint256 currentSupply = collection.totalSupply();
+        if (currentSupply != eligibleSupply) revert CollectionSupplyChanged(currentSupply);
         uint256 length = tokenIds.length;
         if (length == 0 || length > 50) revert InvalidBatch();
 

@@ -56,6 +56,15 @@ Recommended launch order:
 5. Call `lockAllocations` only after review.
 6. Call `enableClaimsForever` only after an independent security review. This permanently disables owner withdrawals.
 
+Current equal allocation plan (RARE uses 18 decimals):
+
+- Eligible NFT supply: `420`
+- Reward per NFT: `65,933 RARE` (`65933000000000000000000` base units)
+- Exact required vault inventory: `27,691,860 RARE` (`27691860000000000000000000` base units)
+- Tokens remaining from the stated `27,691,955 RARE` balance: `95 RARE`
+
+The contract reads `totalSupply()` during deployment and refuses any collection whose supply is not exactly 420. Claims also stop if that supply later changes, preventing newly minted IDs from consuming the original holders' allocation. It validates every token-specific override against `ownerOf`, accounts for the amount actually received when funding, exposes `requiredInventory()`, and refuses to enable claims unless the vault can cover every configured allocation. A direct ERC-20 transfer to the vault is recognized as inventory, but the recommended funding flow is an exact approval followed by `fund(amount)` so the deposit emits a dedicated event.
+
 ## Reward Vault and RARE token
 
 `UltraRaresToken.sol` contains the fixed-cap `RareToken` ERC-20. Its public name is **Rare Token** and its symbol is **RARE**. Transfers begin disabled and can only be enabled irreversibly by the owner after separate legal and security review. The configured Reward Vault alone can mint or burn tokens.
