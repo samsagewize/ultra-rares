@@ -45,7 +45,13 @@ Mainnet constructor configuration:
 
 - Ultra Rares NFT: `0x923aaaa62c12505b1bbb57ed52b730d6462c01c5`
 - RARE token: `0x1d522a4c3e1f3d97b585903474b2544cf9feeffb`
-- Owner: use a multisig or dedicated project-admin wallet
+- Vault administrator: `0x562F6ac10723ef6AF9F077A83cF25135FB369612`
+
+Exact constructor argument order:
+
+1. `collection_`: `0x923aaaa62c12505b1bbb57ed52b730d6462c01c5`
+2. `rareToken_`: `0x1d522a4c3e1f3d97b585903474b2544cf9feeffb`
+3. `owner_`: `0x562F6ac10723ef6AF9F077A83cF25135FB369612`
 
 Recommended launch order:
 
