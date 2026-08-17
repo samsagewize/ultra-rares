@@ -185,6 +185,7 @@ button { font: inherit; text-transform: inherit; }
 
 @keyframes ticker-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
 @keyframes sale-pop { from { transform: scale(.82); opacity: .2; } to { transform: scale(1); opacity: 1; } }
+@keyframes mystery-drift { 0%, 100% { transform: rotate(8deg) translateY(0); opacity: .2; } 50% { transform: rotate(5deg) translateY(18px); opacity: .32; } }
 
 .wordmark {
   display: block;
@@ -730,8 +731,11 @@ footer {
 
 .rare-token-intro h1 { max-width: none; margin: 20px 0 30px; }
 .rare-token-copy { max-width: 660px; margin: 0; font-size: clamp(18px, 2.2vw, 34px); font-weight: 900; line-height: 1; letter-spacing: -.045em; }
-.rare-roadmap { padding: 11vh 6vw; color: var(--acid); background: var(--ink); }
-.roadmap-heading { display: grid; grid-template-columns: .75fr 1.25fr; gap: 5vw; align-items: end; }
+.rare-roadmap { position: relative; isolation: isolate; overflow: hidden; padding: 11vh 6vw; color: var(--acid); background: var(--ink); }
+.roadmap-heading { position: relative; z-index: 1; display: grid; grid-template-columns: .75fr 1.25fr; gap: 5vw; align-items: end; }
+.roadmap-mystery { position: absolute; z-index: 0; top: -9vw; right: -4vw; width: clamp(280px, 42vw, 680px); aspect-ratio: 1; border: 5px solid var(--acid); border-radius: 50%; overflow: hidden; opacity: .24; filter: contrast(1.4); transform: rotate(8deg); animation: mystery-drift 7s ease-in-out infinite; }
+.roadmap-mystery img { width: 100%; height: 100%; object-fit: cover; }
+.rare-roadmap .market-goal, .rare-roadmap .milestone-grid, .rare-roadmap > .roadmap-disclaimer { position: relative; z-index: 1; }
 .roadmap-heading .eyebrow { align-self: start; }
 .roadmap-heading h2 { margin: 0; font-size: clamp(62px, 9vw, 142px); line-height: .78; letter-spacing: -.085em; }
 .roadmap-heading > p:last-child { grid-column: 2; max-width: 680px; margin: 20px 0 0; font-size: clamp(17px, 2vw, 29px); font-weight: 900; line-height: 1; letter-spacing: -.035em; }
