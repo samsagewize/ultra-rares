@@ -63,6 +63,8 @@ button { font: inherit; text-transform: inherit; }
 .stats-rail-values > div:first-child { border-top: 3px solid var(--ink); }
 .stats-rail-values span, .stats-rail-values small { font-size: 8px; font-weight: 900; letter-spacing: .12em; }
 .stats-rail-values strong { margin: 12px 0 8px; font-size: clamp(28px, 2.5vw, 44px); line-height: .9; letter-spacing: -.055em; overflow-wrap: anywhere; }
+.stats-rail-club { display: flex; align-items: baseline; justify-content: center; gap: 6px; padding: 13px 8px; color: var(--acid); background: var(--ink); font-size: 8px; font-weight: 900; letter-spacing: .1em; white-space: nowrap; }
+.stats-rail-club strong { font-size: 25px; line-height: .8; letter-spacing: -.05em; }
 .stats-rail .live-status { align-self: auto; margin: 0; border: 0; border-top: 3px solid var(--ink); border-radius: 0; padding: 15px 13px; font-size: 7px; white-space: normal; }
 
 .sales-ticker {
@@ -636,6 +638,8 @@ footer {
   .stats-rail-values { display: grid; grid-template-columns: repeat(3, 1fr); }
   .stats-rail-values > div { min-height: 130px; border-top: 3px solid var(--ink); border-right: 3px solid var(--ink); border-bottom: 0; }
   .stats-rail-values > div:last-child { border-right: 0; }
+  .stats-rail-club { padding: 15px; font-size: 10px; }
+  .stats-rail-club strong { font-size: 30px; }
   .stats-rail .live-status { text-align: center; }
 }
 
