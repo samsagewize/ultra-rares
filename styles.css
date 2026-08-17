@@ -676,6 +676,28 @@ footer {
 
 .rare-token-intro h1 { max-width: none; margin: 20px 0 30px; }
 .rare-token-copy { max-width: 660px; margin: 0; font-size: clamp(18px, 2.2vw, 34px); font-weight: 900; line-height: 1; letter-spacing: -.045em; }
+.rare-roadmap { padding: 11vh 6vw; color: var(--acid); background: var(--ink); }
+.roadmap-heading { display: grid; grid-template-columns: .75fr 1.25fr; gap: 5vw; align-items: end; }
+.roadmap-heading .eyebrow { align-self: start; }
+.roadmap-heading h2 { margin: 0; font-size: clamp(62px, 9vw, 142px); line-height: .78; letter-spacing: -.085em; }
+.roadmap-heading > p:last-child { grid-column: 2; max-width: 680px; margin: 20px 0 0; font-size: clamp(17px, 2vw, 29px); font-weight: 900; line-height: 1; letter-spacing: -.035em; }
+.market-goal { margin-top: 9vh; }
+.market-goal-now { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding-bottom: 16px; }
+.market-goal-now span, .market-goal-now small { font-size: 8px; font-weight: 900; letter-spacing: .12em; }
+.market-goal-now strong { margin-left: auto; font-size: clamp(26px, 4vw, 58px); letter-spacing: -.055em; }
+.goal-track { position: relative; height: 38px; border: 3px solid var(--acid); overflow: visible; }
+.goal-fill { width: 0; height: 100%; background: var(--acid); transition: width .8s cubic-bezier(.2,.7,.2,1); }
+.dex-marker { position: absolute; top: -13px; bottom: -13px; left: 7%; width: 3px; background: var(--paper); color: var(--paper); font-size: 7px; font-weight: 900; letter-spacing: .08em; white-space: nowrap; }
+.dex-marker b { position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%); }
+.dex-marker::after { content: "DEX"; position: absolute; top: calc(100% + 7px); left: 50%; transform: translateX(-50%); }
+.goal-scale { display: flex; justify-content: space-between; margin-top: 14px; font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+.milestone-grid { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 9vh; border-top: 3px solid var(--acid); border-left: 3px solid var(--acid); }
+.milestone-grid > div { display: flex; min-height: 150px; flex-direction: column; justify-content: space-between; padding: 20px; border-right: 3px solid var(--acid); border-bottom: 3px solid var(--acid); }
+.milestone-grid span, .milestone-grid small { font-size: 8px; font-weight: 900; letter-spacing: .1em; }
+.milestone-grid strong { font-size: clamp(28px, 4vw, 56px); letter-spacing: -.055em; }
+.milestone-grid .dex-milestone { color: var(--ink); background: var(--paper); border-color: var(--acid); }
+.milestone-grid .final-milestone { color: var(--ink); background: var(--acid); }
+.roadmap-disclaimer { max-width: 900px; margin: 30px 0 0 auto; font-size: 9px; font-weight: 800; line-height: 1.45; letter-spacing: .08em; text-align: right; }
 .rare-request-panel { padding: 10vh 6vw 14vh; background: var(--paper); }
 
 .token-contract { border-top: 4px solid var(--ink); border-bottom: 4px solid var(--ink); padding: 24px 0; }
@@ -703,6 +725,14 @@ footer {
 
 @media (max-width: 760px) {
   .rare-token-intro { min-height: 68svh; padding: 110px 24px 60px; }
+  .rare-roadmap { padding: 80px 24px; }
+  .roadmap-heading { grid-template-columns: 1fr; }
+  .roadmap-heading h2 { margin-top: 24px; }
+  .roadmap-heading > p:last-child { grid-column: 1; }
+  .market-goal-now { align-items: flex-start; flex-direction: column; }
+  .market-goal-now strong { margin-left: 0; }
+  .milestone-grid { grid-template-columns: repeat(2, 1fr); }
+  .roadmap-disclaimer { text-align: left; }
   .rare-request-panel { padding: 70px 24px 90px; }
   .wallet-entry { grid-template-columns: 1fr; }
   .wallet-entry button { min-height: 62px; border-top: 4px solid var(--ink); border-left: 0; }

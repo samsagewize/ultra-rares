@@ -4,6 +4,31 @@ const walletInput = document.querySelector('#wallet-address');
 const copyContractButton = document.querySelector('[data-copy-contract]');
 const contractAddress = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const addressPattern = /^0x[a-fA-F0-9]{40}$/;
+const marketCapElement = document.querySelector('[data-rare-market-cap]');
+const marketStatusElement = document.querySelector('[data-rare-market-status]');
+const goalFill = document.querySelector('[data-goal-fill]');
+
+const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
+
+async function refreshRareMarket() {
+  try {
+    const response = await fetch('/api/rare-market', { headers: { accept: 'application/json' } });
+    if (!response.ok) throw new Error('Market data unavailable');
+    const market = await response.json();
+    const progress = Math.min(100, Math.max(0, (market.marketCap / 1000000) * 100));
+    marketCapElement.textContent = formatMarketCap(market.marketCap);
+    marketStatusElement.textContent = `Live via DexScreener · ${market.liquidityUsd === null ? 'liquidity unavailable' : `${formatMarketCap(market.liquidityUsd)} liquidity`}`;
+    goalFill.style.width = `${progress}%`;
+  } catch {
+    marketCapElement.textContent = 'Live data unavailable';
+    marketStatusElement.textContent = 'The milestone roadmap remains active';
+    goalFill.style.width = '0%';
+  }
+}
 
 copyContractButton.addEventListener('click', async () => {
   await navigator.clipboard.writeText(contractAddress);
@@ -53,3 +78,8 @@ requestForm.addEventListener('submit', async (event) => {
     submitButton.textContent = 'Request RARE ↗';
   }
 });
+
+refreshRareMarket();
+window.setInterval(() => {
+  if (!document.hidden) refreshRareMarket();
+}, 60000);
