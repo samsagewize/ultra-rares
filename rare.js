@@ -2,6 +2,8 @@ const requestForm = document.querySelector('[data-rare-request]');
 const result = document.querySelector('[data-request-result]');
 const walletInput = document.querySelector('#wallet-address');
 const copyContractButton = document.querySelector('[data-copy-contract]');
+const copyHoldersButton = document.querySelector('[data-copy-holders]');
+const holderCopyStatus = document.querySelector('[data-holder-copy-status]');
 const contractAddress = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const addressPattern = /^0x[a-fA-F0-9]{40}$/;
 const marketCapElement = document.querySelector('[data-rare-market-cap]');
@@ -34,6 +36,25 @@ copyContractButton.addEventListener('click', async () => {
   await navigator.clipboard.writeText(contractAddress);
   copyContractButton.textContent = 'Copied!';
   window.setTimeout(() => { copyContractButton.textContent = 'Copy contract'; }, 1600);
+});
+
+copyHoldersButton.addEventListener('click', async () => {
+  copyHoldersButton.disabled = true;
+  copyHoldersButton.textContent = 'Loading holders…';
+  holderCopyStatus.textContent = '';
+  try {
+    const response = await fetch('/api/holder-addresses', { headers: { accept: 'application/json' } });
+    if (!response.ok) throw new Error('Holder list unavailable');
+    const payload = await response.json();
+    await navigator.clipboard.writeText(payload.addresses.join('\n'));
+    copyHoldersButton.textContent = `Copied ${payload.addresses.length} addresses!`;
+    holderCopyStatus.textContent = `Live snapshot · ${payload.totalNfts} NFTs across ${payload.addresses.length} wallets`;
+  } catch {
+    copyHoldersButton.textContent = 'Try copying again';
+    holderCopyStatus.textContent = 'The live holder list is temporarily unavailable.';
+  } finally {
+    copyHoldersButton.disabled = false;
+  }
 });
 
 requestForm.addEventListener('submit', async (event) => {

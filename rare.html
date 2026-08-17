@@ -46,6 +46,17 @@
           <div class="goal-scale"><span>$0</span><strong>$1M goal</strong></div>
         </div>
 
+        <form class="rare-request-form roadmap-request" data-rare-request novalidate>
+          <p class="eyebrow" id="request-title">Holder request</p>
+          <label for="wallet-address">Wallet address</label>
+          <div class="wallet-entry">
+            <input id="wallet-address" name="wallet" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x…" aria-describedby="wallet-help" required />
+            <button type="submit">Request RARE ↗</button>
+          </div>
+          <p id="wallet-help">Use the Robinhood Chain wallet that currently holds your Ultra Rare NFT.</p>
+          <div class="request-result" data-request-result role="status" aria-live="polite"></div>
+        </form>
+
         <div class="milestone-grid" aria-label="RARE distribution milestones">
           <div class="dex-milestone"><span>DEX milestone</span><strong>$70K</strong><small>DEX payment will be made</small></div>
           <div><span>Distribution 01</span><strong>$100K</strong></div>
@@ -62,7 +73,7 @@
         <p class="roadmap-disclaimer">Market-cap data is supplied by a third-party DEX feed and can change quickly. Milestones describe the project roadmap, not a promise of token value or returns.</p>
       </section>
 
-      <section class="rare-request-panel" aria-labelledby="request-title">
+      <section class="rare-request-panel" aria-label="RARE token and holder tools">
         <div class="token-contract">
           <p class="eyebrow">Official RARE token</p>
           <code>0x1d522a4c3e1f3d97b585903474b2544cf9feeffb</code>
@@ -72,16 +83,15 @@
           </div>
         </div>
 
-        <form class="rare-request-form" data-rare-request novalidate>
-          <p class="eyebrow" id="request-title">Holder request</p>
-          <label for="wallet-address">Wallet address</label>
-          <div class="wallet-entry">
-            <input id="wallet-address" name="wallet" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x…" aria-describedby="wallet-help" required />
-            <button type="submit">Request RARE ↗</button>
+        <div class="holder-copy-tool">
+          <div>
+            <p class="eyebrow">Current holder wallets</p>
+            <h2>Copy the<br />club.</h2>
+            <p>Copies one unique holder address per line from the live collection holder feed.</p>
           </div>
-          <p id="wallet-help">Use the Robinhood Chain wallet that currently holds your Ultra Rare NFT.</p>
-          <div class="request-result" data-request-result role="status" aria-live="polite"></div>
-        </form>
+          <button type="button" data-copy-holders>Copy all holder addresses</button>
+          <p data-holder-copy-status role="status" aria-live="polite"></p>
+        </div>
 
         <div class="request-notes">
           <p><strong>Holder check</strong><span>Your NFT balance is checked directly on Robinhood Chain.</span></p>
