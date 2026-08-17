@@ -35,6 +35,27 @@ The registry deliberately holds no ETH, ERC-20s, or NFTs. Reward funding and pay
 
 This is prototype code, not audited production code.
 
+## Inventory-backed NFT claim vault
+
+`RareNftClaimVault.sol` is the claim contract for the already-deployed RARE token. It does not mint tokens. The owner explicitly approves and deposits RARE inventory, configures a default amount per NFT plus optional token-specific overrides, locks the allocation schedule, and irreversibly enables claims.
+
+Each Ultra Rares token ID can claim once. Ownership is checked at claim time, so the connected wallet must still own the NFT. Claim state follows the NFT token ID rather than a wallet, preventing a transferred NFT from claiming twice.
+
+Mainnet constructor configuration:
+
+- Ultra Rares NFT: `0x923aaaa62c12505b1bbb57ed52b730d6462c01c5`
+- RARE token: `0x1d522a4c3e1f3d97b585903474b2544cf9feeffb`
+- Owner: use a multisig or dedicated project-admin wallet
+
+Recommended launch order:
+
+1. Deploy and verify the vault on Robinhood Chain.
+2. Set the default reward and any per-token overrides.
+3. Approve only the exact RARE funding amount, then call `fund`.
+4. Reconcile vault inventory against the complete allocation schedule.
+5. Call `lockAllocations` only after review.
+6. Call `enableClaimsForever` only after an independent security review. This permanently disables owner withdrawals.
+
 ## Reward Vault and RARE token
 
 `UltraRaresToken.sol` contains the fixed-cap `RareToken` ERC-20. Its public name is **Rare Token** and its symbol is **RARE**. Transfers begin disabled and can only be enabled irreversibly by the owner after separate legal and security review. The configured Reward Vault alone can mint or burn tokens.

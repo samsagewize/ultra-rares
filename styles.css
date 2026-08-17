@@ -703,6 +703,18 @@ footer {
 .roadmap-request .wallet-entry button { color: var(--ink); background: var(--acid); border-left-color: var(--acid); }
 .roadmap-request .request-result.is-success { border-color: var(--acid); color: var(--ink); background: var(--acid); }
 .roadmap-request .request-result.is-error { border-color: var(--acid); color: var(--ink); }
+.claim-vault { display: grid; grid-template-columns: .9fr 1.1fr; gap: 6vw; margin-top: 8vh; border-top: 3px solid var(--acid); border-bottom: 3px solid var(--acid); padding: 7vh 0; }
+.claim-vault-heading h2 { margin: 22px 0; font-size: clamp(52px, 7vw, 108px); line-height: .77; letter-spacing: -.08em; }
+.claim-vault-heading > p:last-child { max-width: 520px; margin: 0; font-size: 12px; font-weight: 800; line-height: 1.3; }
+.claim-vault-controls { align-self: center; display: flex; flex-direction: column; gap: 14px; }
+.claim-vault-controls label { margin-top: 12px; font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+.claim-vault-controls button, .claim-vault-controls input { min-height: 62px; border: 3px solid var(--acid); padding: 15px 18px; font: 900 11px Arial, Helvetica, sans-serif; letter-spacing: .08em; }
+.claim-vault-controls input { color: var(--acid); background: var(--ink); font-size: 18px; text-transform: none; }
+.claim-vault-controls button { color: var(--ink); background: var(--acid); cursor: pointer; text-transform: uppercase; }
+.claim-vault-controls button:disabled, .claim-vault-controls input:disabled { opacity: .45; cursor: not-allowed; }
+.vault-state, .claim-status { margin: 0; font-size: 9px; font-weight: 900; line-height: 1.35; letter-spacing: .08em; }
+.vault-state.is-pending::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #ff7657; }
+.claim-status a { border-bottom: 2px solid currentColor; }
 .rare-request-panel { padding: 10vh 6vw 14vh; background: var(--paper); }
 
 .token-contract { border-top: 4px solid var(--ink); border-bottom: 4px solid var(--ink); padding: 24px 0; }
@@ -745,6 +757,7 @@ footer {
   .market-goal-now strong { margin-left: 0; }
   .milestone-grid { grid-template-columns: repeat(2, 1fr); }
   .roadmap-disclaimer { text-align: left; }
+  .claim-vault { grid-template-columns: 1fr; }
   .rare-request-panel { padding: 70px 24px 90px; }
   .wallet-entry { grid-template-columns: 1fr; }
   .wallet-entry button { min-height: 62px; border-top: 4px solid var(--ink); border-left: 0; }

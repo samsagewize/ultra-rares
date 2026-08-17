@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import solc from 'solc';
 
-const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
+const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = {
   language: 'Solidity',
