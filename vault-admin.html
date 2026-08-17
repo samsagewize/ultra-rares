@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>RARE Vault Launch</title>
+    <link rel="icon" type="image/png" href="assets/banner-2.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="rare-page">
+    <header class="site-header">
+      <a class="wordmark" href="index.html"><img src="assets/banner-2.png" alt="Ultra Rares" /></a>
+      <nav><a class="nav-link" href="rare.html">Back to $RARE</a></nav>
+    </header>
+    <main class="rare-main vault-admin-main" data-vault-admin>
+      <section class="rare-token-intro">
+        <p class="eyebrow">Administrator launch console</p>
+        <h1>RARE<br />vault.</h1>
+        <p class="rare-token-copy">Every step is a separate wallet transaction. Review the address and amount before confirming.</p>
+      </section>
+      <section class="vault-launch-panel">
+        <div class="vault-launch-summary">
+          <p><span>Administrator</span><code>0x562F6ac10723ef6AF9F077A83cF25135FB369612</code></p>
+          <p><span>Allocation</span><strong>65,933 RARE × 420</strong></p>
+          <p><span>Required inventory</span><strong>27,691,860 RARE</strong></p>
+          <p><span>Network</span><strong>Robinhood Chain · 4663</strong></p>
+        </div>
+        <button type="button" data-admin-connect>1. Connect administrator wallet</button>
+        <button type="button" data-deploy-vault disabled>2. Deploy vault</button>
+        <button type="button" data-set-reward disabled>3. Set 65,933 RARE per NFT</button>
+        <button type="button" data-approve-funding disabled>4. Approve exact funding</button>
+        <button type="button" data-fund-vault disabled>5. Deposit 27,691,860 RARE</button>
+        <button type="button" data-lock-vault disabled>6. Lock allocations</button>
+        <button type="button" class="danger-step" data-enable-claims disabled>7. Permanently open claims</button>
+        <div class="claim-status" data-admin-status role="status" aria-live="polite">Connect only with the configured administrator wallet.</div>
+        <div class="vault-address-output" data-vault-output hidden>
+          <span>Deployed vault</span><code data-deployed-vault></code>
+          <button type="button" data-copy-vault>Copy vault address</button>
+        </div>
+      </section>
+      <section class="request-notes">
+        <p><strong>Never share secrets</strong><span>This page never asks for a seed phrase or private key.</span></p>
+        <p><strong>Test first</strong><span>Deployment is irreversible. Independent review is recommended before funding.</span></p>
+        <p><strong>Final step</strong><span>Opening claims permanently disables administrator withdrawals.</span></p>
+      </section>
+    </main>
+    <script src="vault-admin.js"></script>
+  </body>
+</html>

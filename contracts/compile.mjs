@@ -9,7 +9,7 @@ const input = {
   settings: {
     evmVersion: 'shanghai',
     optimizer: { enabled: true, runs: 200 },
-    outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object'] } }
+    outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object', 'evm.methodIdentifiers'] } }
   }
 };
 const output = JSON.parse(solc.compile(JSON.stringify(input)));
@@ -22,3 +22,15 @@ for (const [file, contracts] of Object.entries(output.contracts)) {
     console.log(`${file}:${name} — ABI ${artifact.abi.length} entries, bytecode ${artifact.evm.bytecode.object.length / 2} bytes`);
   }
 }
+
+const vault = output.contracts['RareNftClaimVault.sol'].RareNftClaimVault;
+fs.mkdirSync(new URL('../assets/', import.meta.url), { recursive: true });
+fs.writeFileSync(
+  new URL('../assets/RareNftClaimVault.json', import.meta.url),
+  JSON.stringify({
+    contractName: 'RareNftClaimVault',
+    abi: vault.abi,
+    bytecode: `0x${vault.evm.bytecode.object}`,
+    methodIdentifiers: vault.evm.methodIdentifiers,
+  }, null, 2),
+);

@@ -6,6 +6,23 @@
   --stats-width: 210px;
 }
 
+.vault-admin-main { max-width: 1100px; margin-inline: auto; }
+.vault-launch-panel { background: #000; color: var(--acid, #b6ff00); padding: clamp(24px, 5vw, 64px); display: grid; gap: 12px; }
+.vault-launch-summary { display: grid; gap: 1px; margin-bottom: 20px; }
+.vault-launch-summary p { display: grid; grid-template-columns: minmax(130px, .7fr) 1.3fr; gap: 16px; border-bottom: 1px solid currentColor; padding: 13px 0; margin: 0; }
+.vault-launch-summary span { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 800; }
+.vault-launch-summary code { overflow-wrap: anywhere; }
+.vault-launch-panel > button, .vault-address-output button { min-height: 52px; border: 2px solid currentColor; background: transparent; color: inherit; font: inherit; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.vault-launch-panel > button:disabled { opacity: .35; cursor: not-allowed; }
+.vault-launch-panel .danger-step:not(:disabled) { background: var(--acid, #b6ff00); color: #000; }
+.vault-address-output { border: 2px solid currentColor; padding: 18px; display: grid; gap: 10px; }
+.vault-address-output[hidden] { display: none; }
+.vault-address-output code { overflow-wrap: anywhere; }
+
+@media (max-width: 620px) {
+  .vault-launch-summary p { grid-template-columns: 1fr; gap: 6px; }
+}
+
 * { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
