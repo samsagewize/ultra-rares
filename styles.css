@@ -1061,6 +1061,9 @@ img, iframe { max-width: 100%; }
   .milestone-grid { grid-template-columns: 1fr; }
   .milestone-grid > div { min-height: 128px; }
   .dex-milestone.is-complete::after { font-size: 150px; }
+  .dex-marker::before { right: auto; bottom: calc(100% + 20px); left: 10px; padding: 4px 6px; background: #000; font-size: 7px; letter-spacing: .06em; }
+  .dex-marker::after { right: auto; bottom: calc(100% - 2px); left: 2px; font-size: 20px; transform: rotate(-2deg); }
+  .dex-marker b { top: calc(100% + 12px); font-size: 7px; }
 
   .marketplace-page .site-header { min-height: 118px; padding: 12px 16px; }
   .marketplace-page .site-header nav { position: absolute; right: 16px; bottom: 6px; left: 16px; width: auto; }
