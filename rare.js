@@ -11,6 +11,8 @@ const marketStatusElement = document.querySelector('[data-rare-market-status]');
 const goalFill = document.querySelector('[data-goal-fill]');
 const goalMarker = document.querySelector('[data-goal-marker]');
 const goalMarkerCap = document.querySelector('[data-goal-marker-cap]');
+const athMarker = document.querySelector('[data-ath-marker]');
+const athValue = document.querySelector('[data-ath-value]');
 const rareVolumeElement = document.querySelector('[data-rare-volume]');
 const rareVolumeTradesElement = document.querySelector('[data-rare-volume-trades]');
 const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
@@ -38,12 +40,34 @@ const savedTradeSound = (() => {
 })();
 let tradeSoundEnabled = savedTradeSound === 'on';
 let tradeAudioContext = null;
+const ATH_BASELINE = 70000;
+let highestMarketCap = (() => {
+  try {
+    return Math.max(ATH_BASELINE, Number(window.localStorage.getItem('rareAthMarketCap')) || 0);
+  } catch {
+    return ATH_BASELINE;
+  }
+})();
 
 const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
   style: 'currency',
   currency: 'USD',
   maximumFractionDigits: 0,
 });
+
+function updateAthMarker(marketCap) {
+  if (marketCap > highestMarketCap) {
+    highestMarketCap = marketCap;
+    try {
+      window.localStorage.setItem('rareAthMarketCap', String(highestMarketCap));
+    } catch {
+      // The live marker still updates when browser storage is unavailable.
+    }
+  }
+  const athProgress = Math.min(100, Math.max(0, (highestMarketCap / 1000000) * 100));
+  athMarker.style.left = `clamp(34px, ${athProgress}%, calc(100% - 34px))`;
+  athValue.textContent = formatMarketCap(highestMarketCap);
+}
 
 async function refreshRareMarket() {
   try {
@@ -59,6 +83,7 @@ async function refreshRareMarket() {
     marketStatusElement.textContent = `Live via DexScreener · ${market.liquidityUsd === null ? 'liquidity unavailable' : `${formatMarketCap(market.liquidityUsd)} liquidity`}`;
     goalFill.style.width = `${progress}%`;
     goalMarker.style.left = `clamp(34px, ${progress}%, calc(100% - 34px))`;
+    updateAthMarker(market.marketCap);
   } catch {
     marketCapElement.textContent = 'Live data unavailable';
     goalMarkerCap.textContent = 'Unavailable';
