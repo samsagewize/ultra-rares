@@ -78,6 +78,17 @@ const withTimeout = (promise, milliseconds = 7000) => Promise.race([
 
 async function nftMetadata(tokenId) {
   try {
+    const serverMetadata = await withTimeout(fetch(`/api/nft-metadata?tokenId=${tokenId}`).then((response) => {
+      if (!response.ok) throw new Error('Server metadata unavailable');
+      return response.json();
+    }), 15000);
+    if (serverMetadata.image) return {
+      name: serverMetadata.name || `Ultra Rare #${tokenId}`,
+      image: serverMetadata.image,
+    };
+  } catch {}
+
+  try {
     const result = await withTimeout(window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_NFT, data: tokenUriData(tokenId) }, 'latest'] }));
     const uri = decodeAbiString(result);
     let metadata;
