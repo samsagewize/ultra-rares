@@ -9,6 +9,10 @@ const addressPattern = /^0x[a-fA-F0-9]{40}$/;
 const marketCapElement = document.querySelector('[data-rare-market-cap]');
 const marketStatusElement = document.querySelector('[data-rare-market-status]');
 const goalFill = document.querySelector('[data-goal-fill]');
+const rareTransferTrack = document.querySelector('[data-rare-transfers]');
+const gmeDistributedElement = document.querySelector('[data-gme-distributed]');
+const gmeStatusElement = document.querySelector('[data-gme-status]');
+const rareActivityStatus = document.querySelector('[data-rare-activity-status]');
 
 const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
   style: 'currency',
@@ -32,13 +36,13 @@ async function refreshRareMarket() {
   }
 }
 
-copyContractButton.addEventListener('click', async () => {
+copyContractButton?.addEventListener('click', async () => {
   await navigator.clipboard.writeText(contractAddress);
   copyContractButton.textContent = 'Copied!';
   window.setTimeout(() => { copyContractButton.textContent = 'Copy contract'; }, 1600);
 });
 
-copyHoldersButton.addEventListener('click', async () => {
+copyHoldersButton?.addEventListener('click', async () => {
   copyHoldersButton.disabled = true;
   copyHoldersButton.textContent = 'Loading holders…';
   holderCopyStatus.textContent = '';
@@ -57,7 +61,7 @@ copyHoldersButton.addEventListener('click', async () => {
   }
 });
 
-requestForm.addEventListener('submit', async (event) => {
+requestForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
   const wallet = walletInput.value.trim();
   result.className = 'request-result';
@@ -101,7 +105,64 @@ requestForm.addEventListener('submit', async (event) => {
   }
 });
 
+const shortWallet = (value) => `${value.slice(0, 6)}…${value.slice(-4)}`;
+
+function formatRareTransfer(value, decimals) {
+  const amount = BigInt(value);
+  const scale = 10n ** BigInt(decimals);
+  const whole = amount / scale;
+  const fraction = String(amount % scale).padStart(decimals, '0').slice(0, 2).replace(/0+$/, '');
+  const display = Number(whole).toLocaleString('en-US');
+  return `${display}${fraction ? `.${fraction}` : ''} $RARE`;
+}
+
+function renderRareTransfers(transfers) {
+  if (!rareTransferTrack) return;
+  const rows = [...transfers, ...transfers].map((transfer, index) => {
+    const link = document.createElement('a');
+    link.className = 'ticker-item rare-transfer-item';
+    link.href = transfer.url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    if (index >= transfers.length) link.setAttribute('aria-hidden', 'true');
+    const icon = document.createElement('b');
+    icon.textContent = '$R';
+    const copy = document.createElement('span');
+    const amount = document.createElement('strong');
+    amount.textContent = formatRareTransfer(transfer.value, transfer.decimals);
+    const route = document.createElement('small');
+    route.textContent = `${transfer.fromLabel || shortWallet(transfer.from)} → ${transfer.toLabel || shortWallet(transfer.to)}`;
+    const time = document.createElement('small');
+    time.textContent = new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    copy.append(amount, route, time);
+    link.append(icon, copy);
+    return link;
+  });
+  rareTransferTrack.replaceChildren(...rows);
+}
+
+async function refreshRareActivity() {
+  if (!rareTransferTrack) return;
+  try {
+    const response = await fetch(`/api/rare-activity?t=${Math.floor(Date.now() / 10000)}`);
+    if (!response.ok) throw new Error('Activity unavailable');
+    const payload = await response.json();
+    renderRareTransfers(payload.transfers);
+    gmeDistributedElement.textContent = `${payload.gmeDistributed} GME`;
+    gmeStatusElement.textContent = payload.gmeStatus;
+    rareActivityStatus.textContent = `Live · updated ${new Date(payload.updatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    rareActivityStatus.classList.add('is-live');
+  } catch {
+    rareActivityStatus.textContent = 'Live feed retrying…';
+    rareActivityStatus.classList.remove('is-live');
+  }
+}
+
 refreshRareMarket();
+refreshRareActivity();
 window.setInterval(() => {
-  if (!document.hidden) refreshRareMarket();
-}, 60000);
+  if (!document.hidden) {
+    refreshRareMarket();
+    refreshRareActivity();
+  }
+}, 20000);

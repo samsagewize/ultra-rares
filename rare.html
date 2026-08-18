@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
     <link rel="stylesheet" href="styles.css?v=8" />
   </head>
-  <body class="rare-page">
+  <body class="rare-page rare-market-page">
     <header class="site-header">
       <a class="wordmark" href="index.html" aria-label="Ultra Rares home"><img src="assets/banner-2.png" alt="" /></a>
       <nav aria-label="Primary navigation">
@@ -19,6 +19,23 @@
         <a class="nav-link" href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">OpenSea</a>
       </nav>
     </header>
+
+    <aside class="stats-rail rare-gme-rail" aria-label="GME distribution statistics">
+      <div class="stats-rail-heading"><span class="ticker-live-dot"></span>GME rewards</div>
+      <div class="stats-rail-values">
+        <div><span>GME distributed</span><strong data-gme-distributed>0 GME</strong><small>Public holder distributions</small></div>
+        <div><span>Distribution status</span><strong class="gme-status-mark">—</strong><small data-gme-status>Checking published records…</small></div>
+      </div>
+      <p class="live-status" data-rare-activity-status role="status">Loading live $RARE activity…</p>
+    </aside>
+
+    <aside class="sales-ticker rare-transfer-ticker" aria-label="Live RARE token transactions">
+      <div class="ticker-heading"><span class="ticker-live-dot"></span>$RARE transactions</div>
+      <div class="ticker-window">
+        <div class="ticker-track" data-rare-transfers></div>
+      </div>
+      <a class="ticker-footer" href="https://robinhoodchain.blockscout.com/token/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb" target="_blank" rel="noopener noreferrer">All transactions ↗</a>
+    </aside>
 
     <main class="rare-main">
       <section class="rare-chart" aria-labelledby="rare-chart-title">
@@ -84,6 +101,6 @@
       <p>Ultra Rares © 2026</p>
       <p><a href="index.html">Back to the collection ↗</a></p>
     </footer>
-    <script src="rare.js"></script>
+    <script src="rare.js?v=2"></script>
   </body>
 </html>
