@@ -89,19 +89,21 @@
       </section>
 
       <section class="auction-section auction-modal bid-modal" aria-labelledby="bid-modal-title" data-bid-modal hidden>
-        <button type="button" class="auction-modal-close" data-close-bid aria-label="Close bid popup">Close ×</button>
-        <div class="auction-heading">
-          <p class="eyebrow">Bid with $RARE</p>
-          <h2 id="bid-modal-title">Bid on #<span data-selected-bid-id>—</span>.</h2>
-          <p data-selected-bid-summary>Connect your wallet and enter a bid above the current minimum.</p>
-        </div>
-        <div class="auction-tools">
-          <article>
-            <label for="live-bid-amount">Your bid ($RARE)</label>
-            <input id="live-bid-amount" type="number" min="1" step="1" data-live-bid-amount />
-            <button type="button" data-submit-live-bid>Approve and place bid</button>
-            <div class="market-listing-result" data-live-bid-status role="status" aria-live="polite">Your wallet will show each required transaction.</div>
-          </article>
+        <div class="bid-dialog">
+          <button type="button" class="auction-modal-close" data-close-bid aria-label="Close bid popup">Close ×</button>
+          <div class="auction-heading">
+            <p class="eyebrow">Bid with $RARE</p>
+            <h2 id="bid-modal-title">Bid on #<span data-selected-bid-id>—</span>.</h2>
+            <p data-selected-bid-summary>Connect your wallet and enter a bid above the current minimum.</p>
+          </div>
+          <div class="auction-tools">
+            <article>
+              <label for="live-bid-amount">Your bid ($RARE)</label>
+              <input id="live-bid-amount" type="number" min="1" step="1" data-live-bid-amount />
+              <button type="button" data-submit-live-bid>Approve and place bid</button>
+              <div class="market-listing-result" data-live-bid-status role="status" aria-live="polite">Your wallet will show each required transaction.</div>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -111,6 +113,6 @@
         <p><strong>Verify first</strong><span>Confirm the contract and transaction in your wallet before signing.</span></p>
       </section>
     </main>
-    <script src="marketplace.js?v=6"></script>
+    <script src="marketplace.js?v=7"></script>
   </body>
 </html>
