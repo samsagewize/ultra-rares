@@ -232,9 +232,10 @@ button { font: inherit; text-transform: inherit; }
 }
 
 .sales-ticker:hover,
-.sales-ticker.has-breaking-sale { width: clamp(340px, 38vw, 540px); box-shadow: -18px 0 0 var(--ink); }
-.sales-ticker.has-breaking-sale .ticker-track { animation-play-state: paused; }
-.sales-ticker.has-breaking-sale .ticker-heading::after { content: " · NEW SCOOP"; }
+.sales-ticker.has-breaking-sale { width: clamp(360px, 40vw, 560px); box-shadow: -18px 0 0 var(--ink), -30px 0 50px rgba(183,241,15,.28); }
+.sales-ticker.has-breaking-sale .ticker-track { animation: ultra-sale-arrival .9s cubic-bezier(.16,1.35,.35,1) both; }
+.sales-ticker.has-breaking-sale .ticker-heading { animation: ultra-sale-header-pulse .8s steps(2,end) 4; }
+.sales-ticker.has-breaking-sale .ticker-heading::after { content: " · NEW ULTRA RARE SCOOP!"; }
 .sales-ticker:hover .ticker-item { grid-template-columns: 105px 1fr; flex-basis: 135px; min-height: 135px; }
 .sales-ticker:hover .ticker-item img { width: 105px; height: 105px; }
 .sales-ticker:hover .ticker-item strong { font-size: 22px; }
@@ -277,7 +278,7 @@ button { font: inherit; text-transform: inherit; }
   transition: min-height .35s ease, flex-basis .35s ease, grid-template-columns .35s ease;
 }
 
-.ticker-item.is-new-sale { grid-template-columns: minmax(150px, 44%) 1fr; flex-basis: 240px; min-height: 240px; background: var(--ink); color: var(--acid); animation: sale-pop .55s cubic-bezier(.2, 1.4, .4, 1); }
+.ticker-item.is-new-sale { grid-template-columns: minmax(150px, 44%) 1fr; flex-basis: 260px; min-height: 260px; border-top: 5px solid var(--acid); border-bottom: 5px solid var(--acid); background: var(--ink); color: var(--acid); box-shadow: inset 0 0 0 4px var(--acid); animation: ultra-sale-card-pulse 1.05s ease-in-out 4; }
 .ticker-item.is-new-sale img { width: 100%; height: 200px; border-color: var(--acid); }
 .ticker-item.is-new-sale strong { font-size: clamp(28px, 4vw, 58px); }
 .ticker-item.is-new-sale small { font-size: 10px; }
@@ -303,6 +304,9 @@ button { font: inherit; text-transform: inherit; }
 
 @keyframes ticker-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
 @keyframes sale-pop { from { transform: scale(.82); opacity: .2; } to { transform: scale(1); opacity: 1; } }
+@keyframes ultra-sale-arrival { 0% { transform: translateY(-260px) scale(.92); opacity: 0; } 70% { transform: translateY(8px) scale(1.02); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes ultra-sale-card-pulse { 0%,100% { background: var(--ink); color: var(--acid); } 50% { background: var(--acid); color: var(--ink); } }
+@keyframes ultra-sale-header-pulse { 0%,100% { background: var(--acid); color: var(--ink); } 50% { background: var(--ink); color: var(--acid); } }
 @keyframes mystery-drift { 0%, 100% { transform: rotate(8deg) translateY(0); opacity: .2; } 50% { transform: rotate(5deg) translateY(18px); opacity: .32; } }
 
 .wordmark {

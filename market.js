@@ -108,7 +108,10 @@ function announceNewSale(saleId) {
   void salesTicker.offsetWidth;
   salesTicker.classList.add('has-breaking-sale');
   clearTimeout(breakingSaleTimer);
-  breakingSaleTimer = setTimeout(() => salesTicker.classList.remove('has-breaking-sale'), 12000);
+  breakingSaleTimer = setTimeout(() => {
+    salesTicker.classList.remove('has-breaking-sale');
+    tickerTrack?.querySelectorAll('.is-new-sale').forEach((item) => item.classList.remove('is-new-sale'));
+  }, 12000);
 }
 
 async function refreshMarketData() {
