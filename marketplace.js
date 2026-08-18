@@ -71,15 +71,22 @@ function decodeAbiString(result) {
 }
 
 const ipfsUrl = (value) => value?.startsWith('ipfs://') ? `https://ipfs.io/ipfs/${value.slice(7)}` : value;
+const withTimeout = (promise, milliseconds = 7000) => Promise.race([
+  promise,
+  new Promise((_, reject) => setTimeout(() => reject(new Error('Metadata timed out')), milliseconds)),
+]);
 
 async function nftMetadata(tokenId) {
   try {
-    const result = await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_NFT, data: tokenUriData(tokenId) }, 'latest'] });
+    const result = await withTimeout(window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_NFT, data: tokenUriData(tokenId) }, 'latest'] }));
     const uri = decodeAbiString(result);
     let metadata;
     if (uri.startsWith('data:application/json;base64,')) metadata = JSON.parse(atob(uri.split(',')[1]));
     else if (uri.startsWith('data:application/json,')) metadata = JSON.parse(decodeURIComponent(uri.split(',').slice(1).join(',')));
-    else metadata = await fetch(ipfsUrl(uri)).then((response) => response.json());
+    else metadata = await withTimeout(fetch(ipfsUrl(uri)).then((response) => {
+      if (!response.ok) throw new Error('Metadata unavailable');
+      return response.json();
+    }));
     return { name: metadata.name || `Ultra Rare #${tokenId}`, image: ipfsUrl(metadata.image) || 'assets/untitled.png' };
   } catch { return { name: `Ultra Rare #${tokenId}`, image: 'assets/untitled.png' }; }
 }
@@ -116,18 +123,18 @@ async function loadOwnedRares() {
     ownedGrid.innerHTML = '<div class="owned-empty">No Ultra Rares were found in this wallet.</div>';
     return;
   }
-  const metadata = await Promise.all(owned.map(nftMetadata));
-  const cards = owned.map((tokenId, index) => {
+  const cardParts = new Map();
+  const cards = owned.map((tokenId) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'owned-rare-card';
     const image = document.createElement('img');
-    image.src = metadata[index].image;
-    image.alt = metadata[index].name;
-    image.onerror = () => { image.src = 'assets/untitled.png'; };
+    image.src = 'assets/untitled.png';
+    image.alt = `Ultra Rare #${tokenId}`;
+    image.onerror = () => { image.onerror = null; image.src = 'assets/untitled.png'; };
     const copy = document.createElement('span');
     const name = document.createElement('strong');
-    name.textContent = metadata[index].name;
+    name.textContent = `Ultra Rare #${tokenId}`;
     const edition = document.createElement('small');
     edition.textContent = `Ultra Rares · #${tokenId}`;
     const action = document.createElement('b');
@@ -135,9 +142,17 @@ async function loadOwnedRares() {
     copy.append(name, edition, action);
     button.append(image, copy);
     button.addEventListener('click', () => selectOwnedRare(tokenId, button));
+    cardParts.set(tokenId, { image, name });
     return button;
   });
   ownedGrid.replaceChildren(...cards);
+  owned.forEach(async (tokenId) => {
+    const metadata = await nftMetadata(tokenId);
+    const parts = cardParts.get(tokenId);
+    parts.name.textContent = metadata.name;
+    parts.image.alt = metadata.name;
+    parts.image.src = metadata.image;
+  });
 }
 
 function closeAuctionModal() {
