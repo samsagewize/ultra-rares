@@ -211,7 +211,7 @@ function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new 
     const route = document.createElement('small');
     route.textContent = `${transfer.fromLabel || shortWallet(transfer.from)} → ${transfer.toLabel || shortWallet(transfer.to)}`;
     const time = document.createElement('small');
-    const sideLabel = transfer.side === 'buy' ? 'BUY · ' : transfer.side === 'sell' ? 'SELL · ' : transfer.side === 'liquidity' ? 'LIQUIDITY ADDED · ' : '';
+    const sideLabel = transfer.side === 'buy' ? 'BUY · ' : transfer.side === 'sell' ? 'SELL · ' : transfer.side === 'liquidity' ? 'LIQUIDITY ADDED · ' : 'TRANSFER · ';
     time.textContent = `${sideLabel}${new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
     copy.append(amount, route, time);
     link.append(icon, copy);
@@ -234,8 +234,8 @@ function playTradePop(side, delay = 0) {
     const oscillator = tradeAudioContext.createOscillator();
     const gain = tradeAudioContext.createGain();
     oscillator.type = 'sine';
-    const startFrequency = side === 'buy' ? 680 : side === 'liquidity' ? 540 : 310;
-    const endFrequency = side === 'buy' ? 420 : side === 'liquidity' ? 760 : 190;
+    const startFrequency = side === 'buy' ? 680 : side === 'liquidity' ? 540 : side === 'transfer' ? 460 : 310;
+    const endFrequency = side === 'buy' ? 420 : side === 'liquidity' ? 760 : side === 'transfer' ? 340 : 190;
     oscillator.frequency.setValueAtTime(startFrequency, now);
     oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + .09);
     gain.gain.setValueAtTime(.0001, now);
@@ -266,7 +266,7 @@ function animateTradeBubbles(trades) {
 
 function findNewTrades(transfers) {
   const uniqueTrades = [...new Map(transfers
-    .filter((transfer) => transfer.side === 'buy' || transfer.side === 'sell' || transfer.side === 'liquidity')
+    .filter((transfer) => ['buy', 'sell', 'liquidity', 'transfer'].includes(transfer.side))
     .map((transfer) => [transfer.hash, transfer])).values()];
   if (!rareTradesInitialized) {
     knownRareTradeHashes = new Set(uniqueTrades.map((trade) => trade.hash));

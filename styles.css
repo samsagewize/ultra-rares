@@ -894,6 +894,7 @@ footer {
 .trade-bubble.is-buy { color: #22d86f; background: rgba(34,216,111,.34); }
 .trade-bubble.is-sell { color: #ff4d57; background: rgba(255,77,87,.32); }
 .trade-bubble.is-liquidity { color: #238cff; background: rgba(35,140,255,.32); }
+.trade-bubble.is-transfer { color: #9a5cff; background: rgba(154,92,255,.3); }
 .rare-transfer-ticker .ticker-track { animation: none; }
 .rare-transfer-ticker.has-new-buy { width: clamp(350px, 40vw, 560px); box-shadow: -18px 0 0 var(--ink), -30px 0 50px rgba(34,216,111,.34); }
 .rare-transfer-ticker.has-new-buy .ticker-track { animation: rare-buy-arrival .9s cubic-bezier(.16,1.35,.35,1) both; }
