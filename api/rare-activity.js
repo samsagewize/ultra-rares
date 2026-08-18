@@ -1,17 +1,25 @@
 const RARE_TOKEN = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const EXPLORER = 'https://robinhoodchain.blockscout.com';
+const LEMON_VAULT = `https://lemon.fun/api/public/launchpad/vault/${RARE_TOKEN}`;
 
 const shortAddress = (value = '') => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : 'Unknown';
 
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
-    const result = await fetch(`${EXPLORER}/api/v2/tokens/${RARE_TOKEN}/transfers`, {
-      headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!result.ok) throw new Error('Explorer unavailable');
-    const payload = await result.json();
+    const [transferResult, lemonResult] = await Promise.all([
+      fetch(`${EXPLORER}/api/v2/tokens/${RARE_TOKEN}/transfers`, {
+        headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
+        signal: AbortSignal.timeout(12000),
+      }),
+      fetch(LEMON_VAULT, {
+        headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
+        signal: AbortSignal.timeout(12000),
+      }),
+    ]);
+    if (!transferResult.ok || !lemonResult.ok) throw new Error('Live source unavailable');
+    const payload = await transferResult.json();
+    const lemon = await lemonResult.json();
     const transfers = (payload.items || []).slice(0, 30).map((item) => ({
       hash: item.transaction_hash,
       logIndex: item.log_index,
@@ -27,8 +35,22 @@ module.exports = async function handler(request, response) {
     response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
     return response.status(200).json({
       transfers,
-      gmeDistributed: '0',
-      gmeStatus: 'No public GME distribution recorded yet',
+      gme: {
+        symbol: lemon.stockSymbol || 'GME',
+        paidToHolders: lemon.stats?.totalPublished || lemon.stats?.totalDistributed || '0',
+        nextRound: lemon.stats?.pendingStock || '0',
+        roundsPaid: Number(lemon.stats?.epochCount || lemon.epochs?.length || 0),
+        holderCount: Math.max(0, ...(lemon.epochs || []).map((epoch) => Number(epoch.holder_count || 0))),
+        creatorEarned: lemon.creatorEarned || '0',
+        minBalance: lemon.stats?.minShareBalance || lemon.minShareBalance || '0',
+        feeSplit: {
+          holders: Number(lemon.splits?.holdersBps || 0) / 100,
+          creator: Number(lemon.splits?.creatorBps || 0) / 100,
+          platform: Number(lemon.splits?.platformBps || 0) / 100,
+        },
+        vault: lemon.vault || '',
+        source: `https://lemon.fun/terminal/${RARE_TOKEN}`,
+      },
       updatedAt: new Date().toISOString(),
     });
   } catch {

@@ -849,9 +849,15 @@ footer {
 .rare-page .site-header nav { justify-content: center; }
 .rare-market-page main, .rare-market-page footer { margin-right: var(--ticker-width); margin-left: var(--stats-width); }
 .rare-market-page .site-header { left: var(--stats-width); width: calc(100% - var(--ticker-width) - var(--stats-width)); }
-.rare-gme-rail .stats-rail-values > div { min-height: 220px; }
-.rare-gme-rail .stats-rail-values strong { font-size: clamp(25px, 2.3vw, 40px); }
-.rare-gme-rail .gme-status-mark { font-size: 70px; }
+.rare-gme-rail { grid-template-rows: auto 1fr auto auto; }
+.gme-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; padding: 6px; }
+.gme-detail-grid > div { display: flex; min-width: 0; min-height: 112px; flex-direction: column; justify-content: space-between; gap: 8px; padding: 12px 9px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.gme-detail-grid > div:nth-child(even) { border-right: 0; }
+.gme-detail-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+.gme-detail-grid span, .gme-detail-grid small { font-size: 7px; font-weight: 900; line-height: 1.25; letter-spacing: .08em; }
+.gme-detail-grid strong { font-size: 15px; line-height: 1; overflow-wrap: anywhere; }
+.gme-source-link { padding: 13px 10px; border-top: 3px solid var(--ink); font-size: 7px; font-weight: 900; letter-spacing: .08em; text-align: center; }
+.gme-source-link:hover { color: var(--acid); background: var(--ink); }
 .rare-transfer-item { grid-template-columns: 52px 1fr; }
 .rare-transfer-item > b { display: grid; width: 52px; height: 52px; place-items: center; border: 2px solid var(--ink); border-radius: 50%; background: var(--ink); color: var(--acid); font-size: 16px; }
 .rare-transfer-item small { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }

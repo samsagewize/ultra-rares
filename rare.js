@@ -11,7 +11,11 @@ const marketStatusElement = document.querySelector('[data-rare-market-status]');
 const goalFill = document.querySelector('[data-goal-fill]');
 const rareTransferTrack = document.querySelector('[data-rare-transfers]');
 const gmeDistributedElement = document.querySelector('[data-gme-distributed]');
-const gmeStatusElement = document.querySelector('[data-gme-status]');
+const gmeNextElement = document.querySelector('[data-gme-next]');
+const gmeRoundsElement = document.querySelector('[data-gme-rounds]');
+const gmeCreatorElement = document.querySelector('[data-gme-creator]');
+const gmeMinElement = document.querySelector('[data-gme-min]');
+const gmeSplitElement = document.querySelector('[data-gme-split]');
 const rareActivityStatus = document.querySelector('[data-rare-activity-status]');
 
 const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
@@ -141,6 +145,9 @@ function renderRareTransfers(transfers) {
   rareTransferTrack.replaceChildren(...rows);
 }
 
+const formatGme = (value) => `${Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 4 })} GME`;
+const compactNumber = (value) => Number(value || 0).toLocaleString('en-US', { notation: 'compact', maximumFractionDigits: 2 });
+
 async function refreshRareActivity() {
   if (!rareTransferTrack) return;
   try {
@@ -148,8 +155,13 @@ async function refreshRareActivity() {
     if (!response.ok) throw new Error('Activity unavailable');
     const payload = await response.json();
     renderRareTransfers(payload.transfers);
-    gmeDistributedElement.textContent = `${payload.gmeDistributed} GME`;
-    gmeStatusElement.textContent = payload.gmeStatus;
+    const gme = payload.gme;
+    gmeDistributedElement.textContent = formatGme(gme.paidToHolders);
+    gmeNextElement.textContent = formatGme(gme.nextRound);
+    gmeRoundsElement.textContent = `${gme.roundsPaid} / ${gme.holderCount} holders`;
+    gmeCreatorElement.textContent = formatGme(gme.creatorEarned);
+    gmeMinElement.textContent = compactNumber(gme.minBalance);
+    gmeSplitElement.textContent = `${gme.feeSplit.holders}/${gme.feeSplit.creator}/${gme.feeSplit.platform}`;
     rareActivityStatus.textContent = `Live · updated ${new Date(payload.updatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
     rareActivityStatus.classList.add('is-live');
   } catch {
