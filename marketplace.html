@@ -22,36 +22,24 @@
 
     <main class="marketplace-main" data-marketplace data-marketplace-address="" data-auction-address="">
       <section class="marketplace-hero">
-        <p class="eyebrow">Ultra Rares / settled in $RARE</p>
-        <h1>List rare.<br />Buy rare.</h1>
-        <p>Owners keep custody until a sale completes. Payment, fee accounting, and NFT delivery settle atomically in $RARE.</p>
+        <div class="marketplace-cover"><img src="assets/banner-2.png" alt="Ultra Rares" /></div>
+        <div class="marketplace-avatar"><img src="assets/untitled.png" alt="Ultra Rares collection mark" /></div>
+        <p class="eyebrow">Ultra Rares / auction house</p>
+        <h1>Ultra Rares.</h1>
+        <p>Connect the wallet that holds your Ultra Rares. Select an NFT, set the minimum $RARE reserve, and start a timed auction.</p>
         <div class="market-fee-note"><strong>2% protocol fee</strong><span>1% holder rewards vault · 1% liquidity / buyback treasury · 98% seller</span></div>
-        <button type="button" data-market-connect>Connect wallet</button>
+        <button type="button" data-market-connect>Connect wallet to view your Ultra Rares</button>
         <p data-market-status role="status" aria-live="polite">Marketplace contract is ready for review and deployment. Trading is not live yet.</p>
       </section>
 
-      <section class="marketplace-tools">
-        <article>
-          <p class="eyebrow">For owners</p>
-          <h2>List an<br />Ultra Rare.</h2>
-          <label for="list-token-id">NFT token ID</label>
-          <input id="list-token-id" type="number" min="1" max="420" placeholder="78" data-list-token disabled />
-          <label for="list-price">Price in $RARE</label>
-          <input id="list-price" type="number" min="1" step="1" placeholder="100000" data-list-price disabled />
-          <button type="button" data-approve-nft disabled>Approve this NFT</button>
-          <button type="button" data-create-listing disabled>List for $RARE</button>
-        </article>
-
-        <article>
-          <p class="eyebrow">For collectors</p>
-          <h2>Find and<br />collect.</h2>
-          <label for="buy-token-id">NFT token ID</label>
-          <input id="buy-token-id" type="number" min="1" max="420" placeholder="78" data-buy-token disabled />
-          <button type="button" data-check-listing disabled>Check listing</button>
-          <div class="market-listing-result" data-listing-result>No listing selected.</div>
-          <button type="button" data-approve-rare disabled>Approve listing price in $RARE</button>
-          <button type="button" data-buy-nft disabled>Buy Ultra Rare</button>
-        </article>
+      <section class="owned-rares" aria-labelledby="owned-title">
+        <div class="owned-rares-heading">
+          <div><p class="eyebrow">Your collection</p><h2 id="owned-title">Owned by you.</h2></div>
+          <span data-owned-count>Connect wallet to load NFTs</span>
+        </div>
+        <div class="owned-rares-grid" data-owned-rares>
+          <div class="owned-empty">Your Ultra Rares will appear here after you connect.</div>
+        </div>
       </section>
 
       <section class="auction-section" aria-labelledby="auction-title">
