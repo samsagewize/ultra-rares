@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>RARE Auction Launch</title>
+    <link rel="icon" type="image/png" href="assets/banner-2.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="rare-page">
+    <header class="site-header">
+      <a class="wordmark" href="index.html"><img src="assets/banner-2.png" alt="Ultra Rares" /></a>
+      <nav><a class="nav-link" href="marketplace.html">Back to marketplace</a></nav>
+    </header>
+    <main class="rare-main vault-admin-main" data-auction-admin>
+      <section class="rare-token-intro">
+        <p class="eyebrow">Administrator launch console</p>
+        <h1>RARE<br />auctions.</h1>
+        <p class="rare-token-copy">Deploy and permanently configure the auction contracts. Every numbered step is a separate transaction shown in your wallet.</p>
+      </section>
+      <section class="vault-launch-panel">
+        <div class="vault-launch-summary">
+          <p><span>Administrator</span><code>0x562F6ac10723ef6AF9F077A83cF25135FB369612</code></p>
+          <p><span>Claims destination</span><strong>Administrator wallet</strong></p>
+          <p><span>Liquidity / buyback destination</span><strong>Administrator wallet</strong></p>
+          <p><span>Network</span><strong>Robinhood Chain · 4663</strong></p>
+        </div>
+        <button type="button" data-auction-admin-connect>1. Connect administrator wallet</button>
+        <button type="button" data-deploy-fee-vault disabled>2. Deploy fee vault</button>
+        <button type="button" data-deploy-auction disabled>3. Deploy auction house</button>
+        <button type="button" data-authorize-auction disabled>4. Authorize auction fee source</button>
+        <button type="button" data-set-fee-destinations disabled>5. Set both destinations to administrator</button>
+        <button type="button" class="danger-step" data-lock-fee-config disabled>6. Permanently lock configuration</button>
+        <button type="button" data-verify-auction disabled>7. Verify complete deployment</button>
+        <div class="claim-status" data-auction-admin-status role="status" aria-live="polite">Connect only with the configured administrator wallet. Never enter a seed phrase here.</div>
+        <div class="vault-address-output" data-auction-output hidden>
+          <span>Fee vault</span><code data-deployed-fee-vault></code>
+          <span>Auction house</span><code data-deployed-auction></code>
+          <button type="button" data-copy-auction-config>Copy deployment addresses</button>
+        </div>
+      </section>
+      <section class="request-notes">
+        <p><strong>Verify every transaction</strong><span>Confirm Robinhood Chain, the contract address, and that no ETH value is requested.</span></p>
+        <p><strong>Permanent lock</strong><span>After step 6, the destinations and authorized fee sources cannot be changed.</span></p>
+        <p><strong>Final activation</strong><span>The public marketplace remains disabled until the verified auction address is published in the website configuration.</span></p>
+      </section>
+    </main>
+    <script src="auction-admin.js"></script>
+  </body>
+</html>
