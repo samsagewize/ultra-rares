@@ -252,7 +252,7 @@ function animateTradeBubbles(trades) {
   if (!tradeBubbleLayer || !trades.length) return;
   trades.forEach((trade, tradeIndex) => {
     playTradePop(trade.side, tradeIndex * 85);
-    for (let index = 0; index < 3; index += 1) {
+    for (let index = 0; index < 7; index += 1) {
       const bubble = document.createElement('span');
       bubble.className = `trade-bubble is-${trade.side}`;
       bubble.style.setProperty('--bubble-x', `${8 + Math.random() * 84}%`);
@@ -319,7 +319,7 @@ async function refreshRareActivity() {
   if (!rareTransferTrack || rareActivityLoading) return;
   rareActivityLoading = true;
   try {
-    const response = await fetch(`/api/rare-activity?t=${Math.floor(Date.now() / 3000)}`);
+    const response = await fetch(`/api/rare-activity?t=${Math.floor(Date.now() / 1000)}`);
     if (!response.ok) throw new Error('Activity unavailable');
     const payload = await response.json();
     const newBuyHash = latestRareBuyHash && payload.latestBuyHash && payload.latestBuyHash !== latestRareBuyHash ? payload.latestBuyHash : null;
@@ -353,4 +353,4 @@ window.setInterval(() => {
 }, 20000);
 window.setInterval(() => {
   if (!document.hidden) refreshRareActivity();
-}, 5000);
+}, 3000);

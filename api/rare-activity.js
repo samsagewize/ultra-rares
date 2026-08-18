@@ -45,7 +45,7 @@ module.exports = async function handler(request, response) {
       side: liquidityHashes.has(item.transaction_hash) ? 'liquidity' : buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
       url: `${EXPLORER}/tx/${item.transaction_hash}`,
     }));
-    response.setHeader('Cache-Control', 's-maxage=3, stale-while-revalidate=6');
+    response.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2');
     return response.status(200).json({
       transfers,
       latestBuyHash: items.find((item) => buyHashes.has(item.transaction_hash))?.transaction_hash || null,
