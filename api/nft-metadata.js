@@ -36,6 +36,22 @@ async function fetchMetadata(uri) {
   throw new Error('NFT metadata is unavailable');
 }
 
+async function fetchOpenSeaImage(tokenId) {
+  try {
+    const itemUrl = `https://opensea.io/item/robinhood/${NFT_CONTRACT}/${tokenId}`;
+    const page = await fetch(itemUrl, {
+      headers: { 'user-agent': 'UltraRaresMetadata/1.0 (+https://ultra-rares.vercel.app)' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!page.ok) return '';
+    const html = await page.text();
+    const images = [...html.matchAll(/"imageUrl":"([^"]+)"/g)].map((match) => match[1].replaceAll('\\u0026', '&'));
+    return images.find((image) => image.includes(`/robinhood/${NFT_CONTRACT}/`)) || '';
+  } catch {
+    return '';
+  }
+}
+
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   const tokenId = Number.parseInt(request.query.tokenId, 10);
@@ -53,11 +69,12 @@ module.exports = async function handler(request, response) {
     if (!rpcPayload.result || rpcPayload.error) throw new Error('tokenURI lookup failed');
     const tokenUri = decodeAbiString(rpcPayload.result);
     const metadata = await fetchMetadata(tokenUri);
+    const openSeaImage = await fetchOpenSeaImage(tokenId);
     response.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
     return response.status(200).json({
       tokenId,
       name: metadata.name || `Ultra Rare #${tokenId}`,
-      image: gatewayUrl(metadata.image),
+      image: openSeaImage || gatewayUrl(metadata.image),
     });
   } catch {
     return response.status(502).json({ error: 'NFT artwork is temporarily unavailable' });
