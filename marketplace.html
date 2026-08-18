@@ -36,6 +36,22 @@
         <p data-market-status role="status" aria-live="polite">Verified $RARE auctions are live on Robinhood Chain. Connect your wallet to list an Ultra Rare.</p>
       </section>
 
+      <section class="live-auctions" aria-labelledby="live-auctions-title">
+        <div class="live-auctions-heading">
+          <div><p class="eyebrow">Direct from Robinhood Chain</p><h2 id="live-auctions-title">Live auctions.</h2></div>
+          <span data-live-auctions-status>Syncing on-chain activity…</span>
+        </div>
+        <div class="live-auctions-layout">
+          <div class="live-auction-grid" data-live-auction-grid>
+            <div class="owned-empty">Loading active auctions…</div>
+          </div>
+          <aside class="auction-activity" aria-label="Auction bid activity">
+            <p class="eyebrow">Live activity</p>
+            <div data-auction-activity><p>No auction activity yet.</p></div>
+          </aside>
+        </div>
+      </section>
+
       <section class="owned-rares" aria-labelledby="owned-title">
         <div class="owned-rares-heading">
           <div><p class="eyebrow">Your collection</p><h2 id="owned-title">Owned by you.</h2></div>
@@ -71,12 +87,29 @@
         </div>
       </section>
 
+      <section class="auction-section auction-modal bid-modal" aria-labelledby="bid-modal-title" data-bid-modal hidden>
+        <button type="button" class="auction-modal-close" data-close-bid aria-label="Close bid popup">Close ×</button>
+        <div class="auction-heading">
+          <p class="eyebrow">Bid with $RARE</p>
+          <h2 id="bid-modal-title">Bid on #<span data-selected-bid-id>—</span>.</h2>
+          <p data-selected-bid-summary>Connect your wallet and enter a bid above the current minimum.</p>
+        </div>
+        <div class="auction-tools">
+          <article>
+            <label for="live-bid-amount">Your bid ($RARE)</label>
+            <input id="live-bid-amount" type="number" min="1" step="1" data-live-bid-amount />
+            <button type="button" data-submit-live-bid>Approve and place bid</button>
+            <div class="market-listing-result" data-live-bid-status role="status" aria-live="polite">Your wallet will show each required transaction.</div>
+          </article>
+        </div>
+      </section>
+
       <section class="marketplace-safety">
         <p><strong>Non-custodial</strong><span>The marketplace does not hold listed NFTs.</span></p>
         <p><strong>Transparent settlement</strong><span>98% goes to the seller and 2% is split equally by the fee vault.</span></p>
         <p><strong>Verify first</strong><span>Confirm the contract and transaction in your wallet before signing.</span></p>
       </section>
     </main>
-    <script src="marketplace.js?v=3"></script>
+    <script src="marketplace.js?v=4"></script>
   </body>
 </html>

@@ -20,6 +20,8 @@ let marketArtifact;
 let auctionArtifact;
 let feeVaultArtifact;
 let selectedListing = null;
+let selectedBidAuction = null;
+let liveAuctionRefresh;
 
 const marketWord = (value) => BigInt(value).toString(16).padStart(64, '0');
 const marketAddressWord = (address) => address.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -188,6 +190,127 @@ function closeAuctionModal() {
 document.querySelector('[data-close-auction]')?.addEventListener('click', closeAuctionModal);
 auctionModal?.addEventListener('click', (event) => { if (event.target === auctionModal) closeAuctionModal(); });
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !auctionModal?.hidden) closeAuctionModal(); });
+
+const bidModal = document.querySelector('[data-bid-modal]');
+const liveBidStatus = document.querySelector('[data-live-bid-status]');
+const rareDisplay = (baseUnits) => {
+  const value = BigInt(baseUnits || 0);
+  const whole = value / 10n ** 18n;
+  const fraction = (value % 10n ** 18n).toString().padStart(18, '0').slice(0, 2).replace(/0+$/, '');
+  return `${whole.toLocaleString()}${fraction ? `.${fraction}` : ''}`;
+};
+const shortAddress = (address) => `${address.slice(0, 6)}…${address.slice(-4)}`;
+
+function closeBidModal() {
+  bidModal.hidden = true;
+  selectedBidAuction = null;
+  if (auctionModal.hidden) document.body.classList.remove('modal-open');
+}
+
+function openBidModal(auction) {
+  selectedBidAuction = auction;
+  document.querySelector('[data-selected-bid-id]').textContent = auction.tokenId;
+  const minimumBase = BigInt(auction.highestBid) > 0n ? BigInt(auction.highestBid) + 10n ** 18n : BigInt(auction.reserve);
+  const minimum = (minimumBase + 10n ** 18n - 1n) / 10n ** 18n;
+  document.querySelector('[data-selected-bid-summary]').textContent = `Current bid ${rareDisplay(auction.highestBid)} $RARE · minimum opening bid ${rareDisplay(auction.reserve)} $RARE.`;
+  const input = document.querySelector('[data-live-bid-amount]');
+  input.min = minimum.toString();
+  input.value = minimum.toString();
+  liveBidStatus.textContent = marketAccount ? 'Ready. Your wallet will show each required transaction.' : 'Connect your wallet at the top of this page before bidding.';
+  bidModal.hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+document.querySelector('[data-close-bid]')?.addEventListener('click', closeBidModal);
+bidModal?.addEventListener('click', (event) => { if (event.target === bidModal) closeBidModal(); });
+
+function updateAuctionTimers() {
+  const now = Math.floor(Date.now() / 1000);
+  document.querySelectorAll('[data-auction-end]').forEach((element) => {
+    const remaining = Number(element.dataset.auctionEnd) - now;
+    if (remaining <= 0) { element.textContent = 'ENDED · READY TO SETTLE'; return; }
+    const hours = Math.floor(remaining / 3600);
+    const minutes = Math.floor((remaining % 3600) / 60);
+    const seconds = remaining % 60;
+    element.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} LEFT`;
+  });
+}
+
+async function hydrateAuctionImage(tokenId, image) {
+  try {
+    const metadata = await fetch(`/api/nft-metadata?tokenId=${tokenId}`).then((response) => response.json());
+    if (metadata.image) image.src = metadata.image;
+  } catch {}
+}
+
+function renderLiveAuctions(payload) {
+  const grid = document.querySelector('[data-live-auction-grid]');
+  const status = document.querySelector('[data-live-auctions-status]');
+  status.textContent = `${payload.activeAuctions.length} ON-CHAIN AUCTION${payload.activeAuctions.length === 1 ? '' : 'S'} · AUTO-UPDATING`;
+  if (!payload.activeAuctions.length) grid.innerHTML = '<div class="owned-empty">No Ultra Rares are currently in auction.</div>';
+  else {
+    const cards = payload.activeAuctions.map((auction) => {
+      const card = document.createElement('article');
+      card.className = 'live-auction-card';
+      const image = document.createElement('img');
+      image.src = 'assets/untitled.png';
+      image.alt = `Ultra Rare #${auction.tokenId}`;
+      image.onerror = () => { image.onerror = null; image.src = 'assets/untitled.png'; };
+      const content = document.createElement('div');
+      const title = document.createElement('h3');
+      title.textContent = `Ultra Rare #${auction.tokenId}`;
+      const timer = document.createElement('strong');
+      timer.dataset.auctionEnd = auction.endTime;
+      const stats = document.createElement('p');
+      stats.textContent = `HIGH BID ${rareDisplay(auction.highestBid)} $RARE · RESERVE ${rareDisplay(auction.reserve)} $RARE`;
+      const seller = document.createElement('small');
+      seller.textContent = `SELLER ${shortAddress(auction.seller)}`;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = auction.endTime > Date.now() / 1000 ? 'VIEW / PLACE BID ↗' : 'AUCTION ENDED';
+      button.disabled = auction.endTime <= Date.now() / 1000;
+      button.addEventListener('click', () => openBidModal(auction));
+      content.append(title, timer, stats, seller, button);
+      card.append(image, content);
+      hydrateAuctionImage(auction.tokenId, image);
+      return card;
+    });
+    grid.replaceChildren(...cards);
+  }
+
+  const activityRoot = document.querySelector('[data-auction-activity]');
+  if (!payload.activity.length) activityRoot.innerHTML = '<p>No auction activity yet.</p>';
+  else {
+    const rows = payload.activity.map((event) => {
+      const row = document.createElement('a');
+      row.href = `https://robinhoodchain.blockscout.com/tx/${event.transactionHash}`;
+      row.target = '_blank';
+      row.rel = 'noopener noreferrer';
+      const label = event.type === 'bid' ? `${rareDisplay(event.amount)} $RARE BID` : event.type.toUpperCase();
+      const time = new Date(event.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const headline = document.createElement('strong');
+      headline.textContent = `#${event.tokenId} · ${label}`;
+      const detail = document.createElement('span');
+      detail.textContent = `${event.account ? shortAddress(event.account) : ''} · ${time}`;
+      row.append(headline, detail);
+      return row;
+    });
+    activityRoot.replaceChildren(...rows);
+  }
+  updateAuctionTimers();
+}
+
+async function loadLiveAuctions() {
+  try {
+    const payload = await fetch(`/api/live-auctions?t=${Math.floor(Date.now() / 10000)}`).then((response) => {
+      if (!response.ok) throw new Error('Auction feed unavailable');
+      return response.json();
+    });
+    renderLiveAuctions(payload);
+  } catch {
+    document.querySelector('[data-live-auctions-status]').textContent = 'LIVE FEED RETRYING…';
+  }
+}
 
 async function marketNetwork() {
   try {
@@ -368,3 +491,42 @@ document.querySelector('[data-cancel-auction]')?.addEventListener('click', async
 document.querySelector('[data-withdraw-refund]')?.addEventListener('click', async () => {
   await marketSend(auctionAddress, auctionCall('withdrawRefund()'), 'Withdraw refund');
 });
+
+document.querySelector('[data-submit-live-bid]')?.addEventListener('click', async () => {
+  const button = document.querySelector('[data-submit-live-bid]');
+  if (!marketAccount) { liveBidStatus.textContent = 'Connect your wallet at the top of the page first.'; return; }
+  if (!selectedBidAuction) return;
+  const amount = document.querySelector('[data-live-bid-amount]').value;
+  if (!amount || !Number.isSafeInteger(Number(amount)) || Number(amount) < 1) {
+    liveBidStatus.textContent = 'Enter a valid whole-number $RARE bid.';
+    return;
+  }
+  const amountUnits = rareUnits(amount);
+  if (amountUnits < BigInt(selectedBidAuction.reserve) || amountUnits <= BigInt(selectedBidAuction.highestBid)) {
+    liveBidStatus.textContent = 'Bid must meet the reserve and exceed the current highest bid.';
+    return;
+  }
+  button.disabled = true;
+  button.textContent = 'Placing bid…';
+  try {
+    const allowanceData = `0xdd62ed3e${marketAddressWord(marketAccount)}${marketAddressWord(auctionAddress)}`;
+    const allowance = await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_RARE, data: allowanceData }, 'latest'] });
+    if (BigInt(allowance) < amountUnits) {
+      liveBidStatus.textContent = 'Approve the exact bid amount in your wallet…';
+      await marketSend(MARKET_RARE, `0x095ea7b3${marketAddressWord(auctionAddress)}${marketWord(amountUnits)}`, 'Approve $RARE bid');
+    }
+    liveBidStatus.textContent = 'Confirm the bid in your wallet…';
+    await marketSend(auctionAddress, auctionCall('bid(uint256,uint256)', [marketWord(selectedBidAuction.tokenId), marketWord(amountUnits)]), 'Place bid');
+    liveBidStatus.textContent = `Bid of ${amount} $RARE confirmed for #${selectedBidAuction.tokenId}.`;
+    button.textContent = 'Bid confirmed ✓';
+    await loadLiveAuctions();
+  } catch (error) {
+    liveBidStatus.textContent = error?.code === 4001 ? 'Transaction cancelled. No bid was placed.' : (error.message || 'Bid could not be placed.');
+    button.disabled = false;
+    button.textContent = 'Approve and place bid';
+  }
+});
+
+loadLiveAuctions();
+liveAuctionRefresh = window.setInterval(loadLiveAuctions, 15000);
+window.setInterval(updateAuctionTimers, 1000);
