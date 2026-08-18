@@ -15,6 +15,7 @@ const athMarker = document.querySelector('[data-ath-marker]');
 const athValue = document.querySelector('[data-ath-value]');
 const rareVolumeElement = document.querySelector('[data-rare-volume]');
 const rareTotalVolumeElement = document.querySelector('[data-rare-total-volume]');
+const rare24hChangeElement = document.querySelector('[data-rare-24h-change]');
 const rareTotalChangeElement = document.querySelector('[data-rare-total-change]');
 const rareVolumeTradesElement = document.querySelector('[data-rare-volume-trades]');
 const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
@@ -83,6 +84,14 @@ async function refreshRareMarket() {
     goalMarkerCap.textContent = formattedMarketCap;
     rareVolumeElement.textContent = formatMarketCap(market.volume24hUsd || 0);
     rareTotalVolumeElement.textContent = market.totalVolumeUsd === null ? 'Unavailable' : formatMarketCap(market.totalVolumeUsd);
+    if (market.change24hPercent === null) {
+      rare24hChangeElement.textContent = '24H change unavailable';
+      rare24hChangeElement.className = '';
+    } else {
+      const change24h = Number(market.change24hPercent);
+      rare24hChangeElement.textContent = `24H change ${change24h >= 0 ? '+' : ''}${change24h.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
+      rare24hChangeElement.className = change24h >= 0 ? 'is-positive' : 'is-negative';
+    }
     if (market.allTimeChangePercent === null) {
       rareTotalChangeElement.textContent = 'All-time change unavailable';
       rareTotalChangeElement.className = '';
@@ -101,6 +110,8 @@ async function refreshRareMarket() {
     goalMarkerCap.textContent = 'Unavailable';
     rareVolumeElement.textContent = 'Unavailable';
     rareTotalVolumeElement.textContent = 'Unavailable';
+    rare24hChangeElement.textContent = '24H change unavailable';
+    rare24hChangeElement.className = '';
     rareTotalChangeElement.textContent = 'All-time change unavailable';
     rareTotalChangeElement.className = '';
     rareVolumeTradesElement.textContent = 'DexScreener feed retrying';

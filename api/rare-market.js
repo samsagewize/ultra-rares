@@ -55,6 +55,7 @@ module.exports = async function handler(request, response) {
     return response.status(200).json({
       marketCap,
       priceUsd: currentPriceUsd,
+      change24hPercent: numberOrNull(pair.priceChange?.h24),
       allTimeChangePercent,
       liquidityUsd: numberOrNull(pair.liquidity?.usd),
       volume24hUsd,
