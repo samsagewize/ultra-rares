@@ -864,6 +864,9 @@ footer {
 .gme-detail-grid > .gme-market-volume { grid-column: 1 / -1; min-height: 158px; border-right: 0; background: var(--ink); color: var(--acid); }
 .gme-market-volume .volume-stat { display: flex; flex-direction: column; gap: 7px; }
 .gme-market-volume .total-volume-stat { padding-top: 10px; border-top: 1px solid rgba(182,255,0,.48); }
+.gme-market-volume [data-rare-total-change] { align-self: flex-start; padding: 4px 6px; border: 1px solid currentColor; font-size: 7px; font-style: normal; font-weight: 900; letter-spacing: .06em; }
+.gme-market-volume [data-rare-total-change].is-positive { color: #22d86f; }
+.gme-market-volume [data-rare-total-change].is-negative { color: #ff4d57; }
 .gme-detail-grid > div:nth-child(odd):not(:first-child) { border-right: 0; }
 .gme-detail-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
 .gme-detail-grid span, .gme-detail-grid small { font-size: 7px; font-weight: 900; line-height: 1.25; letter-spacing: .08em; }

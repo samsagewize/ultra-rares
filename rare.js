@@ -15,6 +15,7 @@ const athMarker = document.querySelector('[data-ath-marker]');
 const athValue = document.querySelector('[data-ath-value]');
 const rareVolumeElement = document.querySelector('[data-rare-volume]');
 const rareTotalVolumeElement = document.querySelector('[data-rare-total-volume]');
+const rareTotalChangeElement = document.querySelector('[data-rare-total-change]');
 const rareVolumeTradesElement = document.querySelector('[data-rare-volume-trades]');
 const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
 const rareTransferTrack = document.querySelector('[data-rare-transfers]');
@@ -82,6 +83,14 @@ async function refreshRareMarket() {
     goalMarkerCap.textContent = formattedMarketCap;
     rareVolumeElement.textContent = formatMarketCap(market.volume24hUsd || 0);
     rareTotalVolumeElement.textContent = market.totalVolumeUsd === null ? 'Unavailable' : formatMarketCap(market.totalVolumeUsd);
+    if (market.allTimeChangePercent === null) {
+      rareTotalChangeElement.textContent = 'All-time change unavailable';
+      rareTotalChangeElement.className = '';
+    } else {
+      const change = Number(market.allTimeChangePercent);
+      rareTotalChangeElement.textContent = `All-time change ${change >= 0 ? '+' : ''}${change.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
+      rareTotalChangeElement.className = change >= 0 ? 'is-positive' : 'is-negative';
+    }
     rareVolumeTradesElement.textContent = `${Number(market.buys24h || 0).toLocaleString('en-US')} buys · ${Number(market.sells24h || 0).toLocaleString('en-US')} sells`;
     marketStatusElement.textContent = `Live via DexScreener · ${market.liquidityUsd === null ? 'liquidity unavailable' : `${formatMarketCap(market.liquidityUsd)} liquidity`}`;
     goalFill.style.width = `${progress}%`;
@@ -92,6 +101,8 @@ async function refreshRareMarket() {
     goalMarkerCap.textContent = 'Unavailable';
     rareVolumeElement.textContent = 'Unavailable';
     rareTotalVolumeElement.textContent = 'Unavailable';
+    rareTotalChangeElement.textContent = 'All-time change unavailable';
+    rareTotalChangeElement.className = '';
     rareVolumeTradesElement.textContent = 'DexScreener feed retrying';
     marketStatusElement.textContent = 'The milestone roadmap remains active';
     goalFill.style.width = '0%';

@@ -24,28 +24,38 @@ module.exports = async function handler(request, response) {
 
     const marketCap = numberOrNull(pair.marketCap ?? pair.fdv);
     if (marketCap === null) throw new Error('RARE market cap was not found');
-    const poolVolumeTotals = await Promise.all(rarePairs.map(async (rarePair) => {
+    const poolHistories = await Promise.all(rarePairs.map(async (rarePair) => {
       try {
         const volumeResponse = await fetch(geckoTerminalVolumeUrl(rarePair.pairAddress), {
           headers: { accept: 'application/json', 'user-agent': 'UltraRaresMarket/1.0 (+https://ultra-rares.vercel.app)' },
         });
-        if (!volumeResponse.ok) return 0;
+        if (!volumeResponse.ok) return { volume: 0, firstOpenUsd: null };
         const volumePayload = await volumeResponse.json();
         const dailyCandles = volumePayload.data?.attributes?.ohlcv_list || [];
-        return dailyCandles.reduce((sum, candle) => sum + (numberOrNull(candle?.[5]) || 0), 0);
+        const earliestCandle = dailyCandles[dailyCandles.length - 1];
+        return {
+          volume: dailyCandles.reduce((sum, candle) => sum + (numberOrNull(candle?.[5]) || 0), 0),
+          firstOpenUsd: numberOrNull(earliestCandle?.[1]),
+        };
       } catch {
-        return 0;
+        return { volume: 0, firstOpenUsd: null };
       }
     }));
-    const totalVolumeUsd = poolVolumeTotals.reduce((sum, volume) => sum + volume, 0);
+    const totalVolumeUsd = poolHistories.reduce((sum, history) => sum + history.volume, 0);
     const volume24hUsd = rarePairs.reduce((sum, rarePair) => sum + (numberOrNull(rarePair.volume?.h24) || 0), 0);
     const buys24h = rarePairs.reduce((sum, rarePair) => sum + Number(rarePair.txns?.h24?.buys || 0), 0);
     const sells24h = rarePairs.reduce((sum, rarePair) => sum + Number(rarePair.txns?.h24?.sells || 0), 0);
+    const currentPriceUsd = numberOrNull(pair.priceUsd);
+    const firstOpenUsd = poolHistories[0]?.firstOpenUsd;
+    const allTimeChangePercent = currentPriceUsd !== null && firstOpenUsd
+      ? ((currentPriceUsd / firstOpenUsd) - 1) * 100
+      : null;
 
     response.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     return response.status(200).json({
       marketCap,
-      priceUsd: numberOrNull(pair.priceUsd),
+      priceUsd: currentPriceUsd,
+      allTimeChangePercent,
       liquidityUsd: numberOrNull(pair.liquidity?.usd),
       volume24hUsd,
       totalVolumeUsd,
