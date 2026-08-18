@@ -1,6 +1,7 @@
 const MARKET_CHAIN_ID = '0x1237';
 const MARKET_NFT = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const MARKET_RARE = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
+const MARKET_ADMIN = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
 const marketRoot = document.querySelector('[data-marketplace]');
 const marketplaceAddress = marketRoot?.dataset.marketplaceAddress || '';
 const auctionAddress = marketRoot?.dataset.auctionAddress || '';
@@ -43,8 +44,15 @@ async function verifyAuctionDeployment() {
   const vaultCode = await window.ethereum.request({ method: 'eth_getCode', params: [vault, 'latest'] });
   if (!vaultCode || vaultCode === '0x') throw new Error('Auction fee vault is not a deployed contract.');
   const vaultToken = await readContractAddress(vault, feeVaultArtifact.methodIdentifiers['rareToken()']);
+  const vaultOwner = await readContractAddress(vault, feeVaultArtifact.methodIdentifiers['owner()']);
+  const claimDestination = await readContractAddress(vault, feeVaultArtifact.methodIdentifiers['claimDestination()']);
+  const liquidityDestination = await readContractAddress(vault, feeVaultArtifact.methodIdentifiers['liquidityDestination()']);
   const vaultLocked = await window.ethereum.request({ method: 'eth_call', params: [{ to: vault, data: `0x${feeVaultArtifact.methodIdentifiers['configurationLocked()']}` }, 'latest'] });
-  if (vaultToken !== MARKET_RARE || BigInt(vaultLocked) !== 1n) throw new Error('Auction fee vault configuration is not safely locked to the official $RARE token.');
+  const sourceData = `0x${feeVaultArtifact.methodIdentifiers['feeSources(address)']}${marketAddressWord(auctionAddress)}`;
+  const sourceAuthorized = await window.ethereum.request({ method: 'eth_call', params: [{ to: vault, data: sourceData }, 'latest'] });
+  if (vaultToken !== MARKET_RARE || vaultOwner !== MARKET_ADMIN || claimDestination !== MARKET_ADMIN || liquidityDestination !== MARKET_ADMIN || BigInt(vaultLocked) !== 1n || BigInt(sourceAuthorized) !== 1n) {
+    throw new Error('Auction fee vault configuration does not match the verified locked deployment.');
+  }
   return true;
 }
 
