@@ -13,6 +13,7 @@ const auctionControls = [...document.querySelectorAll('.auction-tools input, .au
 const ownedGrid = document.querySelector('[data-owned-rares]');
 const ownedCount = document.querySelector('[data-owned-count]');
 const auctionModal = document.querySelector('[data-auction-modal]');
+const auctionFlowStatus = document.querySelector('[data-auction-flow-status]');
 let marketAccount = '';
 let marketArtifact;
 let auctionArtifact;
@@ -117,6 +118,7 @@ function selectOwnedRare(tokenId, card) {
   document.querySelector('[data-selected-auction-id]').textContent = tokenId;
   auctionModal.hidden = false;
   document.body.classList.add('modal-open');
+  auctionFlowStatus.textContent = 'Choose the minimum bid and duration, then press Start auction.';
   marketStatus.textContent = auctionAddress
     ? `Ultra Rare #${tokenId} selected. Set the reserve and auction duration.`
     : `Ultra Rare #${tokenId} selected. Auction creation unlocks after the reviewed contract is deployed.`;
@@ -197,14 +199,25 @@ async function marketSend(to, data, label) {
   const chainId = await window.ethereum.request({ method: 'eth_chainId' });
   if (chainId !== MARKET_CHAIN_ID) throw new Error('Switch to Robinhood Chain before continuing.');
   marketStatus.textContent = `${label}: confirm in wallet…`;
+  if (!auctionModal.hidden) auctionFlowStatus.textContent = `${label}: confirm in your wallet…`;
   const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: marketAccount, to, data, value: '0x0' }] });
+  if (!auctionModal.hidden) auctionFlowStatus.textContent = `${label}: submitted. Waiting for confirmation…`;
+  let receipt;
+  for (;;) {
+    receipt = await window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [hash] });
+    if (receipt) break;
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+  }
+  if (receipt.status !== '0x1') throw new Error(`${label} reverted on-chain.`);
   marketStatus.replaceChildren();
   const link = document.createElement('a');
   link.href = `https://robinhoodchain.blockscout.com/tx/${hash}`;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.textContent = `${label} submitted · View transaction ↗`;
+  link.textContent = `${label} confirmed · View transaction ↗`;
   marketStatus.append(link);
+  if (!auctionModal.hidden) auctionFlowStatus.textContent = `${label} confirmed.`;
+  return { hash, receipt };
 }
 
 connectMarket?.addEventListener('click', async () => {
@@ -275,18 +288,38 @@ document.querySelector('[data-buy-nft]')?.addEventListener('click', async () => 
   await marketSend(marketplaceAddress, marketCall('buy(uint256)', [marketWord(selectedListing.tokenId)]), 'Buy Ultra Rare');
 });
 
-document.querySelector('[data-approve-auction-nft]')?.addEventListener('click', async () => {
-  const tokenId = document.querySelector('[data-auction-token]').value;
-  if (!tokenId) return;
-  await marketSend(MARKET_NFT, `0x095ea7b3${marketAddressWord(auctionAddress)}${marketWord(tokenId)}`, 'Auction NFT approval');
-});
-
 document.querySelector('[data-create-auction]')?.addEventListener('click', async () => {
+  const startButton = document.querySelector('[data-create-auction]');
   const tokenId = document.querySelector('[data-auction-token]').value;
   const reserve = document.querySelector('[data-auction-reserve]').value;
   const duration = document.querySelector('[data-auction-duration]').value;
-  if (!tokenId || !reserve) { marketStatus.textContent = 'Enter an NFT ID and minimum $RARE reserve.'; return; }
-  await marketSend(auctionAddress, auctionCall('createAuction(uint256,uint256,uint256)', [marketWord(tokenId), marketWord(rareUnits(reserve)), marketWord(duration)]), 'Create auction');
+  if (!tokenId || !reserve || !Number.isSafeInteger(Number(reserve)) || Number(reserve) < 1) {
+    auctionFlowStatus.textContent = 'Enter a whole-number minimum bid of at least 1 $RARE.';
+    return;
+  }
+  if (!['3600', '86400'].includes(duration)) {
+    auctionFlowStatus.textContent = 'Choose a 1-hour or 1-day auction.';
+    return;
+  }
+  startButton.disabled = true;
+  startButton.textContent = 'Starting auction…';
+  try {
+    const approvalData = `0x081812fc${marketWord(tokenId)}`;
+    const approvalResult = await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_NFT, data: approvalData }, 'latest'] });
+    const approvedAddress = `0x${approvalResult.slice(-40)}`.toLowerCase();
+    if (approvedAddress !== auctionAddress.toLowerCase()) {
+      await marketSend(MARKET_NFT, `0x095ea7b3${marketAddressWord(auctionAddress)}${marketWord(tokenId)}`, 'Approve NFT');
+    } else {
+      auctionFlowStatus.textContent = 'NFT approval already confirmed. Creating auction…';
+    }
+    await marketSend(auctionAddress, auctionCall('createAuction(uint256,uint256,uint256)', [marketWord(tokenId), marketWord(rareUnits(reserve)), marketWord(duration)]), 'Create auction');
+    auctionFlowStatus.textContent = `Ultra Rare #${tokenId} is now live for auction.`;
+    startButton.textContent = 'Auction live ✓';
+  } catch (error) {
+    auctionFlowStatus.textContent = error?.code === 4001 ? 'Transaction cancelled. Nothing changed.' : (error.message || 'Auction could not be started.');
+    startButton.disabled = false;
+    startButton.textContent = 'Start auction';
+  }
 });
 
 document.querySelector('[data-check-auction]')?.addEventListener('click', async () => {
