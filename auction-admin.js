@@ -3,6 +3,8 @@ const NFT = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const RARE = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const CHAIN_ID = '0x1237';
 const EXPLORER = 'https://robinhoodchain.blockscout.com';
+const TRANSFER_VALIDATOR = '0xa000027a9b2802e1ddf7000061001e5c005a0000';
+const CREATED_LIST_TOPIC = '0x5cc365f89543268cb9f25c255f7f610e9147e733c589bc2732279575f125be14';
 const controls = {
   connect: document.querySelector('[data-auction-admin-connect]'),
   deployVault: document.querySelector('[data-deploy-fee-vault]'),
@@ -11,17 +13,20 @@ const controls = {
   destinations: document.querySelector('[data-set-fee-destinations]'),
   lock: document.querySelector('[data-lock-fee-config]'),
   verify: document.querySelector('[data-verify-auction]'),
+  transferPolicy: document.querySelector('[data-authorize-transfer-policy]'),
 };
 const status = document.querySelector('[data-auction-admin-status]');
 const output = document.querySelector('[data-auction-output]');
 let account = '';
 let feeVault = localStorage.getItem('ultraRaresFeeVaultAddress') || '';
 let auction = localStorage.getItem('ultraRaresAuctionAddress') || '';
+let transferListId = localStorage.getItem('ultraRaresTransferListId') || '';
 let feeArtifact;
 let auctionArtifact;
 
 const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
 const addressWord = (value) => value.toLowerCase().replace('0x', '').padStart(64, '0');
+const word = (value) => BigInt(value).toString(16).padStart(64, '0');
 const boolWord = (value) => (value ? '1' : '0').padStart(64, '0');
 const setStatus = (message) => { status.textContent = message; };
 const feeCall = (signature, args = []) => `0x${feeArtifact.methodIdentifiers[signature]}${args.join('')}`;
@@ -112,6 +117,23 @@ async function refreshConfiguration() {
   controls.destinations.disabled = destinationsReady || locked;
   controls.lock.disabled = locked || !sourceReady || !destinationsReady;
   controls.verify.disabled = !auction;
+  await refreshTransferPolicy();
+}
+
+async function refreshTransferPolicy() {
+  if (!auction) { controls.transferPolicy.disabled = true; return false; }
+  const data = `0x8e28800f${addressWord(NFT)}${addressWord(auction)}`;
+  const result = await read(TRANSFER_VALIDATOR, data);
+  const allowed = BigInt(result) === 1n;
+  controls.transferPolicy.disabled = allowed;
+  if (allowed) controls.transferPolicy.textContent = 'Auction allowed by NFT policy ✓';
+  return allowed;
+}
+
+function encodeString(value) {
+  const bytes = new TextEncoder().encode(value);
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return word(bytes.length) + hex.padEnd(Math.ceil(bytes.length / 32) * 64, '0');
 }
 
 function showAddresses() {
@@ -194,6 +216,29 @@ controls.verify.addEventListener('click', async () => {
     if (BigInt(locked) !== 1n || BigInt(source) !== 1n) throw new Error('Deployment exists, but authorization or permanent lock is incomplete.');
     setStatus('Verified on-chain. Copy both addresses and provide them for public marketplace activation.');
   } catch (error) { setStatus(error.message || 'On-chain verification failed.'); }
+});
+
+controls.transferPolicy.addEventListener('click', async () => {
+  controls.transferPolicy.disabled = true;
+  try {
+    if (!transferListId) {
+      const name = encodeString('Ultra Rares + Auction');
+      const receipt = await send(TRANSFER_VALIDATOR, `0xde02cbb1${word(64)}${word(0)}${name}`, 'Copy existing NFT transfer whitelist');
+      const created = receipt.logs?.find((log) => log.address?.toLowerCase() === TRANSFER_VALIDATOR && log.topics?.[0]?.toLowerCase() === CREATED_LIST_TOPIC);
+      if (!created?.topics?.[1]) throw new Error('The new transfer-list ID was not found in the receipt.');
+      transferListId = BigInt(created.topics[1]).toString();
+      localStorage.setItem('ultraRaresTransferListId', transferListId);
+    }
+    const addAuctionData = `0xa1cc5cc1${word(transferListId)}${word(64)}${word(1)}${addressWord(auction)}`;
+    await send(TRANSFER_VALIDATOR, addAuctionData, 'Add auction to copied whitelist');
+    const applyData = `0xbf7bfd7e${addressWord(NFT)}${word(transferListId)}`;
+    await send(TRANSFER_VALIDATOR, applyData, 'Apply expanded whitelist to Ultra Rares');
+    if (!await refreshTransferPolicy()) throw new Error('Transfer policy transactions confirmed, but the auction is not yet reported as allowed.');
+    setStatus('Auction transfer permission verified. You can now create auctions without disabling collection protection.');
+  } catch (error) {
+    controls.transferPolicy.disabled = false;
+    setStatus(error?.code === 4001 ? 'Transfer-policy update cancelled. Existing collection settings were preserved.' : (error.message || 'Transfer-policy update failed.'));
+  }
 });
 
 document.querySelector('[data-copy-auction-config]').addEventListener('click', async () => {

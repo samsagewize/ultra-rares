@@ -2,6 +2,7 @@ const MARKET_CHAIN_ID = '0x1237';
 const MARKET_NFT = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const MARKET_RARE = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const MARKET_ADMIN = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
+const MARKET_TRANSFER_VALIDATOR = '0xa000027a9b2802e1ddf7000061001e5c005a0000';
 const marketRoot = document.querySelector('[data-marketplace]');
 const marketplaceAddress = marketRoot?.dataset.marketplaceAddress || '';
 const auctionAddress = marketRoot?.dataset.auctionAddress || '';
@@ -54,6 +55,9 @@ async function verifyAuctionDeployment() {
   if (vaultToken !== MARKET_RARE || vaultOwner !== MARKET_ADMIN || claimDestination !== MARKET_ADMIN || liquidityDestination !== MARKET_ADMIN || BigInt(vaultLocked) !== 1n || BigInt(sourceAuthorized) !== 1n) {
     throw new Error('Auction fee vault configuration does not match the verified locked deployment.');
   }
+  const whitelistData = `0x8e28800f${marketAddressWord(MARKET_NFT)}${marketAddressWord(auctionAddress)}`;
+  const whitelisted = await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_TRANSFER_VALIDATOR, data: whitelistData }, 'latest'] });
+  if (BigInt(whitelisted) !== 1n) throw new Error('Auction deployment is waiting for collection transfer-policy authorization.');
   return true;
 }
 
