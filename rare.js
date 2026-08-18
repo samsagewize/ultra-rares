@@ -9,7 +9,7 @@ const addressPattern = /^0x[a-fA-F0-9]{40}$/;
 const marketCapElement = document.querySelector('[data-rare-market-cap]');
 const marketStatusElement = document.querySelector('[data-rare-market-status]');
 const goalFill = document.querySelector('[data-goal-fill]');
-const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=200&height=200&quality=95&format=auto';
+const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
 const rareTransferTrack = document.querySelector('[data-rare-transfers]');
 const gmeDistributedElement = document.querySelector('[data-gme-distributed]');
 const gmeNextElement = document.querySelector('[data-gme-next]');
