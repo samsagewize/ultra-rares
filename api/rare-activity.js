@@ -2,6 +2,7 @@ const RARE_TOKEN = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const EXPLORER = 'https://robinhoodchain.blockscout.com';
 const LEMON_VAULT = `https://lemon.fun/api/public/launchpad/vault/${RARE_TOKEN}`;
 const RARE_POOL = '0x8ec9c76ed191fb03397637acee1ce928426beb80';
+const LIQUIDITY_ENTRY_METHODS = new Set(['0xac9650d8', '0x88316456', '0x219f5d17']);
 
 const shortAddress = (value = '') => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : 'Unknown';
 
@@ -22,24 +23,9 @@ module.exports = async function handler(request, response) {
     const payload = await transferResult.json();
     const lemon = await lemonResult.json();
     const items = payload.items || [];
-    const liquidityCandidates = [...new Set(items
-      .filter((item) => item.to?.hash?.toLowerCase() === RARE_POOL)
-      .map((item) => item.transaction_hash))];
-    const liquidityChecks = await Promise.all(liquidityCandidates.map(async (hash) => {
-      try {
-        const transactionResult = await fetch(`${EXPLORER}/api/v2/transactions/${hash}`, {
-          headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
-          signal: AbortSignal.timeout(7000),
-        });
-        if (!transactionResult.ok) return null;
-        const transaction = await transactionResult.json();
-        const destination = `${transaction.to?.name || ''} ${transaction.to?.hash || ''}`.toLowerCase();
-        return destination.includes('nonfungiblepositionmanager') ? hash : null;
-      } catch {
-        return null;
-      }
-    }));
-    const liquidityHashes = new Set(liquidityChecks.filter(Boolean));
+    const liquidityHashes = new Set(items
+      .filter((item) => item.to?.hash?.toLowerCase() === RARE_POOL && LIQUIDITY_ENTRY_METHODS.has(item.method?.toLowerCase()))
+      .map((item) => item.transaction_hash));
     const buyHashes = new Set(items
       .filter((item) => item.from?.hash?.toLowerCase() === RARE_POOL)
       .map((item) => item.transaction_hash));
@@ -59,7 +45,7 @@ module.exports = async function handler(request, response) {
       side: liquidityHashes.has(item.transaction_hash) ? 'liquidity' : buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
       url: `${EXPLORER}/tx/${item.transaction_hash}`,
     }));
-    response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
+    response.setHeader('Cache-Control', 's-maxage=3, stale-while-revalidate=6');
     return response.status(200).json({
       transfers,
       latestBuyHash: items.find((item) => buyHashes.has(item.transaction_hash))?.transaction_hash || null,

@@ -30,6 +30,7 @@ const tradeSoundButton = document.querySelector('[data-trade-sound]');
 let latestRareBuyHash = null;
 let rareBuyTimer = null;
 let rareTradesInitialized = false;
+let rareActivityLoading = false;
 let knownRareTradeHashes = new Set();
 const savedTradeSound = (() => {
   try {
@@ -315,9 +316,10 @@ const formatGme = (value) => `${Number(value || 0).toLocaleString('en-US', { max
 const compactNumber = (value) => Number(value || 0).toLocaleString('en-US', { notation: 'compact', maximumFractionDigits: 2 });
 
 async function refreshRareActivity() {
-  if (!rareTransferTrack) return;
+  if (!rareTransferTrack || rareActivityLoading) return;
+  rareActivityLoading = true;
   try {
-    const response = await fetch(`/api/rare-activity?t=${Math.floor(Date.now() / 10000)}`);
+    const response = await fetch(`/api/rare-activity?t=${Math.floor(Date.now() / 3000)}`);
     if (!response.ok) throw new Error('Activity unavailable');
     const payload = await response.json();
     const newBuyHash = latestRareBuyHash && payload.latestBuyHash && payload.latestBuyHash !== latestRareBuyHash ? payload.latestBuyHash : null;
@@ -339,14 +341,16 @@ async function refreshRareActivity() {
   } catch {
     rareActivityStatus.textContent = 'Live feed retrying…';
     rareActivityStatus.classList.remove('is-live');
+  } finally {
+    rareActivityLoading = false;
   }
 }
 
 refreshRareMarket();
 refreshRareActivity();
 window.setInterval(() => {
-  if (!document.hidden) {
-    refreshRareMarket();
-    refreshRareActivity();
-  }
+  if (!document.hidden) refreshRareMarket();
 }, 20000);
+window.setInterval(() => {
+  if (!document.hidden) refreshRareActivity();
+}, 5000);
