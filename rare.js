@@ -239,7 +239,7 @@ function playTradePop(side, delay = 0) {
     oscillator.frequency.setValueAtTime(startFrequency, now);
     oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + .09);
     gain.gain.setValueAtTime(.0001, now);
-    gain.gain.exponentialRampToValueAtTime(.045, now + .008);
+    gain.gain.exponentialRampToValueAtTime(.065, now + .008);
     gain.gain.exponentialRampToValueAtTime(.0001, now + .11);
     oscillator.connect(gain).connect(tradeAudioContext.destination);
     oscillator.start(now);
