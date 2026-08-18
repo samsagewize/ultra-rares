@@ -106,7 +106,7 @@ contract RareAuctionHouse is IERC721ReceiverMinimal {
         if (auction.seller == address(0)) revert AuctionUnavailable();
         if (block.timestamp >= auction.endTime) revert AuctionEnded();
         if (msg.sender == auction.seller) revert SellerCannotBid();
-        if (amount <= auction.highestBid || amount * FEE_BPS / BPS_DENOMINATOR == 0) revert BidTooLow();
+        if (amount < auction.reservePrice || amount <= auction.highestBid || amount * FEE_BPS / BPS_DENOMINATOR == 0) revert BidTooLow();
 
         uint256 balanceBefore = rareToken.balanceOf(address(this));
         _safeTransferFrom(msg.sender, address(this), amount);
