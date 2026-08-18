@@ -951,3 +951,90 @@ footer {
   .holder-copy-tool { grid-template-columns: 1fr; align-items: stretch; }
   .holder-copy-tool > p { grid-column: 1; text-align: left; }
 }
+
+/* Public-site mobile pass */
+html, body { max-width: 100%; overflow-x: clip; }
+img, iframe { max-width: 100%; }
+
+@media (max-width: 760px) {
+  button, a, input, select { touch-action: manipulation; }
+  input, select { width: 100%; min-width: 0; }
+
+  .site-header,
+  .rare-page .site-header { left: 0; width: 100%; min-height: 68px; padding: 12px 16px; justify-content: flex-start; background: rgba(5,5,5,.9); mix-blend-mode: normal; color: var(--paper); }
+  .site-header .wordmark,
+  .rare-page .site-header .wordmark { display: none; }
+  .site-header nav,
+  .rare-page .site-header nav { width: 100%; justify-content: flex-start; gap: 20px; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: none; }
+  .site-header nav::-webkit-scrollbar { display: none; }
+  .nav-link { display: flex; min-height: 44px; flex: 0 0 auto; align-items: center; font-size: 9px; white-space: nowrap; }
+
+  .stats-rail { padding-top: 68px; }
+  .stats-rail-values > div { min-width: 0; min-height: 112px; padding: 16px 10px; }
+  .stats-rail-values strong { font-size: clamp(21px, 7vw, 31px); }
+
+  .doodle-parade { padding-top: 88px; }
+  .collection, .origin, .scooped, .proof { padding-inline: 18px; }
+  .section-heading h2, .origin h2, .scooped-heading h2, .proof h2 { overflow-wrap: anywhere; }
+  .rare-card { width: 100%; }
+  .origin-embed iframe { width: 100%; min-height: 420px; }
+  .scooped-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  footer { align-items: flex-start; flex-direction: column; gap: 14px; }
+
+  .rare-chart { padding: 100px 16px 40px; }
+  .rare-chart-heading h2 { font-size: clamp(52px, 18vw, 84px); }
+  .rare-chart-links { align-items: center; flex-direction: column; }
+  .rare-chart-frame { height: 70svh; min-height: 500px; }
+  .rare-gme-note { padding: 64px 18px; }
+  .rare-gme-note h2 { font-size: clamp(46px, 15vw, 76px); overflow-wrap: anywhere; }
+  .rare-roadmap { padding: 70px 18px; }
+  .roadmap-heading h2 { font-size: clamp(52px, 17vw, 82px); }
+  .roadmap-mystery { top: 10px; right: -120px; }
+  .milestone-grid { grid-template-columns: 1fr; }
+  .milestone-grid > div { min-height: 128px; }
+  .dex-milestone.is-complete::after { font-size: 150px; }
+
+  .marketplace-page .site-header { min-height: 118px; padding: 12px 16px; }
+  .marketplace-page .site-header nav { position: absolute; right: 16px; bottom: 6px; left: 16px; width: auto; }
+  .marketplace-page .market-header-wallet { top: 10px; right: 16px; left: 16px; justify-content: flex-end; }
+  .market-header-wallet span { margin-right: auto; }
+  .market-header-wallet button { min-height: 42px; }
+  .marketplace-page .marketplace-main { padding: 138px 16px 64px; }
+  .live-auctions-first { padding-top: 0; }
+  .live-auctions-heading { gap: 16px; }
+  .live-auctions-heading h2 { font-size: clamp(49px, 17vw, 78px); }
+  .live-auctions-heading > span { max-width: 100%; line-height: 1.35; }
+  .live-auction-grid { gap: 16px; }
+  .live-auction-card { grid-template-columns: 1fr; }
+  .live-auction-art { min-height: 0; aspect-ratio: 1; border-right: 0; border-bottom: 3px solid var(--ink); }
+  .live-auction-art img { min-height: 0; }
+  .live-auction-card > div { padding: 18px; }
+  .live-auction-card h3 { font-size: clamp(32px, 11vw, 48px); }
+  .live-auction-card button { min-height: 52px; }
+  .auction-activity { min-height: 280px; }
+  .marketplace-cover { height: 180px; }
+  .marketplace-hero h1 { font-size: clamp(58px, 19vw, 90px); }
+  .market-fee-note { align-items: flex-start; flex-direction: column; text-align: left; }
+  .owned-rares-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .auction-modal { padding: 76px 14px 28px; }
+  .auction-modal-close { top: 14px; right: 14px; }
+  .auction-heading h2 { font-size: clamp(48px, 16vw, 78px); overflow-wrap: anywhere; }
+  .auction-tools article { padding: 22px 16px; }
+  .bid-modal { padding: 12px; }
+  .bid-dialog { width: min(420px, calc(100vw - 24px)); max-height: calc(100svh - 24px); box-shadow: 7px 7px 0 var(--acid); }
+  .bid-dialog .auction-heading { padding: 54px 18px 18px; }
+  .bid-dialog .auction-tools article { padding: 18px; }
+}
+
+@media (max-width: 430px) {
+  .site-header nav, .rare-page .site-header nav { gap: 16px; }
+  .stats-rail-values { grid-template-columns: 1fr; }
+  .stats-rail-values > div { min-height: 90px; border-right: 0; border-bottom: 3px solid var(--ink); }
+  .stats-rail-values > div:first-child { border-top: 0; }
+  .stats-rail-values strong { margin: 8px 0 5px; }
+  .scooped-grid, .owned-rares-grid { grid-template-columns: 1fr; }
+  .marketplace-avatar { width: 104px; }
+  .marketplace-hero > p:not(.eyebrow) { font-size: 16px; line-height: 1.15; }
+  .market-header-wallet span { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; }
+  .goal-scale { font-size: 8px; }
+}
