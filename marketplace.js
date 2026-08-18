@@ -238,9 +238,17 @@ function updateAuctionTimers() {
 
 async function hydrateAuctionImage(tokenId, image) {
   try {
-    const metadata = await fetch(`/api/nft-metadata?tokenId=${tokenId}`).then((response) => response.json());
-    if (metadata.image) image.src = metadata.image;
-  } catch {}
+    const metadata = await fetch(`/api/nft-metadata?tokenId=${tokenId}`).then((response) => {
+      if (!response.ok) throw new Error('Artwork lookup failed');
+      return response.json();
+    });
+    if (!metadata.image || String(metadata.tokenId) !== String(tokenId)) return false;
+    image.src = metadata.image;
+    image.hidden = false;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function renderLiveAuctions(payload) {
@@ -252,10 +260,20 @@ function renderLiveAuctions(payload) {
     const cards = payload.activeAuctions.map((auction) => {
       const card = document.createElement('article');
       card.className = 'live-auction-card';
+      const artwork = document.createElement('div');
+      artwork.className = 'live-auction-art';
       const image = document.createElement('img');
-      image.src = 'assets/untitled.png';
       image.alt = `Ultra Rare #${auction.tokenId}`;
-      image.onerror = () => { image.onerror = null; image.src = 'assets/untitled.png'; };
+      image.hidden = !auction.image;
+      if (auction.image) image.src = auction.image;
+      const imageId = document.createElement('span');
+      imageId.textContent = `#${auction.tokenId}`;
+      image.onerror = () => {
+        image.onerror = null;
+        image.hidden = true;
+        hydrateAuctionImage(auction.tokenId, image);
+      };
+      artwork.append(image, imageId);
       const content = document.createElement('div');
       const title = document.createElement('h3');
       title.textContent = `Ultra Rare #${auction.tokenId}`;
@@ -271,8 +289,8 @@ function renderLiveAuctions(payload) {
       button.disabled = auction.endTime <= Date.now() / 1000;
       button.addEventListener('click', () => openBidModal(auction));
       content.append(title, timer, stats, seller, button);
-      card.append(image, content);
-      hydrateAuctionImage(auction.tokenId, image);
+      card.append(artwork, content);
+      if (!auction.image) hydrateAuctionImage(auction.tokenId, image);
       return card;
     });
     grid.replaceChildren(...cards);

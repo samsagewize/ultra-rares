@@ -1,5 +1,6 @@
 const RPC_URL = 'https://rpc.mainnet.chain.robinhood.com';
 const AUCTION = '0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8';
+const COLLECTION = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const DEPLOY_BLOCK = '0x2588127';
 const AUCTIONS_SELECTOR = '0x571a26a0';
 const EVENTS = {
@@ -25,6 +26,21 @@ const word = (value) => BigInt(value).toString(16).padStart(64, '0');
 const addressFromWord = (value) => `0x${value.slice(-40)}`.toLowerCase();
 const words = (value) => value.slice(2).match(/.{64}/g) || [];
 
+async function artworkForToken(tokenId) {
+  try {
+    const page = await fetch(`https://opensea.io/item/robinhood/${COLLECTION}/${tokenId}`, {
+      headers: { 'user-agent': 'UltraRaresAuctions/1.0 (+https://ultra-rares.vercel.app)' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!page.ok) return '';
+    const html = await page.text();
+    const images = [...html.matchAll(/"imageUrl":"([^"]+)"/g)].map((match) => match[1].replaceAll('\\u0026', '&'));
+    return images.find((image) => image.includes(`/robinhood/${COLLECTION}/`)) || '';
+  } catch {
+    return '';
+  }
+}
+
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
@@ -43,6 +59,8 @@ module.exports = async function handler(request, response) {
         highestBid: BigInt(`0x${fields[4]}`).toString(),
       }];
     });
+    const artwork = await Promise.all(activeAuctions.map(({ tokenId }) => artworkForToken(tokenId)));
+    activeAuctions.forEach((auction, index) => { auction.image = artwork[index]; });
 
     const relevantLogs = logs.filter((log) => EVENTS[log.topics[0]]);
     const blockNumbers = [...new Set(relevantLogs.map((log) => log.blockNumber))];
