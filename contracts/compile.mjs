@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import solc from 'solc';
 
-const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
+const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = {
   language: 'Solidity',
@@ -32,5 +32,16 @@ fs.writeFileSync(
     abi: vault.abi,
     bytecode: `0x${vault.evm.bytecode.object}`,
     methodIdentifiers: vault.evm.methodIdentifiers,
+  }, null, 2),
+);
+
+const marketplace = output.contracts['RareMarketplace.sol'].RareMarketplace;
+fs.writeFileSync(
+  new URL('../assets/RareMarketplace.json', import.meta.url),
+  JSON.stringify({
+    contractName: 'RareMarketplace',
+    abi: marketplace.abi,
+    bytecode: `0x${marketplace.evm.bytecode.object}`,
+    methodIdentifiers: marketplace.evm.methodIdentifiers,
   }, null, 2),
 );

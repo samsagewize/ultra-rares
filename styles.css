@@ -22,6 +22,24 @@
 .rare-gme-note { padding: clamp(70px, 11vh, 130px) 6vw; border-top: 5px solid var(--ink); border-bottom: 5px solid var(--ink); background: var(--acid); color: var(--ink); text-align: center; }
 .rare-gme-note h2 { max-width: 1150px; margin: 26px auto; font-size: clamp(54px, 9vw, 136px); line-height: .8; letter-spacing: -.08em; }
 .rare-gme-note > p:last-child { max-width: 820px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 24px); font-weight: 900; line-height: 1.08; letter-spacing: -.025em; }
+.marketplace-main { min-height: 100svh; padding: 140px 6vw 9vh; background: var(--acid); }
+.marketplace-hero { max-width: 1180px; margin: 0 auto 9vh; text-align: center; }
+.marketplace-hero h1 { margin: 28px auto; font-size: clamp(68px, 12vw, 180px); line-height: .75; letter-spacing: -.09em; }
+.marketplace-hero > p:not(.eyebrow) { max-width: 760px; margin: 0 auto 30px; font-size: clamp(16px, 2vw, 28px); font-weight: 900; line-height: 1; }
+.marketplace-hero button, .marketplace-tools button { min-height: 58px; padding: 14px 20px; border: 3px solid var(--ink); background: var(--ink); color: var(--acid); font-weight: 900; cursor: pointer; }
+.marketplace-hero [data-market-status] { margin-top: 18px; font-size: 10px; letter-spacing: .08em; }
+.marketplace-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1180px; margin: 0 auto; border: 4px solid var(--ink); }
+.marketplace-tools article { display: flex; flex-direction: column; gap: 12px; padding: clamp(25px, 5vw, 64px); }
+.marketplace-tools article + article { border-left: 4px solid var(--ink); }
+.marketplace-tools h2 { margin: 16px 0 30px; font-size: clamp(48px, 7vw, 100px); line-height: .78; letter-spacing: -.08em; }
+.marketplace-tools label { margin-top: 10px; font-size: 9px; font-weight: 900; letter-spacing: .11em; }
+.marketplace-tools input { min-height: 58px; padding: 12px 16px; border: 3px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); font: inherit; font-size: 21px; font-weight: 900; }
+.marketplace-tools button:disabled, .marketplace-tools input:disabled { opacity: .38; cursor: not-allowed; }
+.market-listing-result { min-height: 72px; padding: 16px; border: 3px solid var(--ink); font-size: 12px; font-weight: 900; line-height: 1.35; }
+.marketplace-safety { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 1180px; margin: 8vh auto 0; border-top: 3px solid var(--ink); border-left: 3px solid var(--ink); }
+.marketplace-safety p { display: flex; min-height: 125px; flex-direction: column; gap: 14px; margin: 0; padding: 22px; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
+.marketplace-safety strong { font-size: 11px; letter-spacing: .1em; }
+.marketplace-safety span { font-size: 10px; font-weight: 800; line-height: 1.4; }
 .vault-launch-panel { background: #000; color: var(--acid, #b6ff00); padding: clamp(24px, 5vw, 64px); display: grid; gap: 12px; }
 .vault-launch-summary { display: grid; gap: 1px; margin-bottom: 20px; }
 .vault-launch-summary p { display: grid; grid-template-columns: minmax(130px, .7fr) 1.3fr; gap: 16px; border-bottom: 1px solid currentColor; padding: 13px 0; margin: 0; }
@@ -39,6 +57,10 @@
   .rare-chart-links { justify-content: center; }
   .rare-chart-frame { min-height: 620px; height: 76vh; }
   .vault-launch-summary p { grid-template-columns: 1fr; gap: 6px; }
+  .marketplace-main { padding-inline: 20px; }
+  .marketplace-tools { grid-template-columns: 1fr; }
+  .marketplace-tools article + article { border-top: 4px solid var(--ink); border-left: 0; }
+  .marketplace-safety { grid-template-columns: 1fr; }
 }
 
 * { box-sizing: border-box; }

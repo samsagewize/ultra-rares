@@ -100,3 +100,16 @@ This is the recorded product direction, not yet implemented or approved for main
 6. Team tokens use an onchain vesting schedule rather than an immediately spendable wallet allocation.
 
 Before implementation, fix the Last Rares supply, RARE maximum supply, allocation percentages, vesting period, curve design, auction format, reserve price, auction duration, and per-wallet limits. These parameters must not be improvised at deployment time.
+
+## Ultra Rares RARE marketplace
+
+`RareMarketplace.sol` is a non-custodial, fixed-price marketplace dedicated to the existing Ultra Rares NFT and RARE token. A seller keeps the NFT in their wallet, approves the marketplace for that token ID, and creates a listing denominated in RARE. At purchase, RARE transfers directly from buyer to seller and the NFT transfers directly from seller to buyer in one atomic transaction.
+
+The contract has no administrator, custody wallet, marketplace fee, or upgrade mechanism. A listing becomes unbuyable if the seller transfers the NFT or revokes approval. Reentrancy protection covers the purchase path, and listing state is deleted before either external transfer.
+
+Mainnet constructor configuration:
+
+- Ultra Rares NFT: `0x923aaaa62c12505b1bbb57ed52b730d6462c01c5`
+- RARE token: `0x1d522a4c3e1f3d97b585903474b2544cf9feeffb`
+
+Deploy and test on Robinhood Chain testnet first. The public marketplace interface remains disabled until the reviewed mainnet contract address is placed in `marketplace.html`.

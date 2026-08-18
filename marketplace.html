@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="List and collect Ultra Rares using RARE on Robinhood Chain." />
+    <title>Marketplace — Ultra Rares</title>
+    <link rel="icon" type="image/png" href="assets/banner-2.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="rare-page marketplace-page">
+    <header class="site-header">
+      <a class="wordmark" href="index.html" aria-label="Ultra Rares home"><img src="assets/banner-2.png" alt="" /></a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-link" href="index.html#collection">Collection</a>
+        <a class="nav-link" href="index.html#proof-of-work">Proof of Work</a>
+        <a class="nav-link" href="rare.html">$RARE</a>
+        <a class="nav-link active" href="marketplace.html">Marketplace</a>
+        <a class="nav-link" href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">OpenSea</a>
+      </nav>
+    </header>
+
+    <main class="marketplace-main" data-marketplace data-marketplace-address="">
+      <section class="marketplace-hero">
+        <p class="eyebrow">Ultra Rares / settled in $RARE</p>
+        <h1>List rare.<br />Buy rare.</h1>
+        <p>Owners keep custody until a sale completes. Payment moves directly from buyer to seller in $RARE.</p>
+        <button type="button" data-market-connect>Connect wallet</button>
+        <p data-market-status role="status" aria-live="polite">Marketplace contract is ready for review and deployment. Trading is not live yet.</p>
+      </section>
+
+      <section class="marketplace-tools">
+        <article>
+          <p class="eyebrow">For owners</p>
+          <h2>List an<br />Ultra Rare.</h2>
+          <label for="list-token-id">NFT token ID</label>
+          <input id="list-token-id" type="number" min="1" max="420" placeholder="78" data-list-token disabled />
+          <label for="list-price">Price in $RARE</label>
+          <input id="list-price" type="number" min="1" step="1" placeholder="100000" data-list-price disabled />
+          <button type="button" data-approve-nft disabled>Approve this NFT</button>
+          <button type="button" data-create-listing disabled>List for $RARE</button>
+        </article>
+
+        <article>
+          <p class="eyebrow">For collectors</p>
+          <h2>Find and<br />collect.</h2>
+          <label for="buy-token-id">NFT token ID</label>
+          <input id="buy-token-id" type="number" min="1" max="420" placeholder="78" data-buy-token disabled />
+          <button type="button" data-check-listing disabled>Check listing</button>
+          <div class="market-listing-result" data-listing-result>No listing selected.</div>
+          <button type="button" data-approve-rare disabled>Approve listing price in $RARE</button>
+          <button type="button" data-buy-nft disabled>Buy Ultra Rare</button>
+        </article>
+      </section>
+
+      <section class="marketplace-safety">
+        <p><strong>Non-custodial</strong><span>The marketplace does not hold listed NFTs.</span></p>
+        <p><strong>Direct settlement</strong><span>$RARE moves from buyer directly to seller.</span></p>
+        <p><strong>Verify first</strong><span>Confirm the contract and transaction in your wallet before signing.</span></p>
+      </section>
+    </main>
+    <script src="marketplace.js"></script>
+  </body>
+</html>
