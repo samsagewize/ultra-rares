@@ -135,6 +135,8 @@ function renderRareTransfers(transfers, newBuyHash = null) {
   const rows = transfers.map((transfer) => {
     const link = document.createElement('a');
     link.className = 'ticker-item rare-transfer-item';
+    if (transfer.side === 'buy') link.classList.add('is-rare-buy');
+    if (transfer.side === 'sell') link.classList.add('is-rare-sell');
     if (transfer.hash === newBuyHash && transfer.side === 'buy') link.classList.add('is-new-rare-buy');
     link.href = transfer.url;
     link.target = '_blank';
@@ -157,7 +159,8 @@ function renderRareTransfers(transfers, newBuyHash = null) {
     const route = document.createElement('small');
     route.textContent = `${transfer.fromLabel || shortWallet(transfer.from)} → ${transfer.toLabel || shortWallet(transfer.to)}`;
     const time = document.createElement('small');
-    time.textContent = `${transfer.side === 'buy' ? 'BUY · ' : ''}${new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    const sideLabel = transfer.side === 'buy' ? 'BUY · ' : transfer.side === 'sell' ? 'SELL · ' : '';
+    time.textContent = `${sideLabel}${new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
     copy.append(amount, route, time);
     link.append(icon, copy);
     return link;

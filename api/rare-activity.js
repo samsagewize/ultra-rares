@@ -24,6 +24,9 @@ module.exports = async function handler(request, response) {
     const buyHashes = new Set((payload.items || [])
       .filter((item) => item.from?.hash?.toLowerCase() === RARE_POOL)
       .map((item) => item.transaction_hash));
+    const sellHashes = new Set((payload.items || [])
+      .filter((item) => item.to?.hash?.toLowerCase() === RARE_POOL)
+      .map((item) => item.transaction_hash));
     const transfers = (payload.items || []).slice(0, 30).map((item) => ({
       hash: item.transaction_hash,
       logIndex: item.log_index,
@@ -34,7 +37,7 @@ module.exports = async function handler(request, response) {
       value: item.total?.value || '0',
       decimals: Number(item.total?.decimals || item.token?.decimals || 18),
       timestamp: item.timestamp,
-      side: buyHashes.has(item.transaction_hash) ? 'buy' : 'transfer',
+      side: buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
       url: `${EXPLORER}/tx/${item.transaction_hash}`,
     }));
     response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
