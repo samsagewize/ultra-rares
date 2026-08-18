@@ -861,6 +861,12 @@ footer {
 .rare-transfer-item { grid-template-columns: 52px 1fr; }
 .rare-transfer-item > b { display: grid; width: 52px; height: 52px; place-items: center; border: 2px solid var(--ink); border-radius: 50%; background: var(--ink); color: var(--acid); font-size: 16px; }
 .rare-transfer-item small { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
+.rare-transfer-ticker .ticker-track { animation: none; }
+.rare-transfer-ticker.has-new-buy .ticker-track { animation: rare-buy-arrival .7s cubic-bezier(.2,1,.35,1) both; }
+.rare-transfer-ticker.has-new-buy .ticker-heading::after { content: " · NEW BUY"; }
+.rare-transfer-item.is-new-rare-buy { background: var(--ink); color: var(--acid); }
+.rare-transfer-item.is-new-rare-buy > b { border-color: var(--acid); background: var(--acid); color: var(--ink); }
+@keyframes rare-buy-arrival { from { transform: translateY(-94px); opacity: .35; } to { transform: translateY(0); opacity: 1; } }
 .rare-main { min-height: 100svh; background: var(--acid); }
 
 .rare-token-intro {

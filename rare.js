@@ -17,6 +17,9 @@ const gmeCreatorElement = document.querySelector('[data-gme-creator]');
 const gmeMinElement = document.querySelector('[data-gme-min]');
 const gmeSplitElement = document.querySelector('[data-gme-split]');
 const rareActivityStatus = document.querySelector('[data-rare-activity-status]');
+const rareTransferTicker = document.querySelector('.rare-transfer-ticker');
+let latestRareBuyHash = null;
+let rareBuyTimer = null;
 
 const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
   style: 'currency',
@@ -120,15 +123,15 @@ function formatRareTransfer(value, decimals) {
   return `${display}${fraction ? `.${fraction}` : ''} $RARE`;
 }
 
-function renderRareTransfers(transfers) {
+function renderRareTransfers(transfers, newBuyHash = null) {
   if (!rareTransferTrack) return;
-  const rows = [...transfers, ...transfers].map((transfer, index) => {
+  const rows = transfers.map((transfer) => {
     const link = document.createElement('a');
     link.className = 'ticker-item rare-transfer-item';
+    if (transfer.hash === newBuyHash && transfer.side === 'buy') link.classList.add('is-new-rare-buy');
     link.href = transfer.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    if (index >= transfers.length) link.setAttribute('aria-hidden', 'true');
     const icon = document.createElement('b');
     icon.textContent = '$R';
     const copy = document.createElement('span');
@@ -137,12 +140,21 @@ function renderRareTransfers(transfers) {
     const route = document.createElement('small');
     route.textContent = `${transfer.fromLabel || shortWallet(transfer.from)} → ${transfer.toLabel || shortWallet(transfer.to)}`;
     const time = document.createElement('small');
-    time.textContent = new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    time.textContent = `${transfer.side === 'buy' ? 'BUY · ' : ''}${new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
     copy.append(amount, route, time);
     link.append(icon, copy);
     return link;
   });
   rareTransferTrack.replaceChildren(...rows);
+}
+
+function announceRareBuy() {
+  if (!rareTransferTicker) return;
+  rareTransferTicker.classList.remove('has-new-buy');
+  void rareTransferTicker.offsetWidth;
+  rareTransferTicker.classList.add('has-new-buy');
+  clearTimeout(rareBuyTimer);
+  rareBuyTimer = window.setTimeout(() => rareTransferTicker.classList.remove('has-new-buy'), 5000);
 }
 
 const formatGme = (value) => `${Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 4 })} GME`;
@@ -154,7 +166,10 @@ async function refreshRareActivity() {
     const response = await fetch(`/api/rare-activity?t=${Math.floor(Date.now() / 10000)}`);
     if (!response.ok) throw new Error('Activity unavailable');
     const payload = await response.json();
-    renderRareTransfers(payload.transfers);
+    const newBuyHash = latestRareBuyHash && payload.latestBuyHash && payload.latestBuyHash !== latestRareBuyHash ? payload.latestBuyHash : null;
+    renderRareTransfers(payload.transfers, newBuyHash);
+    if (newBuyHash) announceRareBuy();
+    latestRareBuyHash = payload.latestBuyHash || latestRareBuyHash;
     const gme = payload.gme;
     gmeDistributedElement.textContent = formatGme(gme.paidToHolders);
     gmeNextElement.textContent = formatGme(gme.nextRound);

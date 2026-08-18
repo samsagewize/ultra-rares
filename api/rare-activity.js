@@ -1,6 +1,7 @@
 const RARE_TOKEN = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const EXPLORER = 'https://robinhoodchain.blockscout.com';
 const LEMON_VAULT = `https://lemon.fun/api/public/launchpad/vault/${RARE_TOKEN}`;
+const RARE_POOL = '0x8ec9c76ed191fb03397637acee1ce928426beb80';
 
 const shortAddress = (value = '') => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : 'Unknown';
 
@@ -20,6 +21,9 @@ module.exports = async function handler(request, response) {
     if (!transferResult.ok || !lemonResult.ok) throw new Error('Live source unavailable');
     const payload = await transferResult.json();
     const lemon = await lemonResult.json();
+    const buyHashes = new Set((payload.items || [])
+      .filter((item) => item.from?.hash?.toLowerCase() === RARE_POOL)
+      .map((item) => item.transaction_hash));
     const transfers = (payload.items || []).slice(0, 30).map((item) => ({
       hash: item.transaction_hash,
       logIndex: item.log_index,
@@ -30,11 +34,13 @@ module.exports = async function handler(request, response) {
       value: item.total?.value || '0',
       decimals: Number(item.total?.decimals || item.token?.decimals || 18),
       timestamp: item.timestamp,
+      side: buyHashes.has(item.transaction_hash) ? 'buy' : 'transfer',
       url: `${EXPLORER}/tx/${item.transaction_hash}`,
     }));
     response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
     return response.status(200).json({
       transfers,
+      latestBuyHash: (payload.items || []).find((item) => buyHashes.has(item.transaction_hash))?.transaction_hash || null,
       gme: {
         symbol: lemon.stockSymbol || 'GME',
         paidToHolders: lemon.stats?.totalPublished || lemon.stats?.totalDistributed || '0',
