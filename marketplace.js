@@ -10,6 +10,7 @@ const controls = [...document.querySelectorAll('.marketplace-tools input, .marke
 const auctionControls = [...document.querySelectorAll('.auction-tools input, .auction-tools select, .auction-tools button')];
 const ownedGrid = document.querySelector('[data-owned-rares]');
 const ownedCount = document.querySelector('[data-owned-count]');
+const auctionModal = document.querySelector('[data-auction-modal]');
 let marketAccount = '';
 let marketArtifact;
 let auctionArtifact;
@@ -51,7 +52,9 @@ function selectOwnedRare(tokenId, card) {
   document.querySelectorAll('.owned-rare-card.is-selected').forEach((item) => item.classList.remove('is-selected'));
   card.classList.add('is-selected');
   document.querySelector('[data-auction-token]').value = tokenId;
-  document.querySelector('.auction-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelector('[data-selected-auction-id]').textContent = tokenId;
+  auctionModal.hidden = false;
+  document.body.classList.add('modal-open');
   marketStatus.textContent = auctionAddress
     ? `Ultra Rare #${tokenId} selected. Set the reserve and auction duration.`
     : `Ultra Rare #${tokenId} selected. Auction creation unlocks after the reviewed contract is deployed.`;
@@ -92,7 +95,7 @@ async function loadOwnedRares() {
     const edition = document.createElement('small');
     edition.textContent = `Ultra Rares · #${tokenId}`;
     const action = document.createElement('b');
-    action.textContent = 'Select for auction ↗';
+    action.textContent = 'List for auction ↗';
     copy.append(name, edition, action);
     button.append(image, copy);
     button.addEventListener('click', () => selectOwnedRare(tokenId, button));
@@ -100,6 +103,15 @@ async function loadOwnedRares() {
   });
   ownedGrid.replaceChildren(...cards);
 }
+
+function closeAuctionModal() {
+  auctionModal.hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
+document.querySelector('[data-close-auction]')?.addEventListener('click', closeAuctionModal);
+auctionModal?.addEventListener('click', (event) => { if (event.target === auctionModal) closeAuctionModal(); });
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !auctionModal?.hidden) closeAuctionModal(); });
 
 async function marketNetwork() {
   try {

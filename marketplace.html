@@ -42,10 +42,11 @@
         </div>
       </section>
 
-      <section class="auction-section" aria-labelledby="auction-title">
+      <section class="auction-section auction-modal" aria-labelledby="auction-title" data-auction-modal hidden>
+        <button type="button" class="auction-modal-close" data-close-auction aria-label="Close auction setup">Close ×</button>
         <div class="auction-heading">
           <p class="eyebrow">Holder-created auctions / $RARE only</p>
-          <h2 id="auction-title">Set the floor.<br />Start the clock.</h2>
+          <h2 id="auction-title">List #<span data-selected-auction-id>—</span>.<br />Start the clock.</h2>
           <p>Choose a minimum reserve and run an auction from 2 hours to 7 days. The NFT is held by the auction contract until settlement or cancellation.</p>
         </div>
         <div class="auction-tools">
