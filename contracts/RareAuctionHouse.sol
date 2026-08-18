@@ -22,10 +22,10 @@ interface IRareFeeVaultAuction {
 }
 
 /// @title Ultra Rares RARE Auction House
-/// @notice Escrows an Ultra Rare during a 2-hour to 7-day auction settled in RARE.
+/// @notice Escrows an Ultra Rare during a 1-hour or 1-day auction settled in RARE.
 contract RareAuctionHouse is IERC721ReceiverMinimal {
-    uint256 public constant MIN_DURATION = 2 hours;
-    uint256 public constant MAX_DURATION = 7 days;
+    uint256 public constant MIN_DURATION = 1 hours;
+    uint256 public constant MAX_DURATION = 1 days;
     uint256 public constant FEE_BPS = 200;
     uint256 public constant BPS_DENOMINATOR = 10_000;
 
@@ -85,7 +85,7 @@ contract RareAuctionHouse is IERC721ReceiverMinimal {
     }
 
     function createAuction(uint256 tokenId, uint256 reservePrice, uint256 duration) external nonReentrant {
-        if (duration < MIN_DURATION || duration > MAX_DURATION) revert InvalidDuration();
+        if (duration != MIN_DURATION && duration != MAX_DURATION) revert InvalidDuration();
         if (reservePrice * FEE_BPS / BPS_DENOMINATOR == 0) revert InvalidAmount();
         if (collection.ownerOf(tokenId) != msg.sender) revert NotTokenOwner();
         if (auctions[tokenId].seller != address(0)) revert AuctionExists();

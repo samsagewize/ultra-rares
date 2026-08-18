@@ -116,7 +116,7 @@ Deploy and test on Robinhood Chain testnet first. The public marketplace interfa
 
 ## Holder-created RARE auctions
 
-`RareAuctionHouse.sol` lets an Ultra Rares holder escrow their NFT and choose a minimum RARE reserve plus a duration between exactly 2 hours and 7 days. Bids are held by the contract until the auction ends. A higher bid credits the previous bidder with a pull-based refund, avoiding a refund callback during bidding. Successful auctions use the same 98% seller / 2% fee-vault settlement.
+`RareAuctionHouse.sol` lets an Ultra Rares holder escrow their NFT, choose a minimum opening bid in RARE, and select exactly a 1-hour or 1-day auction. Bids are held by the contract until the auction ends. A higher bid credits the previous bidder with a pull-based refund, avoiding a refund callback during bidding. Successful auctions use the same 98% seller / 2% fee-vault settlement.
 
 Before the first bid, the seller may cancel and recover the NFT. Once a bid exists, cancellation is disabled. After the deadline, anyone may settle: a winning bid at or above reserve pays the seller and transfers the NFT to the winner; otherwise the NFT returns to the seller and the highest bidder receives a withdrawable refund.
 
