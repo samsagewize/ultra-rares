@@ -21,13 +21,32 @@ module.exports = async function handler(request, response) {
     if (!transferResult.ok || !lemonResult.ok) throw new Error('Live source unavailable');
     const payload = await transferResult.json();
     const lemon = await lemonResult.json();
-    const buyHashes = new Set((payload.items || [])
+    const items = payload.items || [];
+    const liquidityCandidates = [...new Set(items
+      .filter((item) => item.to?.hash?.toLowerCase() === RARE_POOL)
+      .map((item) => item.transaction_hash))];
+    const liquidityChecks = await Promise.all(liquidityCandidates.map(async (hash) => {
+      try {
+        const transactionResult = await fetch(`${EXPLORER}/api/v2/transactions/${hash}`, {
+          headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
+          signal: AbortSignal.timeout(7000),
+        });
+        if (!transactionResult.ok) return null;
+        const transaction = await transactionResult.json();
+        const destination = `${transaction.to?.name || ''} ${transaction.to?.hash || ''}`.toLowerCase();
+        return destination.includes('nonfungiblepositionmanager') ? hash : null;
+      } catch {
+        return null;
+      }
+    }));
+    const liquidityHashes = new Set(liquidityChecks.filter(Boolean));
+    const buyHashes = new Set(items
       .filter((item) => item.from?.hash?.toLowerCase() === RARE_POOL)
       .map((item) => item.transaction_hash));
-    const sellHashes = new Set((payload.items || [])
+    const sellHashes = new Set(items
       .filter((item) => item.to?.hash?.toLowerCase() === RARE_POOL)
       .map((item) => item.transaction_hash));
-    const transfers = (payload.items || []).slice(0, 30).map((item) => ({
+    const transfers = items.slice(0, 30).map((item) => ({
       hash: item.transaction_hash,
       logIndex: item.log_index,
       from: item.from?.hash || '',
@@ -37,13 +56,13 @@ module.exports = async function handler(request, response) {
       value: item.total?.value || '0',
       decimals: Number(item.total?.decimals || item.token?.decimals || 18),
       timestamp: item.timestamp,
-      side: buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
+      side: liquidityHashes.has(item.transaction_hash) ? 'liquidity' : buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
       url: `${EXPLORER}/tx/${item.transaction_hash}`,
     }));
     response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
     return response.status(200).json({
       transfers,
-      latestBuyHash: (payload.items || []).find((item) => buyHashes.has(item.transaction_hash))?.transaction_hash || null,
+      latestBuyHash: items.find((item) => buyHashes.has(item.transaction_hash))?.transaction_hash || null,
       gme: {
         symbol: lemon.stockSymbol || 'GME',
         paidToHolders: lemon.stats?.totalPublished || lemon.stats?.totalDistributed || '0',

@@ -876,10 +876,14 @@ footer {
 .rare-transfer-item small { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
 .rare-transfer-item.is-rare-buy { border-left: 5px solid #22d86f; }
 .rare-transfer-item.is-rare-sell { border-left: 5px solid #ff4d57; }
+.rare-transfer-item.is-rare-liquidity { border-left: 5px solid #238cff; background: #dbeaff; }
 .rare-transfer-item.is-rare-buy strong, .rare-transfer-item.is-rare-buy small:last-child { color: #087b3b; }
 .rare-transfer-item.is-rare-sell strong, .rare-transfer-item.is-rare-sell small:last-child { color: #b20f23; }
+.rare-transfer-item.is-rare-liquidity strong, .rare-transfer-item.is-rare-liquidity small:last-child { color: #0758ba; }
 .rare-transfer-item.is-rare-buy .rare-token-icon { border-color: #22d86f; box-shadow: 0 0 0 3px rgba(34,216,111,.2); }
 .rare-transfer-item.is-rare-sell .rare-token-icon { border-color: #ff4d57; box-shadow: 0 0 0 3px rgba(255,77,87,.18); }
+.rare-transfer-item.is-rare-liquidity .rare-token-icon { border-color: #238cff; box-shadow: 0 0 0 3px rgba(35,140,255,.22); }
+.rare-transfer-item.is-rare-liquidity .rare-token-icon em { color: #fff; background: #238cff; }
 .rare-transfer-item.is-new-trade-pop { animation: rare-trade-row-pop .75s cubic-bezier(.2,1.4,.35,1); }
 .rare-transfer-ticker .ticker-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .trade-sound-toggle,
@@ -889,6 +893,7 @@ footer {
 .trade-bubble { position: absolute; bottom: -55px; left: var(--bubble-x); width: var(--bubble-size); height: var(--bubble-size); border: 3px solid currentColor; border-radius: 50%; opacity: 0; box-shadow: inset 5px 5px 0 rgba(255,255,255,.3), 0 0 18px currentColor; animation: rare-trade-bubble 1.35s ease-out var(--bubble-delay) forwards; }
 .trade-bubble.is-buy { color: #22d86f; background: rgba(34,216,111,.34); }
 .trade-bubble.is-sell { color: #ff4d57; background: rgba(255,77,87,.32); }
+.trade-bubble.is-liquidity { color: #238cff; background: rgba(35,140,255,.32); }
 .rare-transfer-ticker .ticker-track { animation: none; }
 .rare-transfer-ticker.has-new-buy { width: clamp(350px, 40vw, 560px); box-shadow: -18px 0 0 var(--ink), -30px 0 50px rgba(34,216,111,.34); }
 .rare-transfer-ticker.has-new-buy .ticker-track { animation: rare-buy-arrival .9s cubic-bezier(.16,1.35,.35,1) both; }
