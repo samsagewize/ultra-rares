@@ -880,6 +880,14 @@ footer {
 .rare-transfer-item.is-rare-sell strong, .rare-transfer-item.is-rare-sell small:last-child { color: #b20f23; }
 .rare-transfer-item.is-rare-buy .rare-token-icon { border-color: #22d86f; box-shadow: 0 0 0 3px rgba(34,216,111,.2); }
 .rare-transfer-item.is-rare-sell .rare-token-icon { border-color: #ff4d57; box-shadow: 0 0 0 3px rgba(255,77,87,.18); }
+.rare-transfer-item.is-new-trade-pop { animation: rare-trade-row-pop .75s cubic-bezier(.2,1.4,.35,1); }
+.rare-transfer-ticker .ticker-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.trade-sound-toggle,
+.rare-transfer-ticker [data-trade-sound] { border: 1px solid currentColor; border-radius: 999px; padding: 5px 7px; color: inherit; background: transparent; font-size: 6px; font-weight: 900; letter-spacing: .06em; cursor: pointer; white-space: nowrap; }
+.trade-bubble-layer { position: absolute; z-index: 6; inset: 42px 0 40px; overflow: hidden; pointer-events: none; }
+.trade-bubble { position: absolute; bottom: -55px; left: var(--bubble-x); width: var(--bubble-size); height: var(--bubble-size); border: 3px solid currentColor; border-radius: 50%; opacity: 0; box-shadow: inset 5px 5px 0 rgba(255,255,255,.3), 0 0 18px currentColor; animation: rare-trade-bubble 1.35s ease-out var(--bubble-delay) forwards; }
+.trade-bubble.is-buy { color: #22d86f; background: rgba(34,216,111,.34); }
+.trade-bubble.is-sell { color: #ff4d57; background: rgba(255,77,87,.32); }
 .rare-transfer-ticker .ticker-track { animation: none; }
 .rare-transfer-ticker.has-new-buy { width: clamp(350px, 40vw, 560px); box-shadow: -18px 0 0 var(--ink), -30px 0 50px rgba(34,216,111,.34); }
 .rare-transfer-ticker.has-new-buy .ticker-track { animation: rare-buy-arrival .9s cubic-bezier(.16,1.35,.35,1) both; }
@@ -894,6 +902,8 @@ footer {
 @keyframes rare-buy-arrival { 0% { transform: translateY(-180px) scale(.92); opacity: 0; } 70% { transform: translateY(8px) scale(1.02); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
 @keyframes rare-buy-card-pulse { 0%,100% { background: var(--ink); color: #22d86f; } 50% { background: #22d86f; color: var(--ink); } }
 @keyframes rare-buy-header-pulse { 0%,100% { background: #22d86f; color: var(--ink); } 50% { background: var(--ink); color: #22d86f; } }
+@keyframes rare-trade-row-pop { 0% { transform: scale(.86); filter: brightness(1.8); } 70% { transform: scale(1.035); } 100% { transform: scale(1); filter: brightness(1); } }
+@keyframes rare-trade-bubble { 0% { transform: translate(0,0) scale(.2); opacity: 0; } 18% { opacity: .95; } 78% { opacity: .85; } 100% { transform: translate(var(--bubble-drift), -340px) scale(1.25); opacity: 0; } }
 .rare-main { min-height: 100svh; background: var(--acid); }
 
 .rare-token-intro {

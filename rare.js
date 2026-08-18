@@ -21,8 +21,14 @@ const gmeMinElement = document.querySelector('[data-gme-min]');
 const gmeSplitElement = document.querySelector('[data-gme-split]');
 const rareActivityStatus = document.querySelector('[data-rare-activity-status]');
 const rareTransferTicker = document.querySelector('.rare-transfer-ticker');
+const tradeBubbleLayer = document.querySelector('[data-trade-bubbles]');
+const tradeSoundButton = document.querySelector('[data-trade-sound]');
 let latestRareBuyHash = null;
 let rareBuyTimer = null;
+let rareTradesInitialized = false;
+let knownRareTradeHashes = new Set();
+let tradeSoundEnabled = true;
+let tradeAudioContext = null;
 
 const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
   style: 'currency',
@@ -130,13 +136,14 @@ function formatRareTransfer(value, decimals) {
   return `${display}${fraction ? `.${fraction}` : ''} $RARE`;
 }
 
-function renderRareTransfers(transfers, newBuyHash = null) {
+function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new Set()) {
   if (!rareTransferTrack) return;
   const rows = transfers.map((transfer) => {
     const link = document.createElement('a');
     link.className = 'ticker-item rare-transfer-item';
     if (transfer.side === 'buy') link.classList.add('is-rare-buy');
     if (transfer.side === 'sell') link.classList.add('is-rare-sell');
+    if (newTradeHashes.has(transfer.hash)) link.classList.add('is-new-trade-pop');
     if (transfer.hash === newBuyHash && transfer.side === 'buy') link.classList.add('is-new-rare-buy');
     link.href = transfer.url;
     link.target = '_blank';
@@ -168,6 +175,69 @@ function renderRareTransfers(transfers, newBuyHash = null) {
   rareTransferTrack.replaceChildren(...rows);
 }
 
+function unlockTradeAudio() {
+  const AudioApi = window.AudioContext || window.webkitAudioContext;
+  if (!AudioApi) return;
+  if (!tradeAudioContext) tradeAudioContext = new AudioApi();
+  if (tradeAudioContext.state === 'suspended') tradeAudioContext.resume();
+}
+
+function playTradePop(side, delay = 0) {
+  if (!tradeSoundEnabled || !tradeAudioContext || tradeAudioContext.state !== 'running') return;
+  window.setTimeout(() => {
+    const now = tradeAudioContext.currentTime;
+    const oscillator = tradeAudioContext.createOscillator();
+    const gain = tradeAudioContext.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(side === 'buy' ? 680 : 310, now);
+    oscillator.frequency.exponentialRampToValueAtTime(side === 'buy' ? 420 : 190, now + .09);
+    gain.gain.setValueAtTime(.0001, now);
+    gain.gain.exponentialRampToValueAtTime(.045, now + .008);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + .11);
+    oscillator.connect(gain).connect(tradeAudioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + .12);
+  }, delay);
+}
+
+function animateTradeBubbles(trades) {
+  if (!tradeBubbleLayer || !trades.length) return;
+  trades.forEach((trade, tradeIndex) => {
+    playTradePop(trade.side, tradeIndex * 85);
+    for (let index = 0; index < 3; index += 1) {
+      const bubble = document.createElement('span');
+      bubble.className = `trade-bubble is-${trade.side}`;
+      bubble.style.setProperty('--bubble-x', `${8 + Math.random() * 84}%`);
+      bubble.style.setProperty('--bubble-size', `${14 + Math.random() * 34}px`);
+      bubble.style.setProperty('--bubble-drift', `${-35 + Math.random() * 70}px`);
+      bubble.style.setProperty('--bubble-delay', `${tradeIndex * .07 + index * .06}s`);
+      bubble.addEventListener('animationend', () => bubble.remove(), { once: true });
+      tradeBubbleLayer.append(bubble);
+    }
+  });
+}
+
+function findNewTrades(transfers) {
+  const uniqueTrades = [...new Map(transfers
+    .filter((transfer) => transfer.side === 'buy' || transfer.side === 'sell')
+    .map((transfer) => [transfer.hash, transfer])).values()];
+  if (!rareTradesInitialized) {
+    knownRareTradeHashes = new Set(uniqueTrades.map((trade) => trade.hash));
+    rareTradesInitialized = true;
+    return [];
+  }
+  const fresh = uniqueTrades.filter((trade) => !knownRareTradeHashes.has(trade.hash));
+  knownRareTradeHashes = new Set(uniqueTrades.map((trade) => trade.hash));
+  return fresh;
+}
+
+document.addEventListener('pointerdown', unlockTradeAudio, { once: true });
+tradeSoundButton?.addEventListener('click', () => {
+  unlockTradeAudio();
+  tradeSoundEnabled = !tradeSoundEnabled;
+  tradeSoundButton.textContent = `Pop sound: ${tradeSoundEnabled ? 'on' : 'off'}`;
+});
+
 function announceRareBuy() {
   if (!rareTransferTicker) return;
   rareTransferTicker.classList.remove('has-new-buy');
@@ -190,7 +260,10 @@ async function refreshRareActivity() {
     if (!response.ok) throw new Error('Activity unavailable');
     const payload = await response.json();
     const newBuyHash = latestRareBuyHash && payload.latestBuyHash && payload.latestBuyHash !== latestRareBuyHash ? payload.latestBuyHash : null;
-    renderRareTransfers(payload.transfers, newBuyHash);
+    const newTrades = findNewTrades(payload.transfers);
+    const newTradeHashes = new Set(newTrades.map((trade) => trade.hash));
+    renderRareTransfers(payload.transfers, newBuyHash, newTradeHashes);
+    animateTradeBubbles(newTrades);
     if (newBuyHash) announceRareBuy();
     latestRareBuyHash = payload.latestBuyHash || latestRareBuyHash;
     const gme = payload.gme;

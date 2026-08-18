@@ -6,7 +6,7 @@
     <meta name="description" content="Check whether an Ultra Rares holder wallet is marked for RARE." />
     <title>$RARE — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
-    <link rel="stylesheet" href="styles.css?v=15" />
+    <link rel="stylesheet" href="styles.css?v=16" />
   </head>
   <body class="rare-page rare-market-page">
     <header class="site-header">
@@ -36,10 +36,11 @@
     </aside>
 
     <aside class="sales-ticker rare-transfer-ticker" aria-label="Live RARE token transactions">
-      <div class="ticker-heading"><span class="ticker-live-dot"></span>$RARE transactions</div>
+      <div class="ticker-heading"><span><span class="ticker-live-dot"></span>$RARE transactions</span><button type="button" data-trade-sound title="Pop sounds begin after your first tap">Pop sound: on</button></div>
       <div class="ticker-window">
         <div class="ticker-track" data-rare-transfers></div>
       </div>
+      <div class="trade-bubble-layer" data-trade-bubbles aria-hidden="true"></div>
       <a class="ticker-footer" href="https://robinhoodchain.blockscout.com/token/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb" target="_blank" rel="noopener noreferrer">All transactions ↗</a>
     </aside>
 
@@ -107,6 +108,6 @@
       <p>Ultra Rares © 2026</p>
       <p><a href="index.html">Back to the collection ↗</a></p>
     </footer>
-    <script src="rare.js?v=9"></script>
+    <script src="rare.js?v=10"></script>
   </body>
 </html>
