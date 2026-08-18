@@ -931,6 +931,9 @@ footer {
 .milestone-grid strong { font-size: clamp(28px, 4vw, 56px); letter-spacing: -.055em; }
 .milestone-grid .dex-milestone { color: var(--ink); background: var(--paper); border-color: var(--acid); }
 .milestone-grid .final-milestone { color: var(--ink); background: var(--acid); }
+.first-claims-milestone { position: relative; isolation: isolate; overflow: hidden; }
+.first-claims-milestone > * { position: relative; z-index: 1; }
+.first-claims-milestone::after { content: "?"; position: absolute; z-index: 2; top: 50%; left: 52%; color: var(--acid); font-size: clamp(110px, 14vw, 190px); font-weight: 900; line-height: .7; opacity: .78; text-shadow: 5px 5px 0 var(--ink); transform: translate(-50%, -50%) rotate(9deg); pointer-events: none; }
 .roadmap-disclaimer { max-width: 900px; margin: 30px auto 0; font-size: 9px; font-weight: 800; line-height: 1.45; letter-spacing: .08em; text-align: center; }
 .roadmap-request { margin-top: 7vh; border-top: 3px solid var(--acid); border-bottom: 3px solid var(--acid); padding: 34px 0; }
 .roadmap-request .wallet-entry { border-color: var(--acid); }
