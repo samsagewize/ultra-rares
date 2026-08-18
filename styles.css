@@ -884,6 +884,7 @@ footer {
 .rare-transfer-ticker .ticker-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .trade-sound-toggle,
 .rare-transfer-ticker [data-trade-sound] { border: 1px solid currentColor; border-radius: 999px; padding: 5px 7px; color: inherit; background: transparent; font-size: 6px; font-weight: 900; letter-spacing: .06em; cursor: pointer; white-space: nowrap; }
+.rare-transfer-ticker [data-trade-sound].is-on { border-color: #22d86f; background: #22d86f; color: var(--ink); box-shadow: 0 0 0 3px rgba(34,216,111,.2); }
 .trade-bubble-layer { position: absolute; z-index: 6; inset: 42px 0 40px; overflow: hidden; pointer-events: none; }
 .trade-bubble { position: absolute; bottom: -55px; left: var(--bubble-x); width: var(--bubble-size); height: var(--bubble-size); border: 3px solid currentColor; border-radius: 50%; opacity: 0; box-shadow: inset 5px 5px 0 rgba(255,255,255,.3), 0 0 18px currentColor; animation: rare-trade-bubble 1.35s ease-out var(--bubble-delay) forwards; }
 .trade-bubble.is-buy { color: #22d86f; background: rgba(34,216,111,.34); }

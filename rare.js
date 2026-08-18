@@ -27,7 +27,14 @@ let latestRareBuyHash = null;
 let rareBuyTimer = null;
 let rareTradesInitialized = false;
 let knownRareTradeHashes = new Set();
-let tradeSoundEnabled = true;
+const savedTradeSound = (() => {
+  try {
+    return window.localStorage.getItem('rareTradeSound');
+  } catch {
+    return null;
+  }
+})();
+let tradeSoundEnabled = savedTradeSound === 'on';
 let tradeAudioContext = null;
 
 const formatMarketCap = (value) => Number(value).toLocaleString('en-US', {
@@ -232,11 +239,25 @@ function findNewTrades(transfers) {
 }
 
 document.addEventListener('pointerdown', unlockTradeAudio, { once: true });
+function updateTradeSoundButton() {
+  if (!tradeSoundButton) return;
+  tradeSoundButton.textContent = `Sound: ${tradeSoundEnabled ? 'on' : 'off'}`;
+  tradeSoundButton.setAttribute('aria-pressed', String(tradeSoundEnabled));
+  tradeSoundButton.classList.toggle('is-on', tradeSoundEnabled);
+}
+
 tradeSoundButton?.addEventListener('click', () => {
   unlockTradeAudio();
   tradeSoundEnabled = !tradeSoundEnabled;
-  tradeSoundButton.textContent = `Pop sound: ${tradeSoundEnabled ? 'on' : 'off'}`;
+  try {
+    window.localStorage.setItem('rareTradeSound', tradeSoundEnabled ? 'on' : 'off');
+  } catch {
+    // The control still works for this visit when storage is unavailable.
+  }
+  updateTradeSoundButton();
+  if (tradeSoundEnabled) playTradePop('buy');
 });
+updateTradeSoundButton();
 
 function announceRareBuy() {
   if (!rareTransferTicker) return;
