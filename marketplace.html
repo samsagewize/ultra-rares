@@ -28,7 +28,11 @@
         <h1>Ultra Rares.</h1>
         <p>Connect the wallet that holds your Ultra Rares. Select an NFT, set the minimum $RARE reserve, and start a timed auction.</p>
         <div class="market-fee-note"><strong>2% protocol fee</strong><span>1% holder rewards vault · 1% liquidity / buyback treasury · 98% seller</span></div>
-        <button type="button" data-market-connect>Connect wallet to view your Ultra Rares</button>
+        <div class="wallet-safe-actions">
+          <button type="button" data-market-connect>Connect wallet to view your Ultra Rares</button>
+          <button type="button" data-market-disconnect hidden>Disconnect</button>
+        </div>
+        <p class="wallet-safety-line">Connecting is read-only. It never requests a signature, token approval, payment, seed phrase, or private key.</p>
         <p data-market-status role="status" aria-live="polite">Marketplace contract is ready for review and deployment. Trading is not live yet.</p>
       </section>
 

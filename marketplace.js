@@ -6,6 +6,7 @@ const marketplaceAddress = marketRoot?.dataset.marketplaceAddress || '';
 const auctionAddress = marketRoot?.dataset.auctionAddress || '';
 const marketStatus = document.querySelector('[data-market-status]');
 const connectMarket = document.querySelector('[data-market-connect]');
+const disconnectMarket = document.querySelector('[data-market-disconnect]');
 const controls = [...document.querySelectorAll('.marketplace-tools input, .marketplace-tools button')];
 const auctionControls = [...document.querySelectorAll('.auction-tools input, .auction-tools select, .auction-tools button')];
 const ownedGrid = document.querySelector('[data-owned-rares]');
@@ -14,6 +15,7 @@ const auctionModal = document.querySelector('[data-auction-modal]');
 let marketAccount = '';
 let marketArtifact;
 let auctionArtifact;
+let feeVaultArtifact;
 let selectedListing = null;
 
 const marketWord = (value) => BigInt(value).toString(16).padStart(64, '0');
@@ -23,6 +25,40 @@ const marketCall = (signature, args = []) => `0x${marketSelector(signature)}${ar
 const rareUnits = (value) => BigInt(value) * 10n ** 18n;
 const auctionSelector = (signature) => auctionArtifact.methodIdentifiers[signature];
 const auctionCall = (signature, args = []) => `0x${auctionSelector(signature)}${args.join('')}`;
+const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
+
+async function readContractAddress(target, selector) {
+  const result = await window.ethereum.request({ method: 'eth_call', params: [{ to: target, data: `0x${selector}` }, 'latest'] });
+  return `0x${result.slice(-40)}`.toLowerCase();
+}
+
+async function verifyAuctionDeployment() {
+  if (!isAddress(auctionAddress)) return false;
+  const code = await window.ethereum.request({ method: 'eth_getCode', params: [auctionAddress, 'latest'] });
+  if (!code || code === '0x') throw new Error('Auction address has no deployed contract code.');
+  const collection = await readContractAddress(auctionAddress, auctionArtifact.methodIdentifiers['collection()']);
+  const token = await readContractAddress(auctionAddress, auctionArtifact.methodIdentifiers['rareToken()']);
+  const vault = await readContractAddress(auctionAddress, auctionArtifact.methodIdentifiers['feeVault()']);
+  if (collection !== MARKET_NFT || token !== MARKET_RARE) throw new Error('Auction contract does not match the official Ultra Rares NFT and $RARE token.');
+  const vaultCode = await window.ethereum.request({ method: 'eth_getCode', params: [vault, 'latest'] });
+  if (!vaultCode || vaultCode === '0x') throw new Error('Auction fee vault is not a deployed contract.');
+  const vaultToken = await readContractAddress(vault, feeVaultArtifact.methodIdentifiers['rareToken()']);
+  const vaultLocked = await window.ethereum.request({ method: 'eth_call', params: [{ to: vault, data: `0x${feeVaultArtifact.methodIdentifiers['configurationLocked()']}` }, 'latest'] });
+  if (vaultToken !== MARKET_RARE || BigInt(vaultLocked) !== 1n) throw new Error('Auction fee vault configuration is not safely locked to the official $RARE token.');
+  return true;
+}
+
+function resetWalletView(message = 'Wallet disconnected.') {
+  marketAccount = '';
+  auctionControls.forEach((control) => { control.disabled = true; });
+  connectMarket.textContent = 'Connect wallet to view your Ultra Rares';
+  connectMarket.disabled = false;
+  disconnectMarket.hidden = true;
+  ownedCount.textContent = 'Connect wallet to load NFTs';
+  ownedGrid.innerHTML = '<div class="owned-empty">Your Ultra Rares will appear here after you connect.</div>';
+  closeAuctionModal();
+  marketStatus.textContent = message;
+}
 const ownerOfData = (tokenId) => `0x6352211e${marketWord(tokenId)}`;
 const tokenUriData = (tokenId) => `0xc87b56dd${marketWord(tokenId)}`;
 
@@ -123,28 +159,53 @@ async function marketNetwork() {
 }
 
 async function marketSend(to, data, label) {
+  if (!marketAccount) throw new Error('Connect your wallet first.');
+  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+  if (chainId !== MARKET_CHAIN_ID) throw new Error('Switch to Robinhood Chain before continuing.');
   marketStatus.textContent = `${label}: confirm in wallet…`;
   const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: marketAccount, to, data, value: '0x0' }] });
-  marketStatus.innerHTML = `<a href="https://robinhoodchain.blockscout.com/tx/${hash}" target="_blank" rel="noopener noreferrer">${label} submitted · View transaction ↗</a>`;
+  marketStatus.replaceChildren();
+  const link = document.createElement('a');
+  link.href = `https://robinhoodchain.blockscout.com/tx/${hash}`;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = `${label} submitted · View transaction ↗`;
+  marketStatus.append(link);
 }
 
 connectMarket?.addEventListener('click', async () => {
+  connectMarket.disabled = true;
   try {
     if (!window.ethereum) throw new Error('Open in Robinhood Wallet or another EVM wallet browser.');
     marketArtifact = await fetch('assets/RareMarketplace.json').then((response) => response.json());
     auctionArtifact = await fetch('assets/RareAuctionHouse.json').then((response) => response.json());
+    feeVaultArtifact = await fetch('assets/RareFeeVault.json').then((response) => response.json());
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     await marketNetwork();
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId !== MARKET_CHAIN_ID) throw new Error('Robinhood Chain connection could not be verified.');
+    if (!isAddress(accounts[0])) throw new Error('The wallet returned an invalid account address.');
     marketAccount = accounts[0];
     connectMarket.textContent = `Connected ${marketAccount.slice(0, 6)}…${marketAccount.slice(-4)}`;
-    if (marketplaceAddress) controls.forEach((control) => { control.disabled = false; });
-    if (auctionAddress) auctionControls.forEach((control) => { control.disabled = false; });
+    connectMarket.disabled = true;
+    disconnectMarket.hidden = false;
+    if (await verifyAuctionDeployment()) auctionControls.forEach((control) => { control.disabled = false; });
     marketStatus.textContent = 'Wallet connected. Loading your Ultra Rares…';
     await loadOwnedRares();
     marketStatus.textContent = auctionAddress
       ? 'Choose one of your Ultra Rares to create an auction.'
       : 'Your collection is loaded. Auction transactions unlock after contract review and deployment.';
-  } catch (error) { marketStatus.textContent = error.message || 'Wallet connection failed.'; }
+  } catch (error) {
+    if (!marketAccount) connectMarket.disabled = false;
+    marketStatus.textContent = error.message || 'Wallet connection failed.';
+  }
+});
+
+disconnectMarket?.addEventListener('click', () => resetWalletView('Wallet view cleared. Your wallet remains secure and no permissions were changed.'));
+
+window.ethereum?.on?.('accountsChanged', () => resetWalletView('Wallet account changed. Reconnect to load the correct collection.'));
+window.ethereum?.on?.('chainChanged', (chainId) => {
+  if (chainId !== MARKET_CHAIN_ID) resetWalletView('Network changed. Reconnect on Robinhood Chain.');
 });
 
 document.querySelector('[data-approve-nft]')?.addEventListener('click', async () => {
