@@ -10,6 +10,7 @@ const marketCapElement = document.querySelector('[data-rare-market-cap]');
 const marketStatusElement = document.querySelector('[data-rare-market-status]');
 const goalFill = document.querySelector('[data-goal-fill]');
 const goalMarker = document.querySelector('[data-goal-marker]');
+const goalMarkerCap = document.querySelector('[data-goal-marker-cap]');
 const rareVolumeElement = document.querySelector('[data-rare-volume]');
 const rareVolumeTradesElement = document.querySelector('[data-rare-volume-trades]');
 const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
@@ -50,19 +51,22 @@ async function refreshRareMarket() {
     if (!response.ok) throw new Error('Market data unavailable');
     const market = await response.json();
     const progress = Math.min(100, Math.max(0, (market.marketCap / 1000000) * 100));
-    marketCapElement.textContent = formatMarketCap(market.marketCap);
+    const formattedMarketCap = formatMarketCap(market.marketCap);
+    marketCapElement.textContent = formattedMarketCap;
+    goalMarkerCap.textContent = formattedMarketCap;
     rareVolumeElement.textContent = formatMarketCap(market.volume24hUsd || 0);
     rareVolumeTradesElement.textContent = `${Number(market.buys24h || 0).toLocaleString('en-US')} buys · ${Number(market.sells24h || 0).toLocaleString('en-US')} sells`;
     marketStatusElement.textContent = `Live via DexScreener · ${market.liquidityUsd === null ? 'liquidity unavailable' : `${formatMarketCap(market.liquidityUsd)} liquidity`}`;
     goalFill.style.width = `${progress}%`;
-    goalMarker.style.left = `${progress}%`;
+    goalMarker.style.left = `clamp(34px, ${progress}%, calc(100% - 34px))`;
   } catch {
     marketCapElement.textContent = 'Live data unavailable';
+    goalMarkerCap.textContent = 'Unavailable';
     rareVolumeElement.textContent = 'Unavailable';
     rareVolumeTradesElement.textContent = 'DexScreener feed retrying';
     marketStatusElement.textContent = 'The milestone roadmap remains active';
     goalFill.style.width = '0%';
-    goalMarker.style.left = '0%';
+    goalMarker.style.left = '34px';
   }
 }
 
