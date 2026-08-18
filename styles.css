@@ -861,10 +861,12 @@ footer {
 .rare-gme-rail { grid-template-rows: auto 1fr auto auto; }
 .gme-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; padding: 6px; }
 .gme-detail-grid > div { display: flex; min-width: 0; min-height: 112px; flex-direction: column; justify-content: space-between; gap: 8px; padding: 12px 9px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
-.gme-detail-grid > div:nth-child(even) { border-right: 0; }
+.gme-detail-grid > .gme-market-volume { grid-column: 1 / -1; min-height: 88px; border-right: 0; background: var(--ink); color: var(--acid); }
+.gme-detail-grid > div:nth-child(odd):not(:first-child) { border-right: 0; }
 .gme-detail-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
 .gme-detail-grid span, .gme-detail-grid small { font-size: 7px; font-weight: 900; line-height: 1.25; letter-spacing: .08em; }
 .gme-detail-grid strong { font-size: 15px; line-height: 1; overflow-wrap: anywhere; }
+.gme-detail-grid .gme-market-volume strong { font-size: 25px; }
 .gme-source-link { padding: 13px 10px; border-top: 3px solid var(--ink); font-size: 7px; font-weight: 900; letter-spacing: .08em; text-align: center; }
 .gme-source-link:hover { color: var(--acid); background: var(--ink); }
 .rare-transfer-item { grid-template-columns: 52px 1fr; }
