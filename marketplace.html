@@ -20,7 +20,7 @@
       </nav>
     </header>
 
-    <main class="marketplace-main" data-marketplace data-marketplace-address="">
+    <main class="marketplace-main" data-marketplace data-marketplace-address="" data-auction-address="">
       <section class="marketplace-hero">
         <p class="eyebrow">Ultra Rares / settled in $RARE</p>
         <h1>List rare.<br />Buy rare.</h1>
@@ -51,6 +51,50 @@
           <button type="button" data-approve-rare disabled>Approve listing price in $RARE</button>
           <button type="button" data-buy-nft disabled>Buy Ultra Rare</button>
         </article>
+      </section>
+
+      <section class="auction-section" aria-labelledby="auction-title">
+        <div class="auction-heading">
+          <p class="eyebrow">Holder-created auctions / $RARE only</p>
+          <h2 id="auction-title">Set the floor.<br />Start the clock.</h2>
+          <p>Choose a minimum reserve and run an auction from 2 hours to 7 days. The NFT is held by the auction contract until settlement or cancellation.</p>
+        </div>
+        <div class="auction-tools">
+          <article>
+            <p class="eyebrow">Create auction</p>
+            <label for="auction-token-id">NFT token ID</label>
+            <input id="auction-token-id" type="number" min="1" max="420" placeholder="78" data-auction-token disabled />
+            <label for="auction-reserve">Minimum $RARE reserve</label>
+            <input id="auction-reserve" type="number" min="1" step="1" placeholder="100000" data-auction-reserve disabled />
+            <label for="auction-duration">Auction duration</label>
+            <select id="auction-duration" data-auction-duration disabled>
+              <option value="7200">2 hours</option>
+              <option value="21600">6 hours</option>
+              <option value="43200">12 hours</option>
+              <option value="86400">1 day</option>
+              <option value="259200">3 days</option>
+              <option value="604800">7 days</option>
+            </select>
+            <button type="button" data-approve-auction-nft disabled>Approve NFT for auction</button>
+            <button type="button" data-create-auction disabled>Start auction</button>
+          </article>
+          <article>
+            <p class="eyebrow">Bid / settle</p>
+            <label for="bid-token-id">Auction NFT token ID</label>
+            <input id="bid-token-id" type="number" min="1" max="420" placeholder="78" data-bid-token disabled />
+            <label for="bid-amount">Your bid in $RARE</label>
+            <input id="bid-amount" type="number" min="1" step="1" placeholder="125000" data-bid-amount disabled />
+            <button type="button" data-check-auction disabled>Check auction</button>
+            <div class="market-listing-result" data-auction-result>No auction selected.</div>
+            <button type="button" data-approve-bid disabled>Approve bid in $RARE</button>
+            <button type="button" data-place-bid disabled>Place bid</button>
+            <div class="auction-secondary-actions">
+              <button type="button" data-settle-auction disabled>Settle ended auction</button>
+              <button type="button" data-cancel-auction disabled>Cancel before first bid</button>
+              <button type="button" data-withdraw-refund disabled>Withdraw outbid $RARE</button>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section class="marketplace-safety">

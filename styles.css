@@ -35,6 +35,18 @@
 .marketplace-tools label { margin-top: 10px; font-size: 9px; font-weight: 900; letter-spacing: .11em; }
 .marketplace-tools input { min-height: 58px; padding: 12px 16px; border: 3px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); font: inherit; font-size: 21px; font-weight: 900; }
 .marketplace-tools button:disabled, .marketplace-tools input:disabled { opacity: .38; cursor: not-allowed; }
+.auction-section { max-width: 1180px; margin: 10vh auto 0; padding-top: 9vh; border-top: 5px solid var(--ink); }
+.auction-heading { max-width: 1000px; margin: 0 auto 7vh; text-align: center; }
+.auction-heading h2 { margin: 24px auto; font-size: clamp(54px, 9vw, 132px); line-height: .78; letter-spacing: -.085em; }
+.auction-heading > p:last-child { max-width: 800px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 24px); font-weight: 900; line-height: 1.08; }
+.auction-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 4px solid var(--ink); background: var(--ink); gap: 4px; }
+.auction-tools article { display: flex; flex-direction: column; gap: 12px; padding: clamp(25px, 5vw, 60px); background: var(--acid); }
+.auction-tools h2 { margin: 14px 0 26px; font-size: clamp(44px, 6vw, 86px); line-height: .8; letter-spacing: -.075em; }
+.auction-tools label { margin-top: 8px; font-size: 9px; font-weight: 900; letter-spacing: .11em; }
+.auction-tools input, .auction-tools select { min-height: 58px; padding: 12px 16px; border: 3px solid var(--ink); border-radius: 0; background: var(--acid); color: var(--ink); font: inherit; font-size: 18px; font-weight: 900; }
+.auction-tools button { min-height: 58px; padding: 14px 18px; border: 3px solid var(--ink); background: var(--ink); color: var(--acid); font: inherit; font-weight: 900; cursor: pointer; }
+.auction-tools button:disabled, .auction-tools input:disabled, .auction-tools select:disabled { opacity: .38; cursor: not-allowed; }
+.auction-secondary-actions { display: grid; gap: 8px; margin-top: 10px; }
 .market-listing-result { min-height: 72px; padding: 16px; border: 3px solid var(--ink); font-size: 12px; font-weight: 900; line-height: 1.35; }
 .marketplace-safety { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 1180px; margin: 8vh auto 0; border-top: 3px solid var(--ink); border-left: 3px solid var(--ink); }
 .marketplace-safety p { display: flex; min-height: 125px; flex-direction: column; gap: 14px; margin: 0; padding: 22px; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
@@ -60,6 +72,7 @@
   .marketplace-main { padding-inline: 20px; }
   .marketplace-tools { grid-template-columns: 1fr; }
   .marketplace-tools article + article { border-top: 4px solid var(--ink); border-left: 0; }
+  .auction-tools { grid-template-columns: 1fr; }
   .marketplace-safety { grid-template-columns: 1fr; }
 }
 

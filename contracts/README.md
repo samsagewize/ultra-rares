@@ -113,3 +113,11 @@ Mainnet constructor configuration:
 - RARE token: `0x1d522a4c3e1f3d97b585903474b2544cf9feeffb`
 
 Deploy and test on Robinhood Chain testnet first. The public marketplace interface remains disabled until the reviewed mainnet contract address is placed in `marketplace.html`.
+
+## Holder-created RARE auctions
+
+`RareAuctionHouse.sol` lets an Ultra Rares holder escrow their NFT and choose a minimum RARE reserve plus a duration between exactly 2 hours and 7 days. Bids are held by the contract until the auction ends. A higher bid credits the previous bidder with a pull-based refund, avoiding a refund callback during bidding.
+
+Before the first bid, the seller may cancel and recover the NFT. Once a bid exists, cancellation is disabled. After the deadline, anyone may settle: a winning bid at or above reserve pays the seller and transfers the NFT to the winner; otherwise the NFT returns to the seller and the highest bidder receives a withdrawable refund.
+
+The auction house has no administrator, fee, upgrade mechanism, or arbitrary withdrawal. The web controls remain disabled until the independently reviewed deployment address is configured in `marketplace.html`.
