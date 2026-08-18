@@ -605,30 +605,37 @@ h1 {
 .origin-embed {
   grid-column: 1 / -1;
   margin-top: 8vh;
-}
-
-.origin-embed iframe {
-  display: block;
-  width: 100%;
-  height: min(72vh, 760px);
-  min-height: 520px;
   border: 3px solid var(--acid);
-  background: var(--paper);
+  background: #111;
+  box-shadow: 14px 14px 0 rgba(183,241,15,.16);
 }
 
-.origin-embed > p {
+.origin-frame-header {
   display: flex;
+  min-height: 52px;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  margin: 0;
-  border-bottom: 3px solid currentColor;
-  padding: 13px 2px;
+  gap: 18px;
+  padding: 12px 16px;
+  border-bottom: 3px solid var(--acid);
+  background: var(--ink);
   font-size: 9px;
   font-weight: 900;
   letter-spacing: .12em;
 }
 
-.origin-embed a { border-bottom: 1px solid currentColor; }
+.origin-frame-header span { display: flex; align-items: center; gap: 9px; }
+.origin-frame-header i { width: 8px; height: 8px; border-radius: 50%; background: var(--acid); box-shadow: 0 0 0 5px rgba(183,241,15,.13); }
+.origin-frame-header a { padding-bottom: 4px; border-bottom: 1px solid currentColor; white-space: nowrap; }
+.origin-frame-viewport { position: relative; height: clamp(720px, 86svh, 920px); overflow: hidden; background: #111; }
+
+.origin-frame-viewport iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #111;
+}
 
 .scooped {
   padding: 13vh 5vw;
@@ -792,9 +799,7 @@ footer {
   .origin h2 { margin-top: 28px; }
   .origin-note { grid-column: 1; margin-top: 48px; }
   .origin-embed { margin-top: 56px; }
-  .origin-embed iframe { height: 68vh; min-height: 480px; }
-  .origin-embed > p { display: block; line-height: 1.8; }
-  .origin-embed > p a { display: table; }
+  .origin-frame-viewport { height: min(76svh, 700px); min-height: 560px; }
   .scooped { padding: 90px 24px; }
   .scooped-heading { display: block; }
   .live-status { display: inline-block; margin-top: 24px; }
@@ -1000,7 +1005,7 @@ img, iframe { max-width: 100%; }
   .collection, .origin, .scooped, .proof { padding-inline: 18px; }
   .section-heading h2, .origin h2, .scooped-heading h2, .proof h2 { overflow-wrap: anywhere; }
   .rare-card { width: 100%; }
-  .origin-embed iframe { width: 100%; min-height: 420px; }
+  .origin-frame-viewport iframe { width: 100%; min-height: 100%; }
   .scooped-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   footer { align-items: flex-start; flex-direction: column; gap: 14px; }
 
@@ -1060,6 +1065,9 @@ img, iframe { max-width: 100%; }
   .marketplace-hero > p:not(.eyebrow) { font-size: 16px; line-height: 1.15; }
   .market-header-wallet span { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; }
   .goal-scale { font-size: 8px; }
+  .origin-embed { box-shadow: 7px 7px 0 rgba(183,241,15,.16); }
+  .origin-frame-header { align-items: flex-start; flex-direction: column; padding: 12px; line-height: 1.35; }
+  .origin-frame-viewport { height: 70svh; min-height: 520px; }
 }
 
 @media (max-width: 1100px) {
