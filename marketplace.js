@@ -9,6 +9,7 @@ const auctionAddress = marketRoot?.dataset.auctionAddress || '';
 const marketStatus = document.querySelector('[data-market-status]');
 const connectMarket = document.querySelector('[data-market-connect]');
 const disconnectMarket = document.querySelector('[data-market-disconnect]');
+const rareBalance = document.querySelector('[data-rare-balance]');
 const controls = [...document.querySelectorAll('.marketplace-tools input, .marketplace-tools button')];
 const auctionControls = [...document.querySelectorAll('.auction-tools input, .auction-tools select, .auction-tools button')];
 const ownedGrid = document.querySelector('[data-owned-rares]');
@@ -31,6 +32,17 @@ const rareUnits = (value) => BigInt(value) * 10n ** 18n;
 const auctionSelector = (signature) => auctionArtifact.methodIdentifiers[signature];
 const auctionCall = (signature, args = []) => `0x${auctionSelector(signature)}${args.join('')}`;
 const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
+
+function formatRareBalance(value) {
+  const whole = BigInt(value) / 10n ** 18n;
+  return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(whole)} $RARE`;
+}
+
+async function loadRareBalance() {
+  const data = `0x70a08231${marketAddressWord(marketAccount)}`;
+  const result = await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_RARE, data }, 'latest'] });
+  rareBalance.textContent = formatRareBalance(result);
+}
 
 async function readContractAddress(target, selector) {
   const result = await window.ethereum.request({ method: 'eth_call', params: [{ to: target, data: `0x${selector}` }, 'latest'] });
@@ -66,9 +78,10 @@ async function verifyAuctionDeployment() {
 function resetWalletView(message = 'Wallet disconnected.') {
   marketAccount = '';
   auctionControls.forEach((control) => { control.disabled = true; });
-  connectMarket.textContent = 'Connect wallet to view your Ultra Rares';
+  connectMarket.textContent = 'Connect wallet';
   connectMarket.disabled = false;
   disconnectMarket.hidden = true;
+  rareBalance.textContent = '— $RARE';
   ownedCount.textContent = 'Connect wallet to load NFTs';
   ownedGrid.innerHTML = '<div class="owned-empty">Your Ultra Rares will appear here after you connect.</div>';
   closeAuctionModal();
@@ -378,9 +391,10 @@ connectMarket?.addEventListener('click', async () => {
     if (chainId !== MARKET_CHAIN_ID) throw new Error('Robinhood Chain connection could not be verified.');
     if (!isAddress(accounts[0])) throw new Error('The wallet returned an invalid account address.');
     marketAccount = accounts[0];
-    connectMarket.textContent = `Connected ${marketAccount.slice(0, 6)}…${marketAccount.slice(-4)}`;
+    connectMarket.textContent = `${marketAccount.slice(0, 6)}…${marketAccount.slice(-4)}`;
     connectMarket.disabled = true;
     disconnectMarket.hidden = false;
+    await loadRareBalance();
     if (await verifyAuctionDeployment()) auctionControls.forEach((control) => { control.disabled = false; });
     marketStatus.textContent = 'Wallet connected. Loading your Ultra Rares…';
     await loadOwnedRares();

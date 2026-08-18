@@ -23,6 +23,11 @@
 .rare-gme-note h2 { max-width: 1150px; margin: 26px auto; font-size: clamp(54px, 9vw, 136px); line-height: .8; letter-spacing: -.08em; }
 .rare-gme-note > p:last-child { max-width: 820px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 24px); font-weight: 900; line-height: 1.08; letter-spacing: -.025em; }
 .marketplace-main { min-height: 100svh; padding: 104px 4vw 9vh; background: #f6f6f2; }
+.market-header-wallet { position: absolute; right: 28px; display: flex; align-items: center; gap: 8px; }
+.market-header-wallet span { padding: 9px 11px; border: 2px solid currentColor; border-radius: 999px; font-size: 9px; font-weight: 900; letter-spacing: .07em; white-space: nowrap; }
+.market-header-wallet button { min-height: 38px; padding: 8px 12px; border: 2px solid currentColor; border-radius: 999px; background: transparent; color: inherit; font-size: 9px; font-weight: 900; letter-spacing: .07em; cursor: pointer; }
+.market-header-wallet button:disabled { opacity: .85; cursor: default; }
+.market-header-wallet [data-market-disconnect] { padding-inline: 9px; }
 .marketplace-hero { position: relative; max-width: 1380px; margin: 0 auto 7vh; padding-bottom: 28px; text-align: center; }
 .marketplace-cover { width: 100%; height: clamp(190px, 28vw, 370px); border: 3px solid var(--ink); border-radius: 22px; overflow: hidden; background: var(--acid); }
 .marketplace-cover img { width: 100%; height: 100%; object-fit: cover; }
@@ -54,6 +59,7 @@
 .owned-rare-card small { font-size: 9px; font-weight: 800; color: #666; }
 .owned-rare-card b { margin-top: 8px; font-size: 9px; letter-spacing: .08em; }
 .live-auctions { max-width: 1380px; margin: 0 auto 10vh; padding-top: 7vh; border-top: 5px solid var(--ink); }
+.live-auctions-first { padding-top: 3vh; border-top: 0; }
 .live-auctions-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .live-auctions-heading h2 { margin: 12px 0 0; font-size: clamp(52px, 8vw, 112px); line-height: .78; letter-spacing: -.075em; }
 .live-auctions-heading > span { padding: 9px 13px; border: 2px solid var(--ink); border-radius: 999px; font-size: 9px; font-weight: 900; letter-spacing: .08em; }
@@ -749,6 +755,10 @@ footer {
 }
 
 @media (max-width: 760px) {
+  .marketplace-page .site-header { min-height: 106px; align-items: flex-start; }
+  .marketplace-page .site-header nav { position: absolute; right: 18px; bottom: 14px; left: 18px; width: auto; }
+  .marketplace-page .market-header-wallet { top: 14px; right: 18px; }
+  .marketplace-page .marketplace-main { padding-top: 132px; }
   .rare-page .site-header .wordmark { display: none; }
   .rare-page .site-header nav { width: 100%; justify-content: space-between; }
   .site-header { padding: 18px; }
@@ -801,6 +811,9 @@ footer {
 }
 
 @media (max-width: 520px) {
+  .market-header-wallet span, .market-header-wallet button { font-size: 7px; }
+  .market-header-wallet span { padding: 8px; }
+  .market-header-wallet button { padding: 7px 9px; }
   .site-header { padding: 14px 12px; }
   .wordmark { width: 54px; height: 42px; }
   nav { gap: 8px; }
