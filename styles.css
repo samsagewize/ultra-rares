@@ -868,7 +868,9 @@ footer {
 .gme-source-link { padding: 13px 10px; border-top: 3px solid var(--ink); font-size: 7px; font-weight: 900; letter-spacing: .08em; text-align: center; }
 .gme-source-link:hover { color: var(--acid); background: var(--ink); }
 .rare-transfer-item { grid-template-columns: 52px 1fr; }
-.rare-transfer-item > b { display: grid; width: 52px; height: 52px; place-items: center; border: 2px solid var(--ink); border-radius: 50%; background: var(--ink); color: var(--acid); font-size: 16px; }
+.rare-token-icon { position: relative; display: block; width: 52px; height: 52px; border: 2px solid var(--ink); border-radius: 50%; overflow: visible; background: var(--ink); }
+.rare-token-icon img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.rare-token-icon em { position: absolute; right: -9px; bottom: -7px; padding: 4px 5px; border: 2px solid var(--ink); background: var(--acid); color: var(--ink); font-size: 7px; font-style: normal; font-weight: 900; letter-spacing: .05em; }
 .rare-transfer-item small { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
 .rare-transfer-ticker .ticker-track { animation: none; }
 .rare-transfer-ticker.has-new-buy { width: clamp(350px, 40vw, 560px); box-shadow: -18px 0 0 var(--ink), -30px 0 50px rgba(183,241,15,.28); }
@@ -876,7 +878,8 @@ footer {
 .rare-transfer-ticker.has-new-buy .ticker-heading { color: var(--ink); background: var(--acid); animation: rare-buy-header-pulse .8s steps(2,end) 4; }
 .rare-transfer-ticker.has-new-buy .ticker-heading::after { content: " · NEW BUY!"; }
 .rare-transfer-item.is-new-rare-buy { position: relative; z-index: 2; grid-template-columns: 86px 1fr; flex-basis: 180px; min-height: 180px; border-top: 5px solid var(--acid); border-bottom: 5px solid var(--acid); background: var(--ink); color: var(--acid); box-shadow: inset 0 0 0 4px var(--acid); animation: rare-buy-card-pulse 1.05s ease-in-out 4; }
-.rare-transfer-item.is-new-rare-buy > b { width: 72px; height: 72px; border: 3px solid var(--ink); background: var(--acid); color: var(--ink); font-size: 15px; box-shadow: 0 0 0 5px var(--acid); }
+.rare-transfer-item.is-new-rare-buy > .rare-token-icon { width: 72px; height: 72px; border: 3px solid var(--acid); background: var(--acid); box-shadow: 0 0 0 5px var(--acid); }
+.rare-transfer-item.is-new-rare-buy .rare-token-icon em { right: -12px; bottom: -10px; padding: 6px 7px; font-size: 9px; }
 .rare-transfer-item.is-new-rare-buy strong { font-size: clamp(24px, 3.2vw, 42px); line-height: .9; white-space: normal; }
 .rare-transfer-item.is-new-rare-buy small { margin-top: 7px; font-size: 9px; }
 @keyframes rare-buy-arrival { 0% { transform: translateY(-180px) scale(.92); opacity: 0; } 70% { transform: translateY(8px) scale(1.02); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }

@@ -9,6 +9,7 @@ const addressPattern = /^0x[a-fA-F0-9]{40}$/;
 const marketCapElement = document.querySelector('[data-rare-market-cap]');
 const marketStatusElement = document.querySelector('[data-rare-market-status]');
 const goalFill = document.querySelector('[data-goal-fill]');
+const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=200&height=200&quality=95&format=auto';
 const rareTransferTrack = document.querySelector('[data-rare-transfers]');
 const gmeDistributedElement = document.querySelector('[data-gme-distributed]');
 const gmeNextElement = document.querySelector('[data-gme-next]');
@@ -132,8 +133,18 @@ function renderRareTransfers(transfers, newBuyHash = null) {
     link.href = transfer.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    const icon = document.createElement('b');
-    icon.textContent = transfer.hash === newBuyHash && transfer.side === 'buy' ? 'BUY' : '$R';
+    const icon = document.createElement('span');
+    icon.className = 'rare-token-icon';
+    const logo = document.createElement('img');
+    logo.src = rareTokenLogo;
+    logo.alt = '$RARE token logo';
+    logo.loading = 'lazy';
+    icon.append(logo);
+    if (transfer.hash === newBuyHash && transfer.side === 'buy') {
+      const buyBadge = document.createElement('em');
+      buyBadge.textContent = 'BUY';
+      icon.append(buyBadge);
+    }
     const copy = document.createElement('span');
     const amount = document.createElement('strong');
     amount.textContent = formatRareTransfer(transfer.value, transfer.decimals);
