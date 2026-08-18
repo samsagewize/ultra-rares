@@ -17,11 +17,17 @@ interface IERC721ReceiverMinimal {
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external returns (bytes4);
 }
 
+interface IRareFeeVaultAuction {
+    function recordFee(uint256 amount) external;
+}
+
 /// @title Ultra Rares RARE Auction House
 /// @notice Escrows an Ultra Rare during a 2-hour to 7-day auction settled in RARE.
 contract RareAuctionHouse is IERC721ReceiverMinimal {
     uint256 public constant MIN_DURATION = 2 hours;
     uint256 public constant MAX_DURATION = 7 days;
+    uint256 public constant FEE_BPS = 200;
+    uint256 public constant BPS_DENOMINATOR = 10_000;
 
     struct Auction {
         address seller;
@@ -33,6 +39,7 @@ contract RareAuctionHouse is IERC721ReceiverMinimal {
 
     IERC721AuctionCollection public immutable collection;
     IERC20AuctionToken public immutable rareToken;
+    IRareFeeVaultAuction public immutable feeVault;
     mapping(uint256 tokenId => Auction) public auctions;
     mapping(address bidder => uint256 amount) public pendingReturns;
 
@@ -70,15 +77,16 @@ contract RareAuctionHouse is IERC721ReceiverMinimal {
         locked = 1;
     }
 
-    constructor(address collection_, address rareToken_) {
-        if (collection_ == address(0) || rareToken_ == address(0)) revert TransferFailed();
+    constructor(address collection_, address rareToken_, address feeVault_) {
+        if (collection_ == address(0) || rareToken_ == address(0) || feeVault_ == address(0)) revert TransferFailed();
         collection = IERC721AuctionCollection(collection_);
         rareToken = IERC20AuctionToken(rareToken_);
+        feeVault = IRareFeeVaultAuction(feeVault_);
     }
 
     function createAuction(uint256 tokenId, uint256 reservePrice, uint256 duration) external nonReentrant {
         if (duration < MIN_DURATION || duration > MAX_DURATION) revert InvalidDuration();
-        if (reservePrice == 0) revert InvalidAmount();
+        if (reservePrice * FEE_BPS / BPS_DENOMINATOR == 0) revert InvalidAmount();
         if (collection.ownerOf(tokenId) != msg.sender) revert NotTokenOwner();
         if (auctions[tokenId].seller != address(0)) revert AuctionExists();
 
@@ -98,7 +106,7 @@ contract RareAuctionHouse is IERC721ReceiverMinimal {
         if (auction.seller == address(0)) revert AuctionUnavailable();
         if (block.timestamp >= auction.endTime) revert AuctionEnded();
         if (msg.sender == auction.seller) revert SellerCannotBid();
-        if (amount <= auction.highestBid) revert BidTooLow();
+        if (amount <= auction.highestBid || amount * FEE_BPS / BPS_DENOMINATOR == 0) revert BidTooLow();
 
         uint256 balanceBefore = rareToken.balanceOf(address(this));
         _safeTransferFrom(msg.sender, address(this), amount);
@@ -132,7 +140,10 @@ contract RareAuctionHouse is IERC721ReceiverMinimal {
             return;
         }
 
-        _safeTransfer(auction.seller, auction.highestBid);
+        uint256 fee = auction.highestBid * FEE_BPS / BPS_DENOMINATOR;
+        _safeTransfer(auction.seller, auction.highestBid - fee);
+        _safeTransfer(address(feeVault), fee);
+        feeVault.recordFee(fee);
         collection.transferFrom(address(this), auction.highestBidder, tokenId);
         emit AuctionSettled(tokenId, auction.seller, auction.highestBidder, auction.highestBid);
     }

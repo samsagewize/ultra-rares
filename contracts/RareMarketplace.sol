@@ -2,7 +2,13 @@
 pragma solidity ^0.8.24;
 
 interface IERC20MarketplaceToken {
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
+interface IRareFeeVaultMarketplace {
+    function recordFee(uint256 amount) external;
 }
 
 interface IERC721MarketplaceCollection {
@@ -15,6 +21,8 @@ interface IERC721MarketplaceCollection {
 /// @title Ultra Rares fixed-price RARE marketplace
 /// @notice Non-custodial listings settled directly from buyer to seller in RARE.
 contract RareMarketplace {
+    uint256 public constant FEE_BPS = 200;
+    uint256 public constant BPS_DENOMINATOR = 10_000;
     struct Listing {
         address seller;
         uint256 price;
@@ -22,6 +30,7 @@ contract RareMarketplace {
 
     IERC721MarketplaceCollection public immutable collection;
     IERC20MarketplaceToken public immutable rareToken;
+    IRareFeeVaultMarketplace public immutable feeVault;
     uint256 private locked = 1;
     mapping(uint256 tokenId => Listing) public listings;
 
@@ -45,14 +54,15 @@ contract RareMarketplace {
         locked = 1;
     }
 
-    constructor(address collection_, address rareToken_) {
-        if (collection_ == address(0) || rareToken_ == address(0)) revert TransferFailed();
+    constructor(address collection_, address rareToken_, address feeVault_) {
+        if (collection_ == address(0) || rareToken_ == address(0) || feeVault_ == address(0)) revert TransferFailed();
         collection = IERC721MarketplaceCollection(collection_);
         rareToken = IERC20MarketplaceToken(rareToken_);
+        feeVault = IRareFeeVaultMarketplace(feeVault_);
     }
 
     function createListing(uint256 tokenId, uint256 price) external {
-        if (price == 0) revert InvalidAmount();
+        if (price * FEE_BPS / BPS_DENOMINATOR == 0) revert InvalidAmount();
         if (collection.ownerOf(tokenId) != msg.sender) revert NotTokenOwner();
         if (!_isApproved(msg.sender, tokenId)) revert MarketplaceNotApproved();
         listings[tokenId] = Listing(msg.sender, price);
@@ -85,7 +95,13 @@ contract RareMarketplace {
         }
 
         delete listings[tokenId];
-        _safeRareTransferFrom(msg.sender, listing.seller, listing.price);
+        uint256 balanceBefore = rareToken.balanceOf(address(this));
+        _safeRareTransferFrom(msg.sender, address(this), listing.price);
+        if (rareToken.balanceOf(address(this)) - balanceBefore != listing.price) revert TransferFailed();
+        uint256 fee = listing.price * FEE_BPS / BPS_DENOMINATOR;
+        _safeRareTransfer(listing.seller, listing.price - fee);
+        _safeRareTransfer(address(feeVault), fee);
+        feeVault.recordFee(fee);
         collection.safeTransferFrom(listing.seller, msg.sender, tokenId);
         emit Purchased(tokenId, listing.seller, msg.sender, listing.price);
     }
@@ -105,6 +121,13 @@ contract RareMarketplace {
     function _safeRareTransferFrom(address from, address to, uint256 amount) private {
         (bool ok, bytes memory data) = address(rareToken).call(
             abi.encodeCall(IERC20MarketplaceToken.transferFrom, (from, to, amount))
+        );
+        if (!ok || (data.length != 0 && !abi.decode(data, (bool)))) revert TransferFailed();
+    }
+
+    function _safeRareTransfer(address to, uint256 amount) private {
+        (bool ok, bytes memory data) = address(rareToken).call(
+            abi.encodeCall(IERC20MarketplaceToken.transfer, (to, amount))
         );
         if (!ok || (data.length != 0 && !abi.decode(data, (bool)))) revert TransferFailed();
     }

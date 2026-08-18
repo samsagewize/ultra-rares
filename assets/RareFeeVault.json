@@ -1,0 +1,481 @@
+{
+  "contractName": "RareFeeVault",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "rareToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ConfigurationAlreadyLocked",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ConfigurationNotLocked",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FeeNotReceived",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientReserve",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotFeeSource",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Reentrancy",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "destination",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ClaimReserveReleased",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "ConfigurationLocked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "claimDestination",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "liquidityDestination",
+          "type": "address"
+        }
+      ],
+      "name": "DestinationsUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "claimShare",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "liquidityShare",
+          "type": "uint256"
+        }
+      ],
+      "name": "FeeRecorded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "name": "FeeSourceUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "destination",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LiquidityReserveReleased",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "pendingOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "acceptOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimDestination",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimReserve",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "configurationLocked",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        }
+      ],
+      "name": "feeSources",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "liquidityDestination",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "liquidityReserve",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lockConfiguration",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rareToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20FeeToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "recordFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "releaseClaims",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "releaseLiquidity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "claimDestination_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "liquidityDestination_",
+          "type": "address"
+        }
+      ],
+      "name": "setDestinations",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "name": "setFeeSource",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalAccounted",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60a06040526001600755348015610014575f5ffd5b50604051610e2a380380610e2a833981016040819052610033916100db565b6001600160a01b038216158061005057506001600160a01b038116155b1561006e5760405163d92e233d60e01b815260040160405180910390fd5b6001600160a01b038281166080525f80546001600160a01b03191691831691821781556040517f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a3505061010c565b80516001600160a01b03811681146100d6575f5ffd5b919050565b5f5f604083850312156100ec575f5ffd5b6100f5836100c0565b9150610103602084016100c0565b90509250929050565b608051610cf86101325f395f818161017e015281816107800152610a540152610cf85ff3fe608060405234801561000f575f5ffd5b5060043610610111575f3560e01c80637d6eae721161009e578063b753bfe91161006e578063b753bfe914610242578063e12d88871461024b578063e30c39781461025e578063f2fde38b14610271578063fa60a38214610284575f5ffd5b80637d6eae72146101e85780638110014d146101fb5780638da5cb5b1461020e578063a855575214610220575f5ffd5b806338c21d1b116100e457806338c21d1b146101795780633fe5f054146101a05780635e6198b9146101a957806377891907146101cd57806379ba5097146101e0575f5ffd5b806309c59696146101155780630cfbf6c6146101455780632964e4e61461014f5780632f3cd6ab14610166575b5f5ffd5b600254610128906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61014d610297565b005b61015860065481565b60405190815260200161013c565b61014d610174366004610b3d565b610368565b6101287f000000000000000000000000000000000000000000000000000000000000000081565b61015860045481565b6003546101bd90600160a01b900460ff1681565b604051901515815260200161013c565b61014d6101db366004610b3d565b610475565b61014d610576565b61014d6101f6366004610b6f565b6105f7565b600354610128906001600160a01b031681565b5f54610128906001600160a01b031681565b6101bd61022e366004610ba0565b60086020525f908152604090205460ff1681565b61015860055481565b61014d610259366004610b3d565b6106e4565b600154610128906001600160a01b031681565b61014d61027f366004610ba0565b6108b9565b61014d610292366004610bd0565b61095a565b5f546001600160a01b031633146102c1576040516330cd747160e01b815260040160405180910390fd5b600354600160a01b900460ff16156102ec57604051635c6c572960e11b815260040160405180910390fd5b6002546001600160a01b0316158061030d57506003546001600160a01b0316155b1561032b5760405163d92e233d60e01b815260040160405180910390fd5b6003805460ff60a01b1916600160a01b1790556040517fbef561f5625d8eb2113c43376ffc838261b71b170b15f11fbcd01c39c1f32447905f90a1565b5f546001600160a01b03163314610392576040516330cd747160e01b815260040160405180910390fd5b6007546001146103b55760405163558a1e0360e11b815260040160405180910390fd5b60026007558015806103c8575060045481115b156103e6576040516328b35f2160e01b815260040160405180910390fd5b8060045f8282546103f79190610c19565b925050819055508060065f82825461040f9190610c19565b909155505060025461042a906001600160a01b031682610a34565b6002546040518281526001600160a01b03909116907f9d2191cd8f27574099fefd6405e7e2de990acd96de77bb0c882dd67e0f648b2c906020015b60405180910390a2506001600755565b5f546001600160a01b0316331461049f576040516330cd747160e01b815260040160405180910390fd5b6007546001146104c25760405163558a1e0360e11b815260040160405180910390fd5b60026007558015806104d5575060055481115b156104f3576040516328b35f2160e01b815260040160405180910390fd5b8060055f8282546105049190610c19565b925050819055508060065f82825461051c9190610c19565b9091555050600354610537906001600160a01b031682610a34565b6003546040518281526001600160a01b03909116907f9bc6757b4519dcf14759ca772944af95e929114c33addf91f90a9994d8362af190602001610465565b6001546001600160a01b031633146105a1576040516330cd747160e01b815260040160405180910390fd5b5f8054336001600160a01b0319808316821784556001805490911690556040516001600160a01b0390921692909183917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a350565b5f546001600160a01b03163314610621576040516330cd747160e01b815260040160405180910390fd5b600354600160a01b900460ff161561064c57604051635c6c572960e11b815260040160405180910390fd5b6001600160a01b038216158061066957506001600160a01b038116155b156106875760405163d92e233d60e01b815260040160405180910390fd5b600280546001600160a01b03199081166001600160a01b03858116918217909355600380549092169284169283179091556040517fa5de77eb4bd3fb0d2b0f119785203cd8068594d3e17d09bfae8da2e1d96efb3d905f90a35050565b335f9081526008602052604090205460ff166107135760405163380aa52f60e11b815260040160405180910390fd5b600354600160a01b900460ff1661073d5760405163fbfd792560e01b815260040160405180910390fd5b805f0361075d5760405163162908e360e11b815260040160405180910390fd5b8060065461076b9190610c32565b6040516370a0823160e01b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa1580156107cd573d5f5f3e3d5ffd5b505050506040513d601f19601f820116820180604052508101906107f19190610c45565b101561081057604051636c0fb9c160e01b815260040160405180910390fd5b5f61081c600283610c5c565b90505f6108298284610c19565b90508160045f82825461083c9190610c32565b925050819055508060055f8282546108549190610c32565b925050819055508260065f82825461086c9190610c32565b9091555050604080518481526020810184905290810182905233907fb4d4d3bd2f97a7d6f1657ee69f7191d7aa7dbd5b6864a2d7a9d14efc1322552f9060600160405180910390a2505050565b5f546001600160a01b031633146108e3576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b03811661090a5760405163d92e233d60e01b815260040160405180910390fd5b600180546001600160a01b0319166001600160a01b038381169182179092555f8054604051929316917f38d16b8cac22d99fc7c124b9cd0de2d3fa1faef420bfe791d8c362d765e227009190a350565b5f546001600160a01b03163314610984576040516330cd747160e01b815260040160405180910390fd5b600354600160a01b900460ff16156109af57604051635c6c572960e11b815260040160405180910390fd5b6001600160a01b0382166109d65760405163d92e233d60e01b815260040160405180910390fd5b6001600160a01b0382165f81815260086020908152604091829020805460ff191685151590811790915591519182527f82b0c37de3136805986d661632d872b024517ce035086aa1c707ab62a423ee35910160405180910390a25050565b6040516001600160a01b038381166024830152604482018390525f9182917f0000000000000000000000000000000000000000000000000000000000000000169060640160408051601f198184030181529181526020820180516001600160e01b031663a9059cbb60e01b17905251610aad9190610c7b565b5f604051808303815f865af19150503d805f8114610ae6576040519150601f19603f3d011682016040523d82523d5f602084013e610aeb565b606091505b5091509150811580610b195750805115801590610b19575080806020019051810190610b179190610ca7565b155b15610b37576040516312171d8360e31b815260040160405180910390fd5b50505050565b5f60208284031215610b4d575f5ffd5b5035919050565b80356001600160a01b0381168114610b6a575f5ffd5b919050565b5f5f60408385031215610b80575f5ffd5b610b8983610b54565b9150610b9760208401610b54565b90509250929050565b5f60208284031215610bb0575f5ffd5b610bb982610b54565b9392505050565b8015158114610bcd575f5ffd5b50565b5f5f60408385031215610be1575f5ffd5b610bea83610b54565b91506020830135610bfa81610bc0565b809150509250929050565b634e487b7160e01b5f52601160045260245ffd5b81810381811115610c2c57610c2c610c05565b92915050565b80820180821115610c2c57610c2c610c05565b5f60208284031215610c55575f5ffd5b5051919050565b5f82610c7657634e487b7160e01b5f52601260045260245ffd5b500490565b5f82515f5b81811015610c9a5760208186018101518583015201610c80565b505f920191825250919050565b5f60208284031215610cb7575f5ffd5b8151610bb981610bc056fea264697066735822122082d5e9b4532e97a40dbcd512e45a4e27a0e98bbff366e9e0465f0050518000b964736f6c634300081e0033",
+  "methodIdentifiers": {
+    "acceptOwnership()": "79ba5097",
+    "claimDestination()": "09c59696",
+    "claimReserve()": "3fe5f054",
+    "configurationLocked()": "5e6198b9",
+    "feeSources(address)": "a8555752",
+    "liquidityDestination()": "8110014d",
+    "liquidityReserve()": "b753bfe9",
+    "lockConfiguration()": "0cfbf6c6",
+    "owner()": "8da5cb5b",
+    "pendingOwner()": "e30c3978",
+    "rareToken()": "38c21d1b",
+    "recordFee(uint256)": "e12d8887",
+    "releaseClaims(uint256)": "2f3cd6ab",
+    "releaseLiquidity(uint256)": "77891907",
+    "setDestinations(address,address)": "7d6eae72",
+    "setFeeSource(address,bool)": "fa60a382",
+    "totalAccounted()": "2964e4e6",
+    "transferOwnership(address)": "f2fde38b"
+  }
+}

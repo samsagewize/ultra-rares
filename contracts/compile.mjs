@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import solc from 'solc';
 
-const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'RareAuctionHouse.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
+const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'RareAuctionHouse.sol', 'RareFeeVault.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = {
   language: 'Solidity',
@@ -54,5 +54,16 @@ fs.writeFileSync(
     abi: auctionHouse.abi,
     bytecode: `0x${auctionHouse.evm.bytecode.object}`,
     methodIdentifiers: auctionHouse.evm.methodIdentifiers,
+  }, null, 2),
+);
+
+const feeVault = output.contracts['RareFeeVault.sol'].RareFeeVault;
+fs.writeFileSync(
+  new URL('../assets/RareFeeVault.json', import.meta.url),
+  JSON.stringify({
+    contractName: 'RareFeeVault',
+    abi: feeVault.abi,
+    bytecode: `0x${feeVault.evm.bytecode.object}`,
+    methodIdentifiers: feeVault.evm.methodIdentifiers,
   }, null, 2),
 );

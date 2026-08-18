@@ -103,9 +103,9 @@ Before implementation, fix the Last Rares supply, RARE maximum supply, allocatio
 
 ## Ultra Rares RARE marketplace
 
-`RareMarketplace.sol` is a non-custodial, fixed-price marketplace dedicated to the existing Ultra Rares NFT and RARE token. A seller keeps the NFT in their wallet, approves the marketplace for that token ID, and creates a listing denominated in RARE. At purchase, RARE transfers directly from buyer to seller and the NFT transfers directly from seller to buyer in one atomic transaction.
+`RareMarketplace.sol` is a non-custodial, fixed-price marketplace dedicated to the existing Ultra Rares NFT and RARE token. A seller keeps the NFT in their wallet, approves the marketplace for that token ID, and creates a listing denominated in RARE. At purchase, settlement and the NFT transfer complete atomically.
 
-The contract has no administrator, custody wallet, marketplace fee, or upgrade mechanism. A listing becomes unbuyable if the seller transfers the NFT or revokes approval. Reentrancy protection covers the purchase path, and listing state is deleted before either external transfer.
+The marketplace charges 2%: 98% goes to the seller and 2% goes to `RareFeeVault`. A listing becomes unbuyable if the seller transfers the NFT or revokes approval. Reentrancy protection covers the purchase path, and listing state is deleted before external transfers.
 
 Mainnet constructor configuration:
 
@@ -116,8 +116,25 @@ Deploy and test on Robinhood Chain testnet first. The public marketplace interfa
 
 ## Holder-created RARE auctions
 
-`RareAuctionHouse.sol` lets an Ultra Rares holder escrow their NFT and choose a minimum RARE reserve plus a duration between exactly 2 hours and 7 days. Bids are held by the contract until the auction ends. A higher bid credits the previous bidder with a pull-based refund, avoiding a refund callback during bidding.
+`RareAuctionHouse.sol` lets an Ultra Rares holder escrow their NFT and choose a minimum RARE reserve plus a duration between exactly 2 hours and 7 days. Bids are held by the contract until the auction ends. A higher bid credits the previous bidder with a pull-based refund, avoiding a refund callback during bidding. Successful auctions use the same 98% seller / 2% fee-vault settlement.
 
 Before the first bid, the seller may cancel and recover the NFT. Once a bid exists, cancellation is disabled. After the deadline, anyone may settle: a winning bid at or above reserve pays the seller and transfers the NFT to the winner; otherwise the NFT returns to the seller and the highest bidder receives a withdrawable refund.
 
-The auction house has no administrator, fee, upgrade mechanism, or arbitrary withdrawal. The web controls remain disabled until the independently reviewed deployment address is configured in `marketplace.html`.
+The auction house has no administrator, upgrade mechanism, or arbitrary withdrawal; its only fee is the immutable 2% routed to the fee vault. The web controls remain disabled until the independently reviewed deployment address is configured in `marketplace.html`.
+
+## Marketplace fee vault
+
+`RareFeeVault.sol` receives the 2% fee from completed fixed-price sales and successful auctions. Each recorded fee is split internally:
+
+- 50% of the fee (1% of sale price) → holder reward reserve
+- 50% of the fee (1% of sale price) → liquidity/buyback reserve
+
+The owner can release each reserve only to its separately configured destination. Fee sources and destinations are configured before an irreversible configuration lock. The vault verifies that RARE was received before crediting either reserve and uses two-step ownership transfer.
+
+Deployment order:
+
+1. Deploy `RareFeeVault` with RARE and the admin/multisig.
+2. Deploy `RareMarketplace` and `RareAuctionHouse`, each with the NFT, RARE, and fee-vault addresses.
+3. Authorize those two contracts as fee sources.
+4. Configure the holder-claim vault and liquidity/buyback treasury destinations.
+5. Independently verify every address and lock the fee-vault configuration.
