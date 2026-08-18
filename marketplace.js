@@ -302,6 +302,35 @@ function renderLiveAuctions(payload) {
       button.disabled = auction.endTime <= Date.now() / 1000;
       button.addEventListener('click', () => openBidModal(auction));
       content.append(title, timer, stats, seller, button);
+      const isSeller = marketAccount && auction.seller.toLowerCase() === marketAccount.toLowerCase();
+      const hasBid = BigInt(auction.highestBid) > 0n || auction.highestBidder !== '0x0000000000000000000000000000000000000000';
+      if (isSeller && !hasBid) {
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.className = 'cancel-live-auction';
+        cancelButton.textContent = 'Cancel listing';
+        cancelButton.addEventListener('click', async () => {
+          if (!window.confirm(`Cancel the auction for Ultra Rare #${auction.tokenId}? The NFT will return to your wallet.`)) return;
+          cancelButton.disabled = true;
+          cancelButton.textContent = 'Confirm in wallet…';
+          try {
+            await marketSend(auctionAddress, auctionCall('cancelAuction(uint256)', [marketWord(auction.tokenId)]), 'Cancel auction');
+            cancelButton.textContent = 'Listing cancelled ✓';
+            await loadLiveAuctions();
+            await loadOwnedRares();
+          } catch (error) {
+            cancelButton.disabled = false;
+            cancelButton.textContent = 'Cancel listing';
+            marketStatus.textContent = error?.code === 4001 ? 'Cancellation dismissed. The auction is still live.' : (error.message || 'This auction could not be cancelled.');
+          }
+        });
+        content.append(cancelButton);
+      } else if (isSeller && hasBid) {
+        const lockNotice = document.createElement('small');
+        lockNotice.className = 'auction-cancel-locked';
+        lockNotice.textContent = 'Cancellation locked · a bid has been placed';
+        content.append(lockNotice);
+      }
       card.append(artwork, content);
       if (!auction.image) hydrateAuctionImage(auction.tokenId, image);
       return card;
@@ -398,6 +427,7 @@ connectMarket?.addEventListener('click', async () => {
     if (await verifyAuctionDeployment()) auctionControls.forEach((control) => { control.disabled = false; });
     marketStatus.textContent = 'Wallet connected. Loading your Ultra Rares…';
     await loadOwnedRares();
+    await loadLiveAuctions();
     marketStatus.textContent = auctionAddress
       ? 'Choose one of your Ultra Rares to create an auction.'
       : 'Your collection is loaded. Auction transactions unlock after contract review and deployment.';
