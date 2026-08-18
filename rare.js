@@ -133,7 +133,7 @@ function renderRareTransfers(transfers, newBuyHash = null) {
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     const icon = document.createElement('b');
-    icon.textContent = '$R';
+    icon.textContent = transfer.hash === newBuyHash && transfer.side === 'buy' ? 'BUY' : '$R';
     const copy = document.createElement('span');
     const amount = document.createElement('strong');
     amount.textContent = formatRareTransfer(transfer.value, transfer.decimals);
@@ -154,7 +154,10 @@ function announceRareBuy() {
   void rareTransferTicker.offsetWidth;
   rareTransferTicker.classList.add('has-new-buy');
   clearTimeout(rareBuyTimer);
-  rareBuyTimer = window.setTimeout(() => rareTransferTicker.classList.remove('has-new-buy'), 5000);
+  rareBuyTimer = window.setTimeout(() => {
+    rareTransferTicker.classList.remove('has-new-buy');
+    rareTransferTrack.querySelectorAll('.is-new-rare-buy').forEach((item) => item.classList.remove('is-new-rare-buy'));
+  }, 9000);
 }
 
 const formatGme = (value) => `${Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 4 })} GME`;
