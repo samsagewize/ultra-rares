@@ -14,6 +14,7 @@ const goalMarkerCap = document.querySelector('[data-goal-marker-cap]');
 const athMarker = document.querySelector('[data-ath-marker]');
 const athValue = document.querySelector('[data-ath-value]');
 const rareTotalVolumeElement = document.querySelector('[data-rare-total-volume]');
+const rareHolderCountElement = document.querySelector('[data-rare-holder-count]');
 const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
 const rareTransferTrack = document.querySelector('[data-rare-transfers]');
 const gmeDistributedElement = document.querySelector('[data-gme-distributed]');
@@ -79,6 +80,7 @@ async function refreshRareMarket() {
     marketCapElement.textContent = formattedMarketCap;
     goalMarkerCap.textContent = formattedMarketCap;
     rareTotalVolumeElement.textContent = market.totalVolumeUsd === null ? 'Unavailable' : formatMarketCap(market.totalVolumeUsd);
+    rareHolderCountElement.textContent = market.holderCount === null ? 'Unavailable' : Number(market.holderCount).toLocaleString('en-US');
     marketStatusElement.textContent = `Live via DexScreener · ${market.liquidityUsd === null ? 'liquidity unavailable' : `${formatMarketCap(market.liquidityUsd)} liquidity`}`;
     goalFill.style.width = `${progress}%`;
     goalMarker.style.left = `clamp(34px, ${progress}%, calc(100% - 34px))`;
@@ -87,6 +89,7 @@ async function refreshRareMarket() {
     marketCapElement.textContent = 'Live data unavailable';
     goalMarkerCap.textContent = 'Unavailable';
     rareTotalVolumeElement.textContent = 'Unavailable';
+    rareHolderCountElement.textContent = 'Unavailable';
     marketStatusElement.textContent = 'The milestone roadmap remains active';
     goalFill.style.width = '0%';
     goalMarker.style.left = '34px';
