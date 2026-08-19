@@ -331,13 +331,56 @@ function renderLiveAuctions(payload) {
       seller.textContent = `SELLER ${shortAddress(auction.seller)}`;
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = auction.endTime > Date.now() / 1000 ? 'VIEW / PLACE BID ↗' : 'AUCTION ENDED';
-      button.disabled = auction.endTime <= Date.now() / 1000;
-      button.addEventListener('click', () => openBidModal(auction));
-      content.append(title, timer, stats, seller, button);
       const isSeller = marketAccount && auction.seller.toLowerCase() === marketAccount.toLowerCase();
       const hasBid = BigInt(auction.highestBid) > 0n || auction.highestBidder !== '0x0000000000000000000000000000000000000000';
-      if (isSeller && !hasBid) {
+      const hasEnded = auction.endTime <= Date.now() / 1000;
+
+      if (!hasEnded) {
+        button.textContent = 'VIEW / PLACE BID ↗';
+        button.addEventListener('click', () => openBidModal(auction));
+      } else if (!hasBid && isSeller) {
+        button.className = 'return-expired-auction';
+        button.textContent = 'RETURN NFT TO MY WALLET';
+        button.addEventListener('click', async () => {
+          if (!window.confirm(`Return Ultra Rare #${auction.tokenId} from the ended auction to your wallet?`)) return;
+          button.disabled = true;
+          button.textContent = 'CONFIRM RETURN IN WALLET…';
+          try {
+            await marketSend(auctionAddress, auctionCall('settle(uint256)', [marketWord(auction.tokenId)]), 'Return NFT from ended auction');
+            button.textContent = 'NFT RETURNED ✓';
+            await loadLiveAuctions();
+            await loadOwnedRares();
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = 'RETURN NFT TO MY WALLET';
+            marketStatus.textContent = error?.code === 4001 ? 'Return dismissed. The NFT remains safely in auction escrow.' : (error.message || 'The NFT could not be returned yet.');
+          }
+        });
+      } else if (!hasBid) {
+        button.textContent = marketAccount ? 'ENDED · SELLER CAN RETURN NFT' : 'CONNECT SELLER WALLET TO RETURN NFT';
+        button.disabled = true;
+      } else {
+        button.textContent = marketAccount ? 'SETTLE ENDED AUCTION' : 'CONNECT WALLET TO SETTLE';
+        button.disabled = !marketAccount;
+        if (marketAccount) {
+          button.addEventListener('click', async () => {
+            button.disabled = true;
+            button.textContent = 'CONFIRM SETTLEMENT IN WALLET…';
+            try {
+              await marketSend(auctionAddress, auctionCall('settle(uint256)', [marketWord(auction.tokenId)]), 'Settle ended auction');
+              await loadLiveAuctions();
+              await loadOwnedRares();
+            } catch (error) {
+              button.disabled = false;
+              button.textContent = 'SETTLE ENDED AUCTION';
+              marketStatus.textContent = error?.code === 4001 ? 'Settlement dismissed.' : (error.message || 'This auction could not be settled yet.');
+            }
+          });
+        }
+      }
+
+      content.append(title, timer, stats, seller, button);
+      if (!hasEnded && isSeller && !hasBid) {
         const cancelButton = document.createElement('button');
         cancelButton.type = 'button';
         cancelButton.className = 'cancel-live-auction';
@@ -358,7 +401,7 @@ function renderLiveAuctions(payload) {
           }
         });
         content.append(cancelButton);
-      } else if (isSeller && hasBid) {
+      } else if (!hasEnded && isSeller && hasBid) {
         const lockNotice = document.createElement('small');
         lockNotice.className = 'auction-cancel-locked';
         lockNotice.textContent = 'Cancellation locked · a bid has been placed';
