@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "compile": "node compile.mjs",
-    "test": "node test-auction.mjs",
+    "test": "node test-auction.mjs && node test-rename.mjs",
     "audit:auction": "solhint RareAuctionHouse.sol RareFeeVault.sol"
   },
   "devDependencies": {

@@ -50,7 +50,7 @@
 .owned-rares-heading > span { font-size: 10px; font-weight: 900; letter-spacing: .08em; }
 .owned-rares-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
 .owned-empty { grid-column: 1 / -1; min-height: 260px; display: grid; place-items: center; padding: 28px; border: 2px dashed #aaa; border-radius: 18px; color: #666; font-size: 12px; font-weight: 900; text-align: center; }
-.owned-rare-card { display: flex; min-width: 0; flex-direction: column; padding: 0; border: 2px solid #dfdfda; border-radius: 18px; overflow: hidden; background: #fff; color: var(--ink); text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,.07); cursor: pointer; transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.owned-rare-card { display: flex; min-width: 0; flex-direction: column; padding: 0; border: 2px solid #dfdfda; border-radius: 18px; overflow: hidden; background: #fff; color: var(--ink); text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,.07); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
 .owned-rare-card:hover, .owned-rare-card.is-selected { transform: translateY(-7px); border-color: var(--ink); box-shadow: 0 16px 38px rgba(0,0,0,.16); }
 .owned-rare-card.is-selected { outline: 5px solid var(--acid); }
 .owned-rare-card img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--acid); }
@@ -58,6 +58,11 @@
 .owned-rare-card strong { overflow: hidden; font-size: 17px; text-overflow: ellipsis; white-space: nowrap; }
 .owned-rare-card small { font-size: 9px; font-weight: 800; color: #666; }
 .owned-rare-card b { margin-top: 8px; font-size: 9px; letter-spacing: .08em; }
+.owned-rare-card > .owned-rare-actions { display: grid; margin-top: auto; padding: 0 17px 17px; gap: 7px; }
+.owned-rare-actions button { min-height: 42px; border: 2px solid var(--ink); padding: 9px; background: var(--ink); color: var(--acid); font: inherit; font-size: 8px; font-weight: 900; letter-spacing: .06em; cursor: pointer; }
+.owned-rare-actions button + button { color: var(--ink); background: var(--acid); }
+.rename-modal .bid-dialog { box-shadow: 14px 14px 0 #ff5f50; }
+.rename-modal [data-submit-rename] { min-height: 66px; }
 .live-auctions { max-width: 1380px; margin: 0 auto 10vh; padding-top: 7vh; border-top: 5px solid var(--ink); }
 .live-auctions-first { padding-top: 3vh; border-top: 0; }
 .live-auctions-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }

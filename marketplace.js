@@ -16,6 +16,10 @@ const ownedGrid = document.querySelector('[data-owned-rares]');
 const ownedCount = document.querySelector('[data-owned-count]');
 const auctionModal = document.querySelector('[data-auction-modal]');
 const auctionFlowStatus = document.querySelector('[data-auction-flow-status]');
+const renameModal = document.querySelector('[data-rename-modal]');
+const renameStatus = document.querySelector('[data-rename-status]');
+const renameName = document.querySelector('[data-rename-name]');
+const renameSubmit = document.querySelector('[data-submit-rename]');
 let marketAccount = '';
 let marketArtifact;
 let auctionArtifact;
@@ -85,6 +89,7 @@ function resetWalletView(message = 'Wallet disconnected.') {
   ownedCount.textContent = 'Connect wallet to load NFTs';
   ownedGrid.innerHTML = '<div class="owned-empty">Your Ultra Rares will appear here after you connect.</div>';
   closeAuctionModal();
+  closeRenameModal();
   marketStatus.textContent = message;
 }
 const ownerOfData = (tokenId) => `0x6352211e${marketWord(tokenId)}`;
@@ -143,6 +148,23 @@ function selectOwnedRare(tokenId, card) {
     : `Ultra Rare #${tokenId} selected. Auction creation unlocks after the reviewed contract is deployed.`;
 }
 
+function openRenameModal(tokenId) {
+  document.querySelector('[data-selected-rename-id]').textContent = tokenId;
+  renameName.value = '';
+  renameStatus.textContent = 'Burn 30,000 $RARE to submit this rename after the verified registry contract is deployed. Never send tokens manually.';
+  renameSubmit.disabled = true;
+  renameModal.hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+function closeRenameModal() {
+  renameModal.hidden = true;
+  if (auctionModal.hidden && document.querySelector('[data-bid-modal]')?.hidden) document.body.classList.remove('modal-open');
+}
+
+document.querySelector('[data-close-rename]')?.addEventListener('click', closeRenameModal);
+renameModal?.addEventListener('click', (event) => { if (event.target === renameModal) closeRenameModal(); });
+
 async function loadOwnedRares() {
   ownedCount.textContent = 'Scanning 420 Ultra Rares…';
   ownedGrid.innerHTML = '<div class="owned-empty">Reading ownership directly from Robinhood Chain…</div>';
@@ -165,9 +187,8 @@ async function loadOwnedRares() {
   }
   const cardParts = new Map();
   const cards = owned.map((tokenId) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'owned-rare-card';
+    const card = document.createElement('article');
+    card.className = 'owned-rare-card';
     const image = document.createElement('img');
     image.src = 'assets/untitled.png';
     image.alt = `Ultra Rare #${tokenId}`;
@@ -177,13 +198,21 @@ async function loadOwnedRares() {
     name.textContent = `Ultra Rare #${tokenId}`;
     const edition = document.createElement('small');
     edition.textContent = `Ultra Rares · #${tokenId}`;
-    const action = document.createElement('b');
-    action.textContent = 'List for auction ↗';
-    copy.append(name, edition, action);
-    button.append(image, copy);
-    button.addEventListener('click', () => selectOwnedRare(tokenId, button));
+    const actions = document.createElement('span');
+    actions.className = 'owned-rare-actions';
+    const auctionButton = document.createElement('button');
+    auctionButton.type = 'button';
+    auctionButton.textContent = 'List for auction ↗';
+    auctionButton.addEventListener('click', () => selectOwnedRare(tokenId, card));
+    const renameButton = document.createElement('button');
+    renameButton.type = 'button';
+    renameButton.textContent = 'Burn 30,000 $RARE to change name ↗';
+    renameButton.addEventListener('click', () => openRenameModal(tokenId));
+    actions.append(auctionButton, renameButton);
+    copy.append(name, edition);
+    card.append(image, copy, actions);
     cardParts.set(tokenId, { image, name });
-    return button;
+    return card;
   });
   ownedGrid.replaceChildren(...cards);
   owned.forEach(async (tokenId) => {
@@ -202,7 +231,11 @@ function closeAuctionModal() {
 
 document.querySelector('[data-close-auction]')?.addEventListener('click', closeAuctionModal);
 auctionModal?.addEventListener('click', (event) => { if (event.target === auctionModal) closeAuctionModal(); });
-document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !auctionModal?.hidden) closeAuctionModal(); });
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  if (!renameModal?.hidden) closeRenameModal();
+  else if (!auctionModal?.hidden) closeAuctionModal();
+});
 
 const bidModal = document.querySelector('[data-bid-modal]');
 const liveBidStatus = document.querySelector('[data-live-bid-status]');

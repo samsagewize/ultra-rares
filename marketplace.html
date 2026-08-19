@@ -6,7 +6,7 @@
     <meta name="description" content="List and collect Ultra Rares using RARE on Robinhood Chain." />
     <title>Marketplace — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body class="rare-page marketplace-page">
     <header class="site-header">
@@ -107,12 +107,31 @@
         </div>
       </section>
 
+      <section class="auction-section auction-modal bid-modal rename-modal" aria-labelledby="rename-modal-title" data-rename-modal hidden>
+        <div class="bid-dialog">
+          <button type="button" class="auction-modal-close" data-close-rename aria-label="Close rename popup">Close ×</button>
+          <div class="auction-heading">
+            <p class="eyebrow">On-chain rename request</p>
+            <h2 id="rename-modal-title">Rename #<span data-selected-rename-id>—</span>.</h2>
+            <p>Burn exactly 30,000 $RARE to request a custom name for this Ultra Rare. The collection creator will update the NFT metadata manually after verifying the on-chain request.</p>
+          </div>
+          <div class="auction-tools">
+            <article>
+              <label for="rare-new-name">New Ultra Rare name</label>
+              <input id="rare-new-name" type="text" maxlength="24" placeholder="Enter a name" data-rename-name />
+              <button type="button" data-submit-rename disabled>Burn 30,000 $RARE to change name</button>
+              <div class="market-listing-result" data-rename-status role="status" aria-live="polite">Rename burns stay disabled until the verified registry contract is deployed. Never send $RARE manually.</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="marketplace-safety">
         <p><strong>Non-custodial</strong><span>The marketplace does not hold listed NFTs.</span></p>
         <p><strong>Transparent settlement</strong><span>98% goes to the seller and 2% is split equally by the fee vault.</span></p>
         <p><strong>Verify first</strong><span>Confirm the contract and transaction in your wallet before signing.</span></p>
       </section>
     </main>
-    <script src="marketplace.js?v=8"></script>
+    <script src="marketplace.js?v=9"></script>
   </body>
 </html>
