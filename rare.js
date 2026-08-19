@@ -176,7 +176,7 @@ function formatRareTransfer(value, decimals) {
   return `${display}${fraction ? `.${fraction}` : ''} $RARE`;
 }
 
-function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new Set()) {
+function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new Set(), currentLatestBuyHash = null) {
   if (!rareTransferTrack) return;
   const rows = transfers.map((transfer) => {
     const link = document.createElement('a');
@@ -184,6 +184,7 @@ function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new 
     if (transfer.side === 'buy') link.classList.add('is-rare-buy');
     if (transfer.side === 'sell') link.classList.add('is-rare-sell');
     if (transfer.side === 'liquidity') link.classList.add('is-rare-liquidity');
+    if (transfer.hash === currentLatestBuyHash && transfer.side === 'buy') link.classList.add('is-latest-rare-buy');
     if (newTradeHashes.has(transfer.hash)) link.classList.add('is-new-trade-pop');
     if (transfer.hash === newBuyHash && transfer.side === 'buy') link.classList.add('is-new-rare-buy');
     link.href = transfer.url;
@@ -196,9 +197,9 @@ function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new 
     logo.alt = '$RARE token logo';
     logo.loading = 'lazy';
     icon.append(logo);
-    if (transfer.hash === newBuyHash && transfer.side === 'buy') {
+    if (transfer.hash === currentLatestBuyHash && transfer.side === 'buy') {
       const buyBadge = document.createElement('em');
-      buyBadge.textContent = 'BUY';
+      buyBadge.textContent = 'LATEST BUY';
       icon.append(buyBadge);
     }
     if (transfer.side === 'liquidity') {
@@ -325,7 +326,7 @@ async function refreshRareActivity() {
     const newBuyHash = latestRareBuyHash && payload.latestBuyHash && payload.latestBuyHash !== latestRareBuyHash ? payload.latestBuyHash : null;
     const newTrades = findNewTrades(payload.transfers);
     const newTradeHashes = new Set(newTrades.map((trade) => trade.hash));
-    renderRareTransfers(payload.transfers, newBuyHash, newTradeHashes);
+    renderRareTransfers(payload.transfers, newBuyHash, newTradeHashes, payload.latestBuyHash);
     animateTradeBubbles(newTrades);
     if (newBuyHash) announceRareBuy();
     latestRareBuyHash = payload.latestBuyHash || latestRareBuyHash;
