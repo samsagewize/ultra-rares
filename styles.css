@@ -116,6 +116,15 @@
 .bid-dialog .auction-tools { border: 0; border-top: 4px solid var(--ink); }
 .bid-dialog .auction-tools article { padding: 22px 24px 24px; }
 .bid-dialog .market-listing-result { min-height: 54px; font-size: 10px; }
+.confirm-modal .bid-dialog { width: min(520px, calc(100vw - 32px)); background: var(--ink); color: var(--acid); border-color: var(--acid); box-shadow: 14px 14px 0 var(--acid); }
+.confirm-modal .auction-heading { padding: 42px 28px 30px; }
+.confirm-modal .auction-heading h2 { color: var(--acid); font-size: clamp(48px, 8vw, 76px); }
+.confirm-modal .auction-heading > p:last-child { color: var(--paper); line-height: 1.4; }
+.confirm-actions { display: grid; grid-template-columns: 1fr 1.5fr; gap: 4px; padding: 4px; background: var(--acid); }
+.confirm-actions button { min-height: 64px; padding: 14px; border: 0; font: inherit; font-size: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.confirm-cancel { background: var(--paper); color: var(--ink); }
+.confirm-accept { background: var(--acid); color: var(--ink); }
+.confirm-actions button:focus-visible { outline: 4px solid #ff5f50; outline-offset: -4px; }
 .auction-heading { max-width: 1000px; margin: 0 auto 7vh; text-align: center; }
 .auction-heading h2 { margin: 24px auto; font-size: clamp(54px, 9vw, 132px); line-height: .78; letter-spacing: -.085em; }
 .auction-heading > p:last-child { max-width: 800px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 24px); font-weight: 900; line-height: 1.08; }

@@ -20,6 +20,8 @@ const renameModal = document.querySelector('[data-rename-modal]');
 const renameStatus = document.querySelector('[data-rename-status]');
 const renameName = document.querySelector('[data-rename-name]');
 const renameSubmit = document.querySelector('[data-submit-rename]');
+const confirmModal = document.querySelector('[data-confirm-modal]');
+let confirmResolver = null;
 let marketAccount = '';
 let marketArtifact;
 let auctionArtifact;
@@ -27,6 +29,30 @@ let feeVaultArtifact;
 let selectedListing = null;
 let selectedBidAuction = null;
 let liveAuctionRefresh;
+
+function closeSiteConfirm(accepted = false) {
+  if (!confirmModal || confirmModal.hidden) return;
+  confirmModal.hidden = true;
+  document.body.classList.remove('modal-open');
+  const resolve = confirmResolver;
+  confirmResolver = null;
+  resolve?.(accepted);
+}
+
+function siteConfirm({ eyebrow = 'Confirm action', title = 'Are you sure?', copy, confirmLabel = 'Confirm' }) {
+  document.querySelector('[data-confirm-eyebrow]').textContent = eyebrow;
+  document.querySelector('[data-confirm-title]').textContent = title;
+  document.querySelector('[data-confirm-copy]').textContent = copy;
+  document.querySelector('[data-confirm-accept]').textContent = confirmLabel;
+  confirmModal.hidden = false;
+  document.body.classList.add('modal-open');
+  document.querySelector('[data-confirm-cancel]').focus();
+  return new Promise((resolve) => { confirmResolver = resolve; });
+}
+
+document.querySelector('[data-confirm-cancel]')?.addEventListener('click', () => closeSiteConfirm(false));
+document.querySelector('[data-confirm-accept]')?.addEventListener('click', () => closeSiteConfirm(true));
+confirmModal?.addEventListener('click', (event) => { if (event.target === confirmModal) closeSiteConfirm(false); });
 
 const marketWord = (value) => BigInt(value).toString(16).padStart(64, '0');
 const marketAddressWord = (address) => address.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -233,7 +259,8 @@ document.querySelector('[data-close-auction]')?.addEventListener('click', closeA
 auctionModal?.addEventListener('click', (event) => { if (event.target === auctionModal) closeAuctionModal(); });
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
-  if (!renameModal?.hidden) closeRenameModal();
+  if (!confirmModal?.hidden) closeSiteConfirm(false);
+  else if (!renameModal?.hidden) closeRenameModal();
   else if (!auctionModal?.hidden) closeAuctionModal();
 });
 
@@ -342,7 +369,13 @@ function renderLiveAuctions(payload) {
         button.className = 'return-expired-auction';
         button.textContent = 'RETURN NFT TO MY WALLET';
         button.addEventListener('click', async () => {
-          if (!window.confirm(`Return Ultra Rare #${auction.tokenId} from the ended auction to your wallet?`)) return;
+          const confirmed = await siteConfirm({
+            eyebrow: 'Ended auction · no bids',
+            title: 'Return #'+auction.tokenId+'?',
+            copy: 'This sends Ultra Rare #'+auction.tokenId+' from the auction contract back to your connected seller wallet and removes the ended auction.',
+            confirmLabel: 'Return NFT to my wallet',
+          });
+          if (!confirmed) return;
           button.disabled = true;
           button.textContent = 'CONFIRM RETURN IN WALLET…';
           try {
@@ -386,7 +419,13 @@ function renderLiveAuctions(payload) {
         cancelButton.className = 'cancel-live-auction';
         cancelButton.textContent = 'Cancel listing';
         cancelButton.addEventListener('click', async () => {
-          if (!window.confirm(`Cancel the auction for Ultra Rare #${auction.tokenId}? The NFT will return to your wallet.`)) return;
+          const confirmed = await siteConfirm({
+            eyebrow: 'Live auction · no bids',
+            title: 'Cancel #'+auction.tokenId+'?',
+            copy: 'This cancels the auction and returns Ultra Rare #'+auction.tokenId+' to your connected seller wallet.',
+            confirmLabel: 'Cancel listing',
+          });
+          if (!confirmed) return;
           cancelButton.disabled = true;
           cancelButton.textContent = 'Confirm in wallet…';
           try {

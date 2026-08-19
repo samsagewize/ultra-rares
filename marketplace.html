@@ -6,7 +6,7 @@
     <meta name="description" content="List and collect Ultra Rares using RARE on Robinhood Chain." />
     <title>Marketplace — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
-    <link rel="stylesheet" href="styles.css?v=10" />
+    <link rel="stylesheet" href="styles.css?v=11" />
   </head>
   <body class="rare-page marketplace-page">
     <header class="site-header">
@@ -126,12 +126,26 @@
         </div>
       </section>
 
+      <section class="auction-section auction-modal bid-modal confirm-modal" aria-labelledby="confirm-modal-title" data-confirm-modal hidden>
+        <div class="bid-dialog" role="alertdialog" aria-modal="true" aria-describedby="confirm-modal-copy">
+          <div class="auction-heading">
+            <p class="eyebrow" data-confirm-eyebrow>Confirm action</p>
+            <h2 id="confirm-modal-title" data-confirm-title>Are you sure?</h2>
+            <p id="confirm-modal-copy" data-confirm-copy>Please verify this action before continuing.</p>
+          </div>
+          <div class="confirm-actions">
+            <button type="button" class="confirm-cancel" data-confirm-cancel>Cancel</button>
+            <button type="button" class="confirm-accept" data-confirm-accept>Confirm</button>
+          </div>
+        </div>
+      </section>
+
       <section class="marketplace-safety">
         <p><strong>Non-custodial</strong><span>The marketplace does not hold listed NFTs.</span></p>
         <p><strong>Transparent settlement</strong><span>98% goes to the seller and 2% is split equally by the fee vault.</span></p>
         <p><strong>Verify first</strong><span>Confirm the contract and transaction in your wallet before signing.</span></p>
       </section>
     </main>
-    <script src="marketplace.js?v=10"></script>
+    <script src="marketplace.js?v=11"></script>
   </body>
 </html>
