@@ -13,11 +13,7 @@ const goalMarker = document.querySelector('[data-goal-marker]');
 const goalMarkerCap = document.querySelector('[data-goal-marker-cap]');
 const athMarker = document.querySelector('[data-ath-marker]');
 const athValue = document.querySelector('[data-ath-value]');
-const rareVolumeElement = document.querySelector('[data-rare-volume]');
 const rareTotalVolumeElement = document.querySelector('[data-rare-total-volume]');
-const rare24hChangeElement = document.querySelector('[data-rare-24h-change]');
-const rareTotalChangeElement = document.querySelector('[data-rare-total-change]');
-const rareVolumeTradesElement = document.querySelector('[data-rare-volume-trades]');
 const rareTokenLogo = 'https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=800&height=800&quality=95&format=auto';
 const rareTransferTrack = document.querySelector('[data-rare-transfers]');
 const gmeDistributedElement = document.querySelector('[data-gme-distributed]');
@@ -82,25 +78,7 @@ async function refreshRareMarket() {
     const formattedMarketCap = formatMarketCap(market.marketCap);
     marketCapElement.textContent = formattedMarketCap;
     goalMarkerCap.textContent = formattedMarketCap;
-    rareVolumeElement.textContent = formatMarketCap(market.volume24hUsd || 0);
     rareTotalVolumeElement.textContent = market.totalVolumeUsd === null ? 'Unavailable' : formatMarketCap(market.totalVolumeUsd);
-    if (market.change24hPercent === null) {
-      rare24hChangeElement.textContent = '24H change unavailable';
-      rare24hChangeElement.className = '';
-    } else {
-      const change24h = Number(market.change24hPercent);
-      rare24hChangeElement.textContent = `24H change ${change24h >= 0 ? '+' : ''}${change24h.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
-      rare24hChangeElement.className = change24h >= 0 ? 'is-positive' : 'is-negative';
-    }
-    if (market.allTimeChangePercent === null) {
-      rareTotalChangeElement.textContent = 'All-time change unavailable';
-      rareTotalChangeElement.className = '';
-    } else {
-      const change = Number(market.allTimeChangePercent);
-      rareTotalChangeElement.textContent = `All-time change ${change >= 0 ? '+' : ''}${change.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
-      rareTotalChangeElement.className = change >= 0 ? 'is-positive' : 'is-negative';
-    }
-    rareVolumeTradesElement.textContent = `${Number(market.buys24h || 0).toLocaleString('en-US')} buys · ${Number(market.sells24h || 0).toLocaleString('en-US')} sells`;
     marketStatusElement.textContent = `Live via DexScreener · ${market.liquidityUsd === null ? 'liquidity unavailable' : `${formatMarketCap(market.liquidityUsd)} liquidity`}`;
     goalFill.style.width = `${progress}%`;
     goalMarker.style.left = `clamp(34px, ${progress}%, calc(100% - 34px))`;
@@ -108,13 +86,7 @@ async function refreshRareMarket() {
   } catch {
     marketCapElement.textContent = 'Live data unavailable';
     goalMarkerCap.textContent = 'Unavailable';
-    rareVolumeElement.textContent = 'Unavailable';
     rareTotalVolumeElement.textContent = 'Unavailable';
-    rare24hChangeElement.textContent = '24H change unavailable';
-    rare24hChangeElement.className = '';
-    rareTotalChangeElement.textContent = 'All-time change unavailable';
-    rareTotalChangeElement.className = '';
-    rareVolumeTradesElement.textContent = 'DexScreener feed retrying';
     marketStatusElement.textContent = 'The milestone roadmap remains active';
     goalFill.style.width = '0%';
     goalMarker.style.left = '34px';
