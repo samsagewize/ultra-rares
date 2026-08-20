@@ -91,6 +91,7 @@
 .auction-activity [data-auction-activity] { display: grid; max-height: 620px; overflow-y: auto; border-top: 1px solid var(--acid); }
 .auction-activity a { display: grid; gap: 6px; padding: 16px 2px; border-bottom: 1px solid var(--acid); color: inherit; text-decoration: none; }
 .auction-activity a:hover { background: var(--acid); color: var(--ink); padding-inline: 10px; }
+.auction-activity a.rename-activity-row { border-left: 5px solid #ff5f50; padding-left: 10px; }
 .auction-activity strong { font-size: 11px; }
 .auction-activity span { font-size: 8px; font-weight: 900; letter-spacing: .06em; }
 .marketplace-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1180px; margin: 0 auto; border: 4px solid var(--ink); }

@@ -1,0 +1,24 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "RareRenameRegistry.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ninterface IERC20RenameToken {\n    function transferFrom(address from, address to, uint256 amount) external returns (bool);\n}\n\ninterface IERC721RenameCollection {\n    function ownerOf(uint256 tokenId) external view returns (address);\n}\n\n/// @title Ultra Rares Rename Registry\n/// @notice Burns RARE and records holder-authorized rename requests for manual metadata updates.\ncontract RareRenameRegistry {\n    uint256 public constant RENAME_COST = 30_000 ether;\n    address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;\n\n    struct RenameRequest {\n        address requester;\n        string requestedName;\n        bool pending;\n    }\n\n    IERC721RenameCollection public immutable collection;\n    IERC20RenameToken public immutable rareToken;\n    address public immutable admin;\n    mapping(uint256 tokenId => RenameRequest) public requests;\n\n    error NotTokenOwner();\n    error InvalidName();\n    error RequestPending();\n    error TransferFailed();\n    error NotAdmin();\n    error RequestUnavailable();\n    error OwnerChanged();\n\n    event RenameRequested(uint256 indexed tokenId, address indexed requester, string requestedName, uint256 burnedAmount);\n    event RenameCompleted(uint256 indexed tokenId, address indexed requester, string completedName);\n    event StaleRenameCleared(uint256 indexed tokenId, address indexed previousRequester);\n\n    constructor(address collection_, address rareToken_, address admin_) {\n        if (collection_ == address(0) || rareToken_ == address(0) || admin_ == address(0)) revert InvalidName();\n        collection = IERC721RenameCollection(collection_);\n        rareToken = IERC20RenameToken(rareToken_);\n        admin = admin_;\n    }\n\n    function requestRename(uint256 tokenId, string calldata requestedName) external {\n        if (collection.ownerOf(tokenId) != msg.sender) revert NotTokenOwner();\n        RenameRequest storage existingRequest = requests[tokenId];\n        if (existingRequest.pending) {\n            if (existingRequest.requester == msg.sender) revert RequestPending();\n            address previousRequester = existingRequest.requester;\n            delete requests[tokenId];\n            emit StaleRenameCleared(tokenId, previousRequester);\n        }\n        _validateName(requestedName);\n\n        requests[tokenId] = RenameRequest({ requester: msg.sender, requestedName: requestedName, pending: true });\n        if (!rareToken.transferFrom(msg.sender, BURN_ADDRESS, RENAME_COST)) revert TransferFailed();\n        emit RenameRequested(tokenId, msg.sender, requestedName, RENAME_COST);\n    }\n\n    function completeRename(uint256 tokenId) external {\n        if (msg.sender != admin) revert NotAdmin();\n        RenameRequest storage request = requests[tokenId];\n        if (!request.pending) revert RequestUnavailable();\n        if (collection.ownerOf(tokenId) != request.requester) revert OwnerChanged();\n        request.pending = false;\n        emit RenameCompleted(tokenId, request.requester, request.requestedName);\n    }\n\n    /// @notice Clears a pending request after the requesting holder has transferred the NFT.\n    /// @dev Anyone may clear only a provably stale request; active-holder requests cannot be removed.\n    function clearStaleRequest(uint256 tokenId) external {\n        RenameRequest storage request = requests[tokenId];\n        if (!request.pending) revert RequestUnavailable();\n        if (collection.ownerOf(tokenId) == request.requester) revert RequestPending();\n        address previousRequester = request.requester;\n        delete requests[tokenId];\n        emit StaleRenameCleared(tokenId, previousRequester);\n    }\n\n    function _validateName(string calldata requestedName) private pure {\n        bytes calldata value = bytes(requestedName);\n        if (value.length == 0 || value.length > 24) revert InvalidName();\n        for (uint256 index; index < value.length; ++index) {\n            if (value[index] < 0x20 || value[index] > 0x7E) revert InvalidName();\n        }\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "shanghai",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode.object",
+          "evm.methodIdentifiers"
+        ]
+      }
+    }
+  }
+}

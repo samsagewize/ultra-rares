@@ -8,5 +8,8 @@
   "rareToken": "0x1d522a4c3e1f3d97b585903474b2544cf9feeffb",
   "renameCostBaseUnits": "30000000000000000000000",
   "burnAddress": "0x000000000000000000000000000000000000dEaD",
-  "maximumNameBytes": 24
+  "maximumNameBytes": 24,
+  "deployedRegistry": "0x8D14DEc25cd17081270b7052685Fa0418C376CeE",
+  "deploymentTransaction": "0x5a2e701b97a7e2a41b8cb022ffccb71c2ff392d9d075aa7ae273871153c86733",
+  "sourceVerifiedAt": "2026-08-20T05:17:52.965679Z"
 }

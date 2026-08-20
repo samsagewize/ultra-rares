@@ -488,7 +488,16 @@ function renderLiveAuctions(payload) {
       row.href = `https://robinhoodchain.blockscout.com/tx/${event.transactionHash}`;
       row.target = '_blank';
       row.rel = 'noopener noreferrer';
-      const label = event.type === 'bid' ? `${rareDisplay(event.amount)} $RARE BID` : event.type.toUpperCase();
+      if (event.type.startsWith('rename_')) row.className = 'rename-activity-row';
+      const label = event.type === 'bid'
+        ? `${rareDisplay(event.amount)} $RARE BID`
+        : event.type === 'rename_requested'
+          ? `RENAME → “${event.requestedName}”`
+          : event.type === 'rename_completed'
+            ? `RENAMED ✓ “${event.requestedName}”`
+            : event.type === 'rename_stale'
+              ? 'STALE RENAME CLEARED'
+              : event.type.toUpperCase();
       const time = new Date(event.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const headline = document.createElement('strong');
       headline.textContent = `#${event.tokenId} · ${label}`;
