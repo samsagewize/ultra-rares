@@ -46,4 +46,22 @@ await expectRevert(registry.connect(stranger).completeRename(420), 'Only the adm
 await (await registry.completeRename(420)).wait();
 assert.equal((await registry.requests(420)).pending, false, 'Admin completion must close the request');
 
-console.log('Rename registry safety tests passed: 7 assertions');
+await (await nft.mint(await holder.getAddress(), 78)).wait();
+await (await registry.connect(holder).requestRename(78, 'Moving Rare')).wait();
+await expectRevert(registry.connect(stranger).clearStaleRequest(78), 'A current holder request cannot be cleared');
+await (await nft.connect(holder).transferFrom(await holder.getAddress(), await stranger.getAddress(), 78)).wait();
+await expectRevert(registry.completeRename(78), 'Admin cannot complete a request after ownership changes');
+await (await registry.connect(admin).clearStaleRequest(78)).wait();
+assert.equal((await registry.requests(78)).pending, false, 'A transferred NFT must not remain permanently rename-locked');
+
+await (await nft.mint(await holder.getAddress(), 79)).wait();
+await (await rare.mint(await holder.getAddress(), cost)).wait();
+await (await rare.connect(holder).approve(await registry.getAddress(), cost)).wait();
+await (await registry.connect(holder).requestRename(79, 'First Holder')).wait();
+await (await nft.connect(holder).transferFrom(await holder.getAddress(), await stranger.getAddress(), 79)).wait();
+await (await rare.mint(await stranger.getAddress(), cost)).wait();
+await (await rare.connect(stranger).approve(await registry.getAddress(), cost)).wait();
+await (await registry.connect(stranger).requestRename(79, 'New Holder')).wait();
+assert.equal((await registry.requests(79)).requester, await stranger.getAddress(), 'A new owner can replace only the stale prior-owner request');
+
+console.log('Rename registry safety tests passed: 12 assertions');

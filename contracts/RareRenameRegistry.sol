@@ -36,6 +36,7 @@ contract RareRenameRegistry {
 
     event RenameRequested(uint256 indexed tokenId, address indexed requester, string requestedName, uint256 burnedAmount);
     event RenameCompleted(uint256 indexed tokenId, address indexed requester, string completedName);
+    event StaleRenameCleared(uint256 indexed tokenId, address indexed previousRequester);
 
     constructor(address collection_, address rareToken_, address admin_) {
         if (collection_ == address(0) || rareToken_ == address(0) || admin_ == address(0)) revert InvalidName();
@@ -46,7 +47,13 @@ contract RareRenameRegistry {
 
     function requestRename(uint256 tokenId, string calldata requestedName) external {
         if (collection.ownerOf(tokenId) != msg.sender) revert NotTokenOwner();
-        if (requests[tokenId].pending) revert RequestPending();
+        RenameRequest storage existingRequest = requests[tokenId];
+        if (existingRequest.pending) {
+            if (existingRequest.requester == msg.sender) revert RequestPending();
+            address previousRequester = existingRequest.requester;
+            delete requests[tokenId];
+            emit StaleRenameCleared(tokenId, previousRequester);
+        }
         _validateName(requestedName);
 
         requests[tokenId] = RenameRequest({ requester: msg.sender, requestedName: requestedName, pending: true });
@@ -61,6 +68,17 @@ contract RareRenameRegistry {
         if (collection.ownerOf(tokenId) != request.requester) revert OwnerChanged();
         request.pending = false;
         emit RenameCompleted(tokenId, request.requester, request.requestedName);
+    }
+
+    /// @notice Clears a pending request after the requesting holder has transferred the NFT.
+    /// @dev Anyone may clear only a provably stale request; active-holder requests cannot be removed.
+    function clearStaleRequest(uint256 tokenId) external {
+        RenameRequest storage request = requests[tokenId];
+        if (!request.pending) revert RequestUnavailable();
+        if (collection.ownerOf(tokenId) == request.requester) revert RequestPending();
+        address previousRequester = request.requester;
+        delete requests[tokenId];
+        emit StaleRenameCleared(tokenId, previousRequester);
     }
 
     function _validateName(string calldata requestedName) private pure {

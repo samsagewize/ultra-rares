@@ -6,6 +6,7 @@ const MARKET_TRANSFER_VALIDATOR = '0xa000027a9b2802e1ddf7000061001e5c005a0000';
 const marketRoot = document.querySelector('[data-marketplace]');
 const marketplaceAddress = marketRoot?.dataset.marketplaceAddress || '';
 const auctionAddress = marketRoot?.dataset.auctionAddress || '';
+const renameRegistryAddress = marketRoot?.dataset.renameRegistryAddress || '';
 const marketStatus = document.querySelector('[data-market-status]');
 const connectMarket = document.querySelector('[data-market-connect]');
 const disconnectMarket = document.querySelector('[data-market-disconnect]');
@@ -26,8 +27,11 @@ let marketAccount = '';
 let marketArtifact;
 let auctionArtifact;
 let feeVaultArtifact;
+let renameArtifact;
 let selectedListing = null;
 let selectedBidAuction = null;
+let selectedRenameToken = null;
+let renameReady = false;
 let liveAuctionRefresh;
 
 function closeSiteConfirm(accepted = false) {
@@ -61,6 +65,8 @@ const marketCall = (signature, args = []) => `0x${marketSelector(signature)}${ar
 const rareUnits = (value) => BigInt(value) * 10n ** 18n;
 const auctionSelector = (signature) => auctionArtifact.methodIdentifiers[signature];
 const auctionCall = (signature, args = []) => `0x${auctionSelector(signature)}${args.join('')}`;
+const renameSelector = (signature) => renameArtifact.methodIdentifiers[signature];
+const renameCall = (signature, args = []) => `0x${renameSelector(signature)}${args.join('')}`;
 const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
 
 function formatRareBalance(value) {
@@ -105,8 +111,25 @@ async function verifyAuctionDeployment() {
   return true;
 }
 
+async function verifyRenameDeployment() {
+  if (!isAddress(renameRegistryAddress)) return false;
+  const code = await window.ethereum.request({ method: 'eth_getCode', params: [renameRegistryAddress, 'latest'] });
+  if (!code || code === '0x') throw new Error('Rename registry address has no deployed contract code.');
+  const [collection, token, admin, cost] = await Promise.all([
+    readContractAddress(renameRegistryAddress, renameSelector('collection()')),
+    readContractAddress(renameRegistryAddress, renameSelector('rareToken()')),
+    readContractAddress(renameRegistryAddress, renameSelector('admin()')),
+    window.ethereum.request({ method: 'eth_call', params: [{ to: renameRegistryAddress, data: `0x${renameSelector('RENAME_COST()')}` }, 'latest'] }),
+  ]);
+  if (collection !== MARKET_NFT || token !== MARKET_RARE || admin !== MARKET_ADMIN || BigInt(cost) !== rareUnits(30000)) {
+    throw new Error('Rename registry does not match the official collection, $RARE token, administrator, and 30,000 $RARE cost.');
+  }
+  return true;
+}
+
 function resetWalletView(message = 'Wallet disconnected.') {
   marketAccount = '';
+  renameReady = false;
   auctionControls.forEach((control) => { control.disabled = true; });
   connectMarket.textContent = 'Connect wallet';
   connectMarket.disabled = false;
@@ -175,16 +198,20 @@ function selectOwnedRare(tokenId, card) {
 }
 
 function openRenameModal(tokenId) {
+  selectedRenameToken = tokenId;
   document.querySelector('[data-selected-rename-id]').textContent = tokenId;
   renameName.value = '';
-  renameStatus.textContent = 'Burn 30,000 $RARE to submit this rename after the verified registry contract is deployed. Never send tokens manually.';
-  renameSubmit.disabled = true;
+  renameStatus.textContent = renameReady
+    ? 'Enter the new name. Your wallet will first approve exactly 30,000 $RARE, then record the rename request on-chain.'
+    : 'Burning remains locked until the verified rename registry is deployed and published. Never send $RARE manually.';
+  renameSubmit.disabled = !renameReady;
   renameModal.hidden = false;
   document.body.classList.add('modal-open');
 }
 
 function closeRenameModal() {
   renameModal.hidden = true;
+  selectedRenameToken = null;
   if (auctionModal.hidden && document.querySelector('[data-bid-modal]')?.hidden) document.body.classList.remove('modal-open');
 }
 
@@ -529,6 +556,7 @@ connectMarket?.addEventListener('click', async () => {
     marketArtifact = await fetch('assets/RareMarketplace.json').then((response) => response.json());
     auctionArtifact = await fetch('assets/RareAuctionHouse.json').then((response) => response.json());
     feeVaultArtifact = await fetch('assets/RareFeeVault.json').then((response) => response.json());
+    renameArtifact = await fetch('assets/RareRenameRegistry.json').then((response) => response.json());
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     await marketNetwork();
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
@@ -540,6 +568,7 @@ connectMarket?.addEventListener('click', async () => {
     disconnectMarket.hidden = false;
     await loadRareBalance();
     if (await verifyAuctionDeployment()) auctionControls.forEach((control) => { control.disabled = false; });
+    renameReady = await verifyRenameDeployment();
     marketStatus.textContent = 'Wallet connected. Loading your Ultra Rares…';
     await loadOwnedRares();
     await loadLiveAuctions();
@@ -549,6 +578,59 @@ connectMarket?.addEventListener('click', async () => {
   } catch (error) {
     if (!marketAccount) connectMarket.disabled = false;
     marketStatus.textContent = error.message || 'Wallet connection failed.';
+  }
+});
+
+function encodeRenameRequest(tokenId, requestedName) {
+  const bytes = new TextEncoder().encode(requestedName);
+  const nameHex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  const paddedName = nameHex.padEnd(Math.ceil(bytes.length / 32) * 64, '0');
+  return renameCall('requestRename(uint256,string)', [marketWord(tokenId), marketWord(64), marketWord(bytes.length), paddedName]);
+}
+
+renameSubmit?.addEventListener('click', async () => {
+  const requestedName = renameName.value.trim();
+  const nameBytes = new TextEncoder().encode(requestedName);
+  if (!marketAccount || !renameReady || !selectedRenameToken) {
+    renameStatus.textContent = 'Connect the holder wallet after the verified rename registry is deployed.';
+    return;
+  }
+  if (!requestedName || nameBytes.length > 24 || [...nameBytes].some((byte) => byte < 0x20 || byte > 0x7e)) {
+    renameStatus.textContent = 'Use 1–24 standard letters, numbers, spaces, or punctuation.';
+    return;
+  }
+  renameSubmit.disabled = true;
+  renameSubmit.textContent = 'Preparing rename…';
+  try {
+    const ownerResult = await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_NFT, data: ownerOfData(selectedRenameToken) }, 'latest'] });
+    if (`0x${ownerResult.slice(-40)}`.toLowerCase() !== marketAccount.toLowerCase()) throw new Error('This wallet no longer owns the selected Ultra Rare.');
+    const requestResult = await window.ethereum.request({ method: 'eth_call', params: [{ to: renameRegistryAddress, data: renameCall('requests(uint256)', [marketWord(selectedRenameToken)]) }, 'latest'] });
+    const requestWords = requestResult.slice(2).match(/.{64}/g) || [];
+    const pendingRequester = `0x${requestWords[0]?.slice(24) || '0'.repeat(40)}`.toLowerCase();
+    const requestPending = BigInt(`0x${requestWords[2] || '0'}`) === 1n;
+    if (requestPending && pendingRequester === marketAccount.toLowerCase()) throw new Error('This Ultra Rare already has a pending rename request. It must be completed before another request.');
+    const cost = rareUnits(30000);
+    const allowanceData = `0xdd62ed3e${marketAddressWord(marketAccount)}${marketAddressWord(renameRegistryAddress)}`;
+    const allowance = BigInt(await window.ethereum.request({ method: 'eth_call', params: [{ to: MARKET_RARE, data: allowanceData }, 'latest'] }));
+    if (allowance < cost) {
+      renameStatus.textContent = 'Step 1 of 2: approve exactly 30,000 $RARE in your wallet.';
+      await marketSend(MARKET_RARE, `0x095ea7b3${marketAddressWord(renameRegistryAddress)}${marketWord(cost)}`, 'Approve 30,000 $RARE for rename');
+    }
+    renameStatus.textContent = 'Step 2 of 2: confirm the on-chain rename request and burn.';
+    const { hash } = await marketSend(renameRegistryAddress, encodeRenameRequest(selectedRenameToken, requestedName), 'Submit rename request');
+    renameStatus.replaceChildren();
+    const link = document.createElement('a');
+    link.href = `https://robinhoodchain.blockscout.com/tx/${hash}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = `Rename requested: “${requestedName}” · View transaction ↗`;
+    renameStatus.append(link);
+    renameSubmit.textContent = 'Rename request submitted ✓';
+    await loadRareBalance();
+  } catch (error) {
+    renameSubmit.disabled = false;
+    renameSubmit.textContent = 'Burn 30,000 $RARE to change name';
+    renameStatus.textContent = error?.code === 4001 ? 'Transaction cancelled. No $RARE was burned.' : (error.message || 'Rename request failed. No completed transaction means no rename was recorded.');
   }
 });
 

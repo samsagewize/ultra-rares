@@ -33,6 +33,10 @@ Deploy to testnet first. The constructor arguments are the NFT collection addres
 
 The registry deliberately holds no ETH, ERC-20s, or NFTs. Reward funding and payouts belong in a separate vault with its own accounting, solvency checks, and audit. Fusion must be executed by another contract before its result is recorded here.
 
+## Rename registry
+
+`RareRenameRegistry.sol` records holder-authorized rename requests for manual metadata updates. The current NFT owner approves and sends exactly `30,000 RARE` to the permanent burn address as part of `requestRename`. The registry never takes custody of NFTs, ETH, or tokens. Active requests cannot be overwritten; requests made stale by an NFT transfer can be cleared, and a new owner can replace only a stale prior-owner request. The configured administrator marks a request complete only after the metadata update and only while the requester still owns the NFT.
+
 This is prototype code, not audited production code.
 
 ## Inventory-backed NFT claim vault

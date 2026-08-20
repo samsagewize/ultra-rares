@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>RARE Rename Registry Launch</title>
+    <link rel="icon" type="image/png" href="assets/banner-2.png" />
+    <link rel="stylesheet" href="styles.css?v=12" />
+  </head>
+  <body class="rare-page">
+    <header class="site-header">
+      <a class="wordmark" href="index.html"><img src="assets/banner-2.png" alt="Ultra Rares" /></a>
+      <nav><a class="nav-link" href="marketplace.html">Back to Auctions</a></nav>
+    </header>
+    <main class="rare-main vault-admin-main" data-rename-admin>
+      <section class="rare-token-intro">
+        <p class="eyebrow">Administrator launch console</p>
+        <h1>RENAME<br />REGISTRY.</h1>
+        <p class="rare-token-copy">Deploy the holder-owned rename request registry. Deployment is one transaction and does not move any NFT or $RARE.</p>
+      </section>
+      <section class="vault-launch-panel">
+        <div class="vault-launch-summary">
+          <p><span>Administrator</span><code>0x562F6ac10723ef6AF9F077A83cF25135FB369612</code></p>
+          <p><span>Collection</span><code>0x923aaaa62c12505b1bbb57ed52b730d6462c01c5</code></p>
+          <p><span>$RARE</span><code>0x1d522a4c3e1f3d97b585903474b2544cf9feeffb</code></p>
+          <p><span>Rename cost</span><strong>30,000 $RARE burned per request</strong></p>
+          <p><span>Network</span><strong>Robinhood Chain · 4663</strong></p>
+        </div>
+        <button type="button" data-rename-admin-connect>1. Connect administrator wallet</button>
+        <button type="button" data-deploy-rename disabled>2. Deploy rename registry</button>
+        <button type="button" data-verify-rename disabled>3. Verify deployed registry</button>
+        <div class="claim-status" data-rename-admin-status role="status" aria-live="polite">Connect only with the configured administrator wallet. Never enter a seed phrase.</div>
+        <div class="vault-address-output" data-rename-output hidden>
+          <span>Rename registry</span><code data-deployed-rename></code>
+          <button type="button" data-copy-rename>Copy registry address</button>
+        </div>
+      </section>
+      <section class="request-notes">
+        <p><strong>No custody</strong><span>The registry never holds NFTs, ETH, or $RARE.</span></p>
+        <p><strong>Exact cost</strong><span>Holder requests transfer exactly 30,000 $RARE to the permanent burn address.</span></p>
+        <p><strong>Manual metadata</strong><span>After verification, publish the registry address on the Auctions page. The administrator completes requests only after updating metadata.</span></p>
+      </section>
+    </main>
+    <script src="rename-admin.js?v=1"></script>
+  </body>
+</html>
