@@ -6,6 +6,28 @@
   --stats-width: 210px;
 }
 
+.home-loader { display: none; position: fixed; inset: 0; z-index: 10000; place-items: center; padding: 24px; overflow: hidden; background: var(--ink); color: var(--acid); opacity: 1; visibility: visible; transition: opacity .55s ease, visibility .55s ease; }
+.js .home-loader { display: grid; }
+.js body.home-loading { overflow: hidden; }
+.home-loader.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+.home-loader-inner { display: grid; justify-items: center; width: min(520px, 88vw); text-align: center; }
+.home-loader-mark { position: relative; width: clamp(150px, 34vw, 310px); aspect-ratio: 1; animation: rare-loader-pulse 1.05s ease-in-out infinite alternate; }
+.home-loader-mark img { display: block; width: 100%; height: 100%; border: 4px solid var(--acid); border-radius: 50%; object-fit: cover; filter: drop-shadow(0 0 24px rgba(183, 241, 15, .42)); }
+.home-loader-orbit { position: absolute; inset: -15px; border: 3px dashed var(--acid); border-radius: 50%; animation: rare-loader-spin 4s linear infinite; }
+.home-loader strong { margin-top: 25px; font-size: clamp(58px, 13vw, 112px); line-height: .76; letter-spacing: -.08em; }
+.home-loader small { margin-top: 18px; font-size: clamp(10px, 1.4vw, 14px); font-weight: 900; letter-spacing: .24em; text-transform: uppercase; }
+.home-loader-progress { width: min(330px, 72vw); height: 7px; margin-top: 20px; border: 2px solid var(--acid); overflow: hidden; }
+.home-loader-progress i { display: block; width: 45%; height: 100%; background: var(--acid); animation: rare-loader-progress 1s ease-in-out infinite; }
+@keyframes rare-loader-spin { to { transform: rotate(360deg); } }
+@keyframes rare-loader-pulse { from { transform: scale(.96) rotate(-1deg); } to { transform: scale(1.025) rotate(1deg); } }
+@keyframes rare-loader-progress { from { transform: translateX(-110%); } to { transform: translateX(245%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-loader-mark, .home-loader-orbit, .home-loader-progress i { animation: none; }
+  .home-loader { transition-duration: .15s; }
+  .home-loader-progress i { width: 100%; }
+}
+
 .vault-admin-main { max-width: 1100px; margin-inline: auto; }
 .rare-chart { padding: clamp(24px, 5vw, 64px); background: #000; color: var(--acid, #b6ff00); }
 .rare-chart-heading { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 24px; margin-bottom: 32px; text-align: center; }

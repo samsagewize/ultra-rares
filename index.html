@@ -1,14 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Ultra Rares on Robinhood — hand drawn, each under a minute." />
     <title>Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
-    <link rel="stylesheet" href="styles.css?v=11" />
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+    <link rel="stylesheet" href="styles.css?v=14" />
   </head>
-  <body>
+  <body class="home-loading">
+    <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading Ultra Rares">
+      <div class="home-loader-inner">
+        <div class="home-loader-mark">
+          <img src="assets/rare-token.png" alt="$RARE token" />
+          <span class="home-loader-orbit" aria-hidden="true"></span>
+        </div>
+        <strong>$RARE</strong>
+        <small>Loading Ultra Rares</small>
+        <span class="home-loader-progress" aria-hidden="true"><i></i></span>
+      </div>
+    </div>
     <header class="site-header">
       <a class="wordmark" href="#top" aria-label="Ultra Rares home"><img src="assets/banner-2.png" alt="" /></a>
       <nav aria-label="Primary navigation">
@@ -120,6 +132,6 @@
       <p><a href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">View on OpenSea ↗</a></p>
     </footer>
 
-    <script src="market.js?v=2"></script>
+    <script src="market.js?v=3"></script>
   </body>
 </html>
