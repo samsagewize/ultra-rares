@@ -157,28 +157,6 @@ async function refreshMarketData() {
   }
 }
 
-const homeLoader = document.querySelector('[data-home-loader]');
-const loaderStartedAt = performance.now();
-let loaderDismissed = false;
-
-function dismissHomeLoader() {
-  if (!homeLoader || loaderDismissed) return;
-  loaderDismissed = true;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const minimumDisplay = reducedMotion ? 150 : 1200;
-  const delay = Math.max(0, minimumDisplay - (performance.now() - loaderStartedAt));
-
-  window.setTimeout(() => {
-    homeLoader.classList.add('is-leaving');
-    document.body.classList.remove('home-loading');
-    window.setTimeout(() => { homeLoader.hidden = true; }, reducedMotion ? 180 : 600);
-  }, delay);
-}
-
-if (document.readyState === 'complete') dismissHomeLoader();
-else window.addEventListener('load', dismissHomeLoader, { once: true });
-window.setTimeout(dismissHomeLoader, 4000);
-
 refreshMarketData();
 setInterval(() => {
   if (!document.hidden) refreshMarketData();

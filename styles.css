@@ -16,6 +16,8 @@
 .home-loader-orbit { position: absolute; inset: -15px; border: 3px dashed var(--acid); border-radius: 50%; animation: rare-loader-spin 4s linear infinite; }
 .home-loader strong { margin-top: 25px; font-size: clamp(58px, 13vw, 112px); line-height: .76; letter-spacing: -.08em; }
 .home-loader small { margin-top: 18px; font-size: clamp(10px, 1.4vw, 14px); font-weight: 900; letter-spacing: .24em; text-transform: uppercase; }
+.home-loader button { margin-top: 15px; padding: 7px 12px; border: 2px solid var(--acid); border-radius: 999px; background: transparent; color: var(--acid); font: inherit; font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+.home-loader button:hover, .home-loader button:focus-visible { background: var(--acid); color: var(--ink); outline: 0; }
 .home-loader-progress { width: min(330px, 72vw); height: 7px; margin-top: 20px; border: 2px solid var(--acid); overflow: hidden; }
 .home-loader-progress i { display: block; width: 45%; height: 100%; background: var(--acid); animation: rare-loader-progress 1s ease-in-out infinite; }
 @keyframes rare-loader-spin { to { transform: rotate(360deg); } }
