@@ -1311,7 +1311,7 @@ img, iframe { max-width: 100%; }
 /* Vault experience */
 .vault-page { background: #030303; color: var(--acid); }
 .vault-main { margin: 0; background: #030303; }
-.vault-journey { --vault-progress: 0; --vault-scale: .54; --vault-copy-opacity: 1; --vault-sign-opacity: 0; --vault-meter: 0%; position: relative; height: 430svh; background: #030303; }
+.vault-journey { --vault-progress: 0; --vault-scale: .3; --vault-copy-opacity: 1; --vault-sign-opacity: 0; --vault-meter: 0%; position: relative; height: 430svh; background: #030303; }
 .vault-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; perspective: 1300px; isolation: isolate; }
 .vault-grid { position: absolute; inset: 0; z-index: -2; opacity: .32; background-image: linear-gradient(rgba(183,241,15,.17) 1px, transparent 1px), linear-gradient(90deg, rgba(183,241,15,.17) 1px, transparent 1px); background-size: 54px 54px; transform: perspective(500px) rotateX(64deg) scale(1.7) translateY(28%); transform-origin: bottom; }
 .vault-stage::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 55%, rgba(183,241,15,.15), transparent 44%), linear-gradient(180deg, rgba(3,3,3,.2), #030303 92%); pointer-events: none; }
