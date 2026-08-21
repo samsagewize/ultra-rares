@@ -12,9 +12,9 @@
     const eased = 1 - Math.pow(1 - progress, 3);
 
     journey.style.setProperty('--vault-progress', progress.toFixed(4));
-    journey.style.setProperty('--vault-scale', (0.56 + eased * 0.92).toFixed(4));
+    journey.style.setProperty('--vault-scale', (0.54 + eased * 1.92).toFixed(4));
     journey.style.setProperty('--vault-copy-opacity', Math.max(0, 1 - progress * 2.6).toFixed(4));
-    journey.style.setProperty('--vault-sign-opacity', Math.max(0, Math.min(1, (progress - .68) / .18)).toFixed(4));
+    journey.style.setProperty('--vault-sign-opacity', Math.max(0, Math.min(1, (progress - .86) / .11)).toFixed(4));
     journey.style.setProperty('--vault-meter', `${Math.round(progress * 100)}%`);
   }
 
