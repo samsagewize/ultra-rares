@@ -1307,3 +1307,38 @@ img, iframe { max-width: 100%; }
   .sales-ticker .ticker-footer,
   .rare-transfer-ticker .ticker-footer { min-height: 38px; border-top: 3px solid var(--ink); }
 }
+
+/* Vault experience */
+.vault-page { background: #030303; color: var(--acid); }
+.vault-main { margin: 0; background: #030303; }
+.vault-journey { --vault-progress: 0; --vault-scale: .56; --vault-copy-opacity: 1; --vault-sign-opacity: 0; --vault-meter: 0%; position: relative; height: 330svh; background: #030303; }
+.vault-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; perspective: 1300px; isolation: isolate; }
+.vault-grid { position: absolute; inset: 0; z-index: -2; opacity: .32; background-image: linear-gradient(rgba(183,241,15,.17) 1px, transparent 1px), linear-gradient(90deg, rgba(183,241,15,.17) 1px, transparent 1px); background-size: 54px 54px; transform: perspective(500px) rotateX(64deg) scale(1.7) translateY(28%); transform-origin: bottom; }
+.vault-stage::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 55%, rgba(183,241,15,.15), transparent 44%), linear-gradient(180deg, rgba(3,3,3,.2), #030303 92%); pointer-events: none; }
+.vault-copy { position: absolute; z-index: 3; top: clamp(92px, 13vh, 145px); left: 5vw; opacity: var(--vault-copy-opacity); transition: opacity .08s linear; }
+.vault-copy h1 { margin: 15px 0 20px; color: var(--acid); font-size: clamp(80px, 16vw, 230px); line-height: .72; letter-spacing: -.085em; }
+.vault-copy > p:last-child { margin: 0; font-size: 11px; font-weight: 900; letter-spacing: .18em; }
+.vault-perspective { position: absolute; inset: 7vh 0 0; display: grid; place-items: center; transform: scale(var(--vault-scale)); transform-origin: 50% 54%; will-change: transform; }
+.vault-body { position: relative; width: min(660px, 72vw); aspect-ratio: 1.06; border: clamp(14px, 2.4vw, 34px) solid #555; border-radius: 8%; background: linear-gradient(145deg, #777 0 8%, #313131 9% 42%, #171717 43% 70%, #404040 71% 100%); box-shadow: inset 0 0 0 9px #090909, inset 0 0 80px #000, 0 60px 100px rgba(0,0,0,.85), 0 0 70px rgba(183,241,15,.16); transform: rotateX(2deg); }
+.vault-body::before { content: "$RARE / 100K ACCESS"; position: absolute; top: 4%; left: 50%; color: #aaa; font-size: clamp(8px, 1.2vw, 13px); font-weight: 900; letter-spacing: .22em; white-space: nowrap; transform: translateX(-50%); }
+.vault-door { position: absolute; top: 50%; left: 50%; width: 69%; aspect-ratio: 1; border: clamp(10px, 1.8vw, 25px) solid #6a6a6a; border-radius: 50%; background: repeating-conic-gradient(from 8deg, #242424 0 7deg, #353535 8deg 14deg); box-shadow: inset 0 0 0 12px #111, inset 0 0 70px #000, 0 0 0 8px #0a0a0a, 18px 20px 30px rgba(0,0,0,.75); transform: translate(-50%, -50%); }
+.vault-door-ring { position: absolute; inset: 17%; display: grid; place-items: center; border: clamp(8px, 1.4vw, 18px) solid #555; border-radius: 50%; background: radial-gradient(circle, #242424 0 34%, #111 35% 55%, #383838 56% 100%); box-shadow: inset 0 0 30px #000; }
+.vault-wheel { position: relative; width: 42%; aspect-ratio: 1; border: 7px solid #8b8b8b; border-radius: 50%; background: #111; box-shadow: 0 0 0 8px #202020, 0 0 25px #000; }
+.vault-wheel i { position: absolute; top: 50%; left: 50%; width: 118%; height: 7px; border-radius: 9px; background: #8b8b8b; transform-origin: left center; }
+.vault-wheel i:nth-child(1) { transform: rotate(0deg); }.vault-wheel i:nth-child(2) { transform: rotate(60deg); }.vault-wheel i:nth-child(3) { transform: rotate(120deg); }.vault-wheel i:nth-child(4) { transform: rotate(180deg); }.vault-wheel i:nth-child(5) { transform: rotate(240deg); }.vault-wheel i:nth-child(6) { transform: rotate(300deg); }
+.vault-wheel b { position: absolute; z-index: 2; inset: 24%; display: grid; place-items: center; border-radius: 50%; background: var(--acid); color: var(--ink); font-size: clamp(15px, 3vw, 34px); }
+.vault-lock-light { position: absolute; right: 10%; bottom: 14%; width: 18px; aspect-ratio: 1; border: 3px solid #111; border-radius: 50%; background: #777; box-shadow: 0 0 14px #777; }
+.vault-bolt { position: absolute; width: 4%; aspect-ratio: 1; border: 4px solid #111; border-radius: 50%; background: radial-gradient(circle, #aaa, #333 62%); }.bolt-1 { top: 6%; left: 6%; }.bolt-2 { top: 6%; right: 6%; }.bolt-3 { bottom: 6%; left: 6%; }.bolt-4 { right: 6%; bottom: 6%; }
+.vault-hinges { position: absolute; top: 20%; right: -4%; bottom: 20%; display: flex; flex-direction: column; justify-content: space-between; }.vault-hinges i { display: block; width: clamp(30px, 5vw, 64px); height: clamp(48px, 8vw, 96px); border: 5px solid #171717; border-radius: 9px; background: linear-gradient(90deg, #222, #777, #292929); }
+.vault-locked-sign { position: absolute; z-index: 5; bottom: max(28px, 5vh); left: 50%; display: grid; width: min(620px, calc(100% - 32px)); justify-items: center; padding: 20px; border: 3px solid #777; background: rgba(8,8,8,.94); color: #888; opacity: var(--vault-sign-opacity); text-align: center; transform: translateX(-50%); box-shadow: 10px 10px 0 rgba(80,80,80,.35); pointer-events: none; }
+.vault-locked-sign span { font-size: 9px; font-weight: 900; letter-spacing: .2em; }.vault-locked-sign strong { margin: 8px 0 13px; font-size: clamp(28px, 6vw, 68px); line-height: .85; letter-spacing: -.05em; }.vault-locked-sign button { width: 100%; min-height: 48px; border: 2px solid #555; background: #252525; color: #666; font-size: 10px; font-weight: 900; letter-spacing: .14em; cursor: not-allowed; }
+.vault-scroll-meter { position: absolute; z-index: 4; right: 24px; bottom: 28px; width: 5px; height: 34vh; background: #252525; }.vault-scroll-meter span { position: absolute; right: 0; bottom: 0; left: 0; height: var(--vault-meter); background: var(--acid); }.vault-scroll-meter small { position: absolute; right: 12px; bottom: 0; font-size: 8px; font-weight: 900; letter-spacing: .16em; writing-mode: vertical-rl; transform: rotate(180deg); }
+
+@media (max-width: 760px) {
+  .vault-copy { top: 100px; left: 20px; }
+  .vault-copy h1 { font-size: clamp(70px, 27vw, 120px); }
+  .vault-perspective { inset: 12vh 0 0; }
+  .vault-body { width: 88vw; }
+  .vault-locked-sign { bottom: 24px; padding: 16px; }
+  .vault-scroll-meter { right: 10px; height: 25vh; }
+}
