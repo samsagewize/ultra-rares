@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Put your Ultra Rare to work and follow its RARE agent activity." />
+    <title>Work — Ultra Rares</title>
+    <link rel="icon" type="image/png" href="assets/rare-token.png" />
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+    <link rel="stylesheet" href="styles.css?v=37" />
+  </head>
+  <body class="rare-page marketplace-page work-page home-loading">
+    <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading Ultra Rare Work"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Clocking in the Rares</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
+
+    <header class="site-header">
+      <a class="wordmark" href="index.html" aria-label="Ultra Rares home"><img src="assets/banner-2.png" alt="" /></a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-link" href="index.html#collection">Collection</a>
+        <a class="nav-link" href="index.html#proof-of-work">Proof of Work</a>
+        <a class="nav-link" href="rare.html">$RARE</a>
+        <a class="nav-link" href="marketplace.html">Auctions</a>
+        <a class="nav-link active" href="work.html">Work</a>
+        <a class="nav-link" href="vault.html">Vault</a>
+        <a class="nav-link" href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">OpenSea</a>
+      </nav>
+      <div class="market-header-wallet">
+        <span data-work-rare-balance>— $RARE</span>
+        <button type="button" data-work-connect>Connect wallet</button>
+        <button type="button" data-work-disconnect hidden>Disconnect</button>
+      </div>
+    </header>
+
+    <main class="work-main">
+      <section class="work-hero">
+        <p class="eyebrow">Token-bound agents / Robinhood Chain</p>
+        <h1>PUT YOUR<br />RARE TO<br />WORK.</h1>
+        <p>Activate an owned Ultra Rare, fund its isolated agent wallet with ETH, and follow the work it performs across $RARE and $LEMON.</p>
+        <div class="work-lock-state"><span></span><strong>Preview live</strong><small>Funding, trading and claims stay locked until audited contracts are published.</small></div>
+      </section>
+
+      <section class="work-owned" aria-labelledby="workers-title">
+        <div class="work-section-heading">
+          <div><p class="eyebrow">Your collection</p><h2 id="workers-title">YOUR<br />WORKERS.</h2></div>
+          <strong data-work-owned-count>Connect wallet to load NFTs</strong>
+        </div>
+        <p class="work-wallet-status" data-work-status role="status">Connect a wallet on Robinhood Chain. This preview requests no approvals and cannot move funds.</p>
+        <div class="owned-rares-grid work-owned-grid" data-work-owned>
+          <div class="owned-empty">Your Ultra Rares will appear here after you connect.</div>
+        </div>
+      </section>
+
+      <section class="work-console" aria-labelledby="console-title">
+        <div class="work-console-title">
+          <p class="eyebrow">Selected Ultra Rare</p>
+          <h2 id="console-title">THE WORK<br />REPORT.</h2>
+          <span data-work-selected>Select one of your Ultra Rares above.</span>
+        </div>
+
+        <div class="work-console-grid">
+          <article class="work-agent-card">
+            <p class="eyebrow">Agent capital</p>
+            <div class="work-metric"><span>Trading ETH</span><strong>0 ETH</strong></div>
+            <div class="work-metric"><span>$RARE held</span><strong>0</strong></div>
+            <div class="work-metric"><span>$LEMON held</span><strong>0</strong></div>
+            <div class="work-metric"><span>Agent status</span><strong data-work-agent-status>Not activated</strong></div>
+            <button type="button" disabled aria-disabled="true">Activate agent — locked</button>
+          </article>
+
+          <article class="work-claim-card">
+            <p class="eyebrow">Profit pocket</p>
+            <span>Claimable now</span>
+            <strong>0 ETH</strong>
+            <p>Only realized WETH profit separated from trading capital will become claimable.</p>
+            <button type="button" disabled aria-disabled="true">Claim ETH — locked</button>
+          </article>
+
+          <article class="work-activity-card">
+            <div><p class="eyebrow">Agent activity</p><strong>Live work log</strong></div>
+            <ol data-work-activity>
+              <li><span>Waiting</span><p>No agent contract activity yet.</p><time>—</time></li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section class="work-rules" aria-label="Agent safety rules">
+        <p><strong>Isolated capital</strong><span>The agent can never access the holder’s main wallet.</span></p>
+        <p><strong>Three assets only</strong><span>ETH/WETH, official $RARE and official $LEMON.</span></p>
+        <p><strong>No promised returns</strong><span>Trading can lose deposited ETH. Only realized profit becomes claimable.</span></p>
+      </section>
+    </main>
+
+    <script src="loader.js?v=1"></script>
+    <script src="work.js?v=1"></script>
+  </body>
+</html>
