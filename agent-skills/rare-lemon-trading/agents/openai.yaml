@@ -1,0 +1,4 @@
+interface:
+  display_name: "RARE / LEMON Trading"
+  short_description: "Paper-test guarded RARE and LEMON strategies"
+  default_prompt: "Use $rare-lemon-trading to evaluate a paper trade and produce a risk-gated decision log."
