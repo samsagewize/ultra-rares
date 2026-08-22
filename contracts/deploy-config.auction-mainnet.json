@@ -13,5 +13,8 @@
   "feeSplit": {
     "claimsBps": 100,
     "liquidityBuybacksBps": 100
-  }
+  },
+  "deployedFeeVault": "0x55f3ed784d5b0142a833e411d133f043df426f79",
+  "deployedAuctionHouse": "0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8",
+  "sourceVerifiedAt": "2026-08-22T18:16:52Z"
 }

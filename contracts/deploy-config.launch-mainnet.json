@@ -10,5 +10,6 @@
   "vaultShareBps": 300,
   "creatorShareBps": 9700,
   "feeSourcesLocked": false,
+  "sourceVerifiedAt": "2026-08-22T18:16:52Z",
   "note": "Authorize the final factory, verify it, then permanently lock the Vault source list before enabling public trading."
 }
