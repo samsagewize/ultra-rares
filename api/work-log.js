@@ -15,11 +15,11 @@ module.exports = async function handler(request, response) {
   try {
     const [transfersResponse, pairsResponse] = await Promise.all([
       fetch(`${EXPLORER}/api/v2/tokens/${RARE}/transfers`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(10000) }),
-      fetch(DEX, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(10000) }),
+      fetch(DEX, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(10000) }).catch(() => null),
     ]);
-    if (!transfersResponse.ok || !pairsResponse.ok) throw new Error('source unavailable');
+    if (!transfersResponse.ok) throw new Error('source unavailable');
     const transfers = (await transfersResponse.json()).items || [];
-    const pairs = await pairsResponse.json();
+    const pairs = pairsResponse?.ok ? await pairsResponse.json() : [];
     const pair = pairs.sort((a, b) => Number(b.liquidity?.usd || 0) - Number(a.liquidity?.usd || 0))[0];
     const liquidity = Number(pair?.liquidity?.usd || 0);
     const change = Number(pair?.priceChange?.h1 || 0);
@@ -42,7 +42,7 @@ module.exports = async function handler(request, response) {
     entries.unshift({
       id: `decision-${entries[0]?.id || Date.now()}`,
       step: confidence >= 70 && spreadGuard ? 'PAPER SETUP FOUND' : 'PAPER WAIT',
-      detail: `Confidence ${confidence.toFixed(0)}% · 1h move ${change.toFixed(2)}% · liquidity $${liquidity.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      detail: pairs.length ? `Confidence ${confidence.toFixed(0)}% · 1h move ${change.toFixed(2)}% · liquidity $${liquidity.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : 'Market quote unavailable · fail-safe decision is WAIT',
       timestamp: new Date().toISOString(),
       goal: 'Protect ETH first; enter only after every risk check passes',
       hash: '',
