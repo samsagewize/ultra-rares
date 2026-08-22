@@ -30,7 +30,7 @@
       </div>
     </header>
 
-    <main class="marketplace-main" data-marketplace data-marketplace-address="" data-auction-address="0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8" data-rename-registry-address="0x8D14DEc25cd17081270b7052685Fa0418C376CeE">
+    <main class="marketplace-main" data-marketplace data-marketplace-address="" data-auction-address="0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8" data-rename-registry-address="">
       <section class="live-auctions live-auctions-first" aria-labelledby="live-auctions-title">
         <div class="live-auctions-heading">
           <div><p class="eyebrow">Direct from Robinhood Chain</p><h2 id="live-auctions-title">Live auctions.</h2></div>
@@ -61,8 +61,8 @@
       <section class="rename-utility" aria-labelledby="rename-utility-title">
         <div class="rename-utility-copy">
           <p class="eyebrow">Holder utility / powered by $RARE</p>
-          <h2 id="rename-utility-title">Rename your<br />Ultra Rare.</h2>
-          <p>Connect the wallet holding your NFT, find it under Owned by you, and select the rename option. Your requested name can contain up to 24 characters.</p>
+          <h2 id="rename-utility-title">Admin-only<br />renaming.</h2>
+          <p>Renaming is temporarily restricted to the official administrator wallet. Holder rename burns are disabled while the replacement registry is reviewed.</p>
         </div>
         <div class="rename-utility-price">
           <span>Rename cost</span>
@@ -138,8 +138,8 @@
             <article>
               <label for="rare-new-name">New Ultra Rare name</label>
               <input id="rare-new-name" type="text" maxlength="24" placeholder="Enter a name" data-rename-name />
-              <button type="button" data-submit-rename disabled>Burn 30,000 $RARE to change name</button>
-              <div class="market-listing-result" data-rename-status role="status" aria-live="polite">Rename burns stay disabled until the verified registry contract is deployed. Never send $RARE manually.</div>
+              <button type="button" data-submit-rename disabled>Admin rename only</button>
+              <div class="market-listing-result" data-rename-status role="status" aria-live="polite">Locked pending the verified admin-only Rename V2 registry. Never send $RARE manually.</div>
             </article>
           </div>
         </div>
@@ -166,6 +166,6 @@
       </section>
     </main>
     <script src="loader.js?v=1"></script>
-    <script src="marketplace.js?v=14"></script>
+    <script src="marketplace.js?v=15"></script>
   </body>
 </html>

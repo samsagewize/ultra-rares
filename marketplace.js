@@ -198,6 +198,7 @@ function selectOwnedRare(tokenId, card) {
 }
 
 function openRenameModal(tokenId) {
+  if (marketAccount?.toLowerCase() !== MARKET_ADMIN) return;
   selectedRenameToken = tokenId;
   document.querySelector('[data-selected-rename-id]').textContent = tokenId;
   renameName.value = '';
@@ -257,11 +258,14 @@ async function loadOwnedRares() {
     auctionButton.type = 'button';
     auctionButton.textContent = 'List for auction ↗';
     auctionButton.addEventListener('click', () => selectOwnedRare(tokenId, card));
-    const renameButton = document.createElement('button');
-    renameButton.type = 'button';
-    renameButton.textContent = 'Burn 30,000 $RARE to change name ↗';
-    renameButton.addEventListener('click', () => openRenameModal(tokenId));
-    actions.append(auctionButton, renameButton);
+    actions.append(auctionButton);
+    if (marketAccount?.toLowerCase() === MARKET_ADMIN) {
+      const renameButton = document.createElement('button');
+      renameButton.type = 'button';
+      renameButton.textContent = 'Admin rename ↗';
+      renameButton.addEventListener('click', () => openRenameModal(tokenId));
+      actions.append(renameButton);
+    }
     copy.append(name, edition);
     card.append(image, copy, actions);
     cardParts.set(tokenId, { image, name });
@@ -600,8 +604,8 @@ function encodeRenameRequest(tokenId, requestedName) {
 renameSubmit?.addEventListener('click', async () => {
   const requestedName = renameName.value.trim();
   const nameBytes = new TextEncoder().encode(requestedName);
-  if (!marketAccount || !renameReady || !selectedRenameToken) {
-    renameStatus.textContent = 'Connect the holder wallet after the verified rename registry is deployed.';
+  if (!marketAccount || marketAccount.toLowerCase() !== MARKET_ADMIN || !renameReady || !selectedRenameToken) {
+    renameStatus.textContent = 'Only the official administrator wallet can rename after Rename V2 is deployed.';
     return;
   }
   if (!requestedName || nameBytes.length > 24 || [...nameBytes].some((byte) => byte < 0x20 || byte > 0x7e)) {
