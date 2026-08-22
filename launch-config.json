@@ -1,0 +1,8 @@
+{
+  "chainId": "0x1237",
+  "factoryAddress": "",
+  "pilotMode": true,
+  "launchFeeRare": "250000",
+  "initialVirtualEth": "1",
+  "graduationEnabled": false
+}

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Launch community tokens with RARE and graduate liquidity to Uniswap." />
+    <meta name="description" content="Create fixed-supply community tokens with RARE and trade them against native ETH." />
     <title>Launch — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/rare-token.png" />
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
@@ -21,23 +21,23 @@
 
     <main class="launch-main">
       <section class="launch-hero">
-        <p class="eyebrow">Rares launchpad / public test</p>
+        <p class="eyebrow">Rares launchpad / mainnet pilot</p>
         <h1>LAUNCH<br />WITH $RARE.</h1>
-        <p>Create a fixed-supply community token. Pay a fixed 250,000 $RARE directly into the Rares Vault, build toward a $70K market cap, then graduate liquidity to verified Uniswap contracts.</p>
-        <div class="launch-rule-strip"><span>250K $RARE to Vault</span><span>97% creator</span><span>3% Rares Vault</span><span>Uniswap only</span></div>
+        <p>Create a fixed-supply community token. Pay 250,000 $RARE directly into the Rares Vault, then let everyone buy or sell the token against native ETH on a reserve-backed curve.</p>
+        <div class="launch-rule-strip"><span>250K $RARE to Vault</span><span>ETH trading</span><span>97% creator fees</span><span>3% treasury</span></div>
       </section>
 
       <section class="launch-create launch-create-simple" aria-labelledby="create-title">
-        <div><p class="eyebrow">Create a token</p><h2 id="create-title">1. NAME IT.<br />2. LAUNCH IT.</h2><p>Add a logo and the basics. We show the $RARE cost before any wallet transaction. An optional opening buy can place you in your own launch after creation.</p></div>
+        <div><p class="eyebrow">Create the first token</p><h2 id="create-title">1. NAME IT.<br />2. LAUNCH IT.</h2><p>Add a logo and the basics. The wallet first approves the fixed $RARE creation charge, then creates the token with an optional opening ETH buy.</p></div>
         <form data-launch-form>
           <label class="launch-logo-picker"><span>Token logo</span><input name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-logo-input /><span class="launch-logo-preview"><img src="assets/rare-token.png" alt="Token logo preview" data-logo-preview /><b>Choose image</b></span><small>Square image recommended · maximum 2MB</small></label>
           <div class="launch-field-pair"><label>Token name<input name="name" maxlength="32" required placeholder="Example: First Rare" /></label><label>Symbol<input name="symbol" maxlength="10" required placeholder="FIRST" /></label></div>
           <div class="launch-route"><span>Fixed token supply</span><strong>1,000,000,000</strong><small>Every launch · cannot be changed</small></div>
           <div class="launch-cost-card"><span>Fixed launch cost</span><strong data-launch-cost>250,000 $RARE</strong><small data-launch-cost-source>Sent directly to the Rares Vault</small></div>
-          <label>Optional buy before launch ($RARE)<input name="openingBuy" inputmode="decimal" value="0" placeholder="0" /><small>Optional. Enter 0 to skip. This is separate from the launch fee.</small></label>
-          <div class="launch-route"><span>Graduation route</span><strong>$TOKEN / $RARE → UNISWAP</strong><small>At approximately $70K market cap</small></div>
-          <button type="submit">Create token</button>
-          <p class="launch-form-status" data-launch-status role="status">Create a preview now. Connect your wallet only when you are ready for an on-chain launch.</p>
+          <label>Optional opening buy (ETH)<input name="openingBuy" inputmode="decimal" value="0" placeholder="0" /><small>Optional. Enter 0 to skip. This ETH becomes reserve backing after the 1% trading fee.</small></label>
+          <div class="launch-route"><span>Pilot safety</span><strong>ADMIN CREATION · PUBLIC ETH TRADING</strong><small>DEX graduation is disabled in this first reviewed version</small></div>
+          <button type="submit" data-launch-submit>Create token</button>
+          <p class="launch-form-status" data-launch-status role="status">Factory deployment is pending. No launch transaction can be sent until its verified address is published here.</p>
         </form>
       </section>
 
@@ -50,12 +50,12 @@
         <div class="launch-token-card">
           <div class="launch-token-brand"><img src="assets/rare-token.png" alt="" /><div><p class="eyebrow">First test token</p><h2 id="launch-board-title">FIRST RARE</h2><strong>$FIRST</strong></div></div>
           <dl class="launch-token-facts">
-            <div><dt>Status</dt><dd data-first-status>Pre-launch test</dd></div><div><dt>Network</dt><dd>Robinhood testnet</dd></div><div><dt>Pair</dt><dd>$FIRST / $RARE</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Graduation</dt><dd>$70,000 MC</dd></div><div><dt>DEX</dt><dd>Uniswap only</dd></div>
+            <div><dt>Status</dt><dd data-first-status>Waiting for factory</dd></div><div><dt>Network</dt><dd>Robinhood Chain mainnet</dd></div><div><dt>Pair</dt><dd>$FIRST / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Trading fee</dt><dd>1%</dd></div><div><dt>Graduation</dt><dd>Disabled in pilot</dd></div>
           </dl>
           <div class="launch-progress"><div class="launch-progress-copy"><span>Graduation progress</span><strong data-first-mc>$0 / $70K</strong></div><div class="launch-progress-track"><i data-first-fill></i></div></div>
         </div>
         <div class="launch-chart-panel">
-          <div class="launch-panel-heading"><div><p class="eyebrow">Price chart</p><h2>WAITING<br />FOR BLOCK 1.</h2></div><span class="launch-test-pill">TEST MODE</span></div>
+          <div class="launch-panel-heading"><div><p class="eyebrow">Price chart</p><h2>WAITING<br />FOR BLOCK 1.</h2></div><span class="launch-test-pill">PILOT</span></div>
           <svg class="launch-chart-empty" viewBox="0 0 800 260" role="img" aria-label="Chart waiting for the first confirmed trade"><path d="M0 220 L800 220" /><path class="launch-chart-line" d="M0 220 L800 220" /></svg>
           <p>No simulated candles. The chart begins after the first confirmed on-chain trade.</p>
         </div>
@@ -65,7 +65,7 @@
         <div class="launch-panel-heading"><div><p class="eyebrow">Permanent activity</p><h2 id="launch-log-title">TOKEN LOG.</h2></div></div>
         <ol data-launch-log><li><time>Waiting</time><div><strong>No on-chain activity yet</strong><span>Deployment, trades, fee splits and graduation will appear here with transaction links.</span></div></li></ol>
       </section>
-      <section class="launch-safety"><strong>TEST BEFORE MAINNET.</strong><p>The beta never asks for a seed phrase, never auto-signs, and never labels a preview as launched. Market-cap milestones are mechanics, not promises of value or profit.</p></section>
+      <section class="launch-safety"><strong>REVIEW EVERY SIGNATURE.</strong><p>The launchpad never asks for a seed phrase and never auto-signs. ETH curve trading and newly created tokens are experimental and can lose value. A passing test suite is not a professional audit.</p></section>
     </main>
     <footer><p>Ultra Rares © 2026</p><p>Launchpad public beta</p></footer>
     <script src="loader.js?v=1"></script><script src="launch.js?v=1"></script>
