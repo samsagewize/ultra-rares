@@ -1,6 +1,7 @@
 const WORK_CHAIN_ID = '0x1237';
 const WORK_NFT = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const WORK_RARE = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
+const WORK_ADMIN = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
 const workConnect = document.querySelector('[data-work-connect]');
 const workDisconnect = document.querySelector('[data-work-disconnect]');
 const workBalance = document.querySelector('[data-work-rare-balance]');
@@ -10,6 +11,7 @@ const workOwnedGrid = document.querySelector('[data-work-owned]');
 const workSelected = document.querySelector('[data-work-selected]');
 const workAgentStatus = document.querySelector('[data-work-agent-status]');
 let workAccount = '';
+let lastWorkLogId = '';
 
 const workWord = (value) => BigInt(value).toString(16).padStart(64, '0');
 const workAddressWord = (address) => address.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -70,6 +72,44 @@ function selectWorker(tokenId, name, card) {
   workSelected.textContent = `${name} · Token ID #${tokenId}`;
   workAgentStatus.textContent = 'Ready for future activation';
   document.querySelector('.work-console').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function workTime(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString([], { dateStyle: 'short', timeStyle: 'medium' });
+}
+
+async function loadPublicWorkLog() {
+  const container = document.querySelector('[data-work-public-log]');
+  try {
+    const response = await fetch('/api/work-log', { cache: 'no-store' });
+    if (!response.ok) throw new Error('log unavailable');
+    const payload = await response.json();
+    document.querySelector('[data-work-test-mode]').textContent = `${payload.mode} TEST LIVE`;
+    document.querySelector('[data-work-current-goal]').textContent = payload.currentGoal;
+    document.querySelector('[data-work-execution]').textContent = payload.execution;
+    document.querySelector('[data-work-log-updated]').textContent = workTime(payload.updatedAt);
+    const newest = payload.entries?.[0]?.id || '';
+    container.replaceChildren(...(payload.entries || []).map((entry, index) => {
+      const row = document.createElement(entry.url ? 'a' : 'article');
+      row.className = `work-log-row${index === 0 && newest !== lastWorkLogId ? ' is-new' : ''}`;
+      if (entry.url) { row.href = entry.url; row.target = '_blank'; row.rel = 'noopener noreferrer'; }
+      const step = document.createElement('strong');
+      step.textContent = entry.step;
+      const detail = document.createElement('p');
+      detail.textContent = entry.detail;
+      const goal = document.createElement('span');
+      goal.textContent = `GOAL · ${entry.goal}`;
+      const time = document.createElement('time');
+      time.dateTime = entry.timestamp;
+      time.textContent = workTime(entry.timestamp);
+      row.append(step, detail, goal, time);
+      return row;
+    }));
+    lastWorkLogId = newest;
+  } catch {
+    container.innerHTML = '<p class="work-log-loading">Live log reconnecting… no trade will execute while data is unavailable.</p>';
+  }
 }
 
 async function loadOwnedWorkers() {
@@ -147,6 +187,7 @@ workConnect?.addEventListener('click', async () => {
     workConnect.textContent = `${workAccount.slice(0, 6)}…${workAccount.slice(-4)}`;
     workDisconnect.hidden = false;
     workStatus.textContent = 'Wallet connected. Loading your Ultra Rares without requesting approvals…';
+    if (workAccount.toLowerCase() === WORK_ADMIN) workStatus.textContent = 'Admin test wallet connected. Paper mode cannot request approvals or move funds.';
     await Promise.all([loadWorkBalance(), loadOwnedWorkers()]);
     workStatus.textContent = 'Ownership loaded directly from Robinhood Chain. Agent activation remains safely locked.';
   } catch (error) {
@@ -158,3 +199,6 @@ workConnect?.addEventListener('click', async () => {
 workDisconnect?.addEventListener('click', () => resetWork());
 window.ethereum?.on?.('accountsChanged', () => resetWork('Wallet account changed. Reconnect to load the correct Ultra Rares.'));
 window.ethereum?.on?.('chainChanged', () => resetWork('Network changed. Reconnect on Robinhood Chain.'));
+
+loadPublicWorkLog();
+setInterval(loadPublicWorkLog, 4000);
