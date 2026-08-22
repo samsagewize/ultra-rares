@@ -51,10 +51,21 @@ module.exports = async function handler(request, response) {
     response.setHeader('Cache-Control', 's-maxage=2, stale-while-revalidate=3');
     return response.status(200).json({
       mode: 'PAPER',
+      funded: false,
       admin: ADMIN,
       execution: 'NO FUNDS OR APPROVALS',
       currentGoal: 'Observe 100 qualified setups before enabling a disposable funded pilot',
       observedSetups: entries.length - 1,
+      skill: {
+        name: 'RARE / LEMON ADAPTIVE',
+        markets: ['$RARE', '$LEMON'],
+        baseTrade: '0.01 ETH pilot maximum',
+        entry: 'Confidence ≥70% · spread ≤1.5% · liquidity ≥50× trade',
+        learning: 'Each loss halves the next size; wins restore size slowly',
+        exit: 'Return to WETH when the target is reached or the setup breaks',
+        stop: 'Pause after 2 consecutive losses or the owner-set daily loss limit',
+        split: '70% realized profit to ETH claim pocket · 30% keeps working',
+      },
       journey: [
         {
           number: 1,

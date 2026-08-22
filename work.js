@@ -89,8 +89,30 @@ async function loadPublicWorkLog() {
     document.querySelector('[data-work-current-goal]').textContent = payload.currentGoal;
     document.querySelector('[data-work-execution]').textContent = payload.execution;
     document.querySelector('[data-work-log-updated]').textContent = workTime(payload.updatedAt);
+    const skill = document.querySelector('[data-work-skill]');
+    const skillRows = [
+      ['Markets', payload.skill.markets.join(' + ')],
+      ['Starting size', payload.skill.baseTrade],
+      ['Entry', payload.skill.entry],
+      ['Learning', payload.skill.learning],
+      ['Exit', payload.skill.exit],
+      ['Hard stop', payload.skill.stop],
+      ['Profit split', payload.skill.split],
+    ];
+    const skillList = document.createElement('dl');
+    skillList.replaceChildren(...skillRows.map(([label, value]) => {
+      const row = document.createElement('div');
+      const term = document.createElement('dt');
+      const description = document.createElement('dd');
+      term.textContent = label;
+      description.textContent = value;
+      row.append(term, description);
+      return row;
+    }));
+    skill.querySelector('dl').replaceWith(skillList);
     const journey = document.querySelector('[data-work-journey]');
-    journey.replaceChildren(...(payload.journey || []).map((entry) => {
+    const visibleJourney = payload.funded ? payload.journey : payload.journey.slice(0, 1);
+    journey.replaceChildren(...visibleJourney.map((entry) => {
       const step = document.createElement('article');
       step.className = `work-journey-step is-${entry.status.toLowerCase()}`;
       const top = document.createElement('div');
@@ -110,6 +132,13 @@ async function loadPublicWorkLog() {
       step.append(top, label, headline, detail, time);
       return step;
     }));
+    const logLock = document.querySelector('[data-work-log-lock]');
+    if (!payload.funded) {
+      logLock.textContent = 'Unlocks after a verified deposit';
+      container.innerHTML = '<p class="work-log-loading">No deposit yet. Entry, monitoring, exit and profit logs stay hidden until Step 1 is confirmed on-chain.</p>';
+      return;
+    }
+    logLock.textContent = 'Live · every action receives a timestamp and transaction link';
     const newest = payload.entries?.[0]?.id || '';
     container.replaceChildren(...(payload.entries || []).map((entry, index) => {
       const row = document.createElement(entry.url ? 'a' : 'article');
