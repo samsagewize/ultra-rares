@@ -12,6 +12,13 @@ const workSelected = document.querySelector('[data-work-selected]');
 const workAgentStatus = document.querySelector('[data-work-agent-status]');
 let workAccount = '';
 let lastWorkLogId = '';
+let pilotFactory = localStorage.getItem('ultraRarePilotFactory') || '';
+let pilotFactoryTx = localStorage.getItem('ultraRarePilotFactoryTx') || '';
+let pilotAddress = localStorage.getItem('ultraRarePilot420') || '';
+let pilotStage = localStorage.getItem('ultraRarePilotStage') || '';
+const pilotButton = document.querySelector('[data-pilot-action]');
+const pilotStatus = document.querySelector('[data-pilot-status]');
+const pilotAddressLabel = document.querySelector('[data-pilot-address]');
 
 const workWord = (value) => BigInt(value).toString(16).padStart(64, '0');
 const workAddressWord = (address) => address.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -57,7 +64,134 @@ function resetWork(message = 'Wallet disconnected. No permissions were changed.'
   workSelected.textContent = 'Select one of your Ultra Rares above.';
   workAgentStatus.textContent = 'Not activated';
   workStatus.textContent = message;
+  updatePilotControls();
 }
+
+const transactionReceipt = async (hash) => {
+  for (let attempt = 0; attempt < 90; attempt += 1) {
+    const receipt = await window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [hash] });
+    if (receipt) {
+      if (receipt.status !== '0x1') throw new Error('Transaction reverted on-chain.');
+      return receipt;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+  throw new Error('Transaction is still pending. Check your wallet or Blockscout.');
+};
+
+async function pilotOf420(factory) {
+  const artifact = await fetch('assets/UltraRareDepositPilotFactory.json').then((response) => response.json());
+  const selector = artifact.methodIdentifiers['pilotOf(uint256)'];
+  const result = await window.ethereum.request({ method: 'eth_call', params: [{ to: factory, data: `0x${selector}${workWord(420)}` }, 'latest'] });
+  const address = `0x${result.slice(-40)}`;
+  return /^0x0{40}$/i.test(address) ? '' : address;
+}
+
+async function verifyPilotFactory() {
+  if (!pilotFactory) return false;
+  if (!pilotFactoryTx) throw new Error('Factory deployment proof is missing. Clear this browser pilot and redeploy.');
+  const artifact = await fetch('assets/UltraRareDepositPilotFactory.json').then((response) => response.json());
+  const expectedInput = `${artifact.bytecode}${workAddressWord(WORK_NFT)}`.toLowerCase();
+  const [transaction, receipt] = await Promise.all([
+    window.ethereum.request({ method: 'eth_getTransactionByHash', params: [pilotFactoryTx] }),
+    window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [pilotFactoryTx] }),
+  ]);
+  if (!transaction || !receipt || transaction.from?.toLowerCase() !== WORK_ADMIN || transaction.input?.toLowerCase() !== expectedInput || receipt.contractAddress?.toLowerCase() !== pilotFactory.toLowerCase()) {
+    throw new Error('Factory deployment does not match the reviewed #420 pilot bytecode.');
+  }
+  return true;
+}
+
+async function pilotBalance() {
+  if (!pilotAddress) return 0n;
+  return BigInt(await window.ethereum.request({ method: 'eth_getBalance', params: [pilotAddress, 'latest'] }));
+}
+
+async function updatePilotControls() {
+  if (!pilotButton) return;
+  pilotAddressLabel.textContent = pilotAddress ? `Pilot ${pilotAddress.slice(0, 8)}…${pilotAddress.slice(-6)}` : pilotFactory ? `Factory ${pilotFactory.slice(0, 8)}…${pilotFactory.slice(-6)}` : 'No pilot contract deployed.';
+  if (!workAccount || workAccount.toLowerCase() !== WORK_ADMIN) {
+    pilotButton.disabled = true;
+    pilotButton.textContent = 'Connect admin wallet first';
+    pilotStatus.textContent = 'Only the verified #420 owner can sign this pilot.';
+    return;
+  }
+  try {
+    if (pilotFactory) {
+      await verifyPilotFactory();
+      pilotAddress = await pilotOf420(pilotFactory);
+      if (pilotAddress) localStorage.setItem('ultraRarePilot420', pilotAddress);
+    }
+    const balance = await pilotBalance();
+    pilotButton.disabled = false;
+    if (!pilotFactory) {
+      pilotButton.textContent = '1. Deploy deposit-only factory';
+      pilotStatus.textContent = 'Wallet will show a contract-deployment transaction. No ETH deposit yet.';
+    } else if (!pilotAddress) {
+      pilotButton.textContent = '2. Activate Ultra Rare #420';
+      pilotStatus.textContent = 'Creates the isolated wallet controlled by the current owner of #420.';
+    } else if (balance === 0n && pilotStage !== 'withdrawn') {
+      pilotButton.textContent = '3. Deposit exactly 0.001 ETH';
+      pilotStatus.textContent = 'Deposit-only test. This contract has no trading or approval function.';
+    } else if (balance > 0n) {
+      pilotButton.textContent = '4. Withdraw the full pilot balance';
+      pilotStatus.textContent = `${Number(balance) / 1e18} ETH secured in the isolated #420 pilot.`;
+    } else {
+      pilotButton.disabled = true;
+      pilotButton.textContent = 'Deposit and withdrawal test complete ✓';
+      pilotStatus.textContent = 'The full pilot balance was returned to the current #420 owner.';
+    }
+  } catch (error) {
+    pilotButton.disabled = true;
+    pilotStatus.textContent = error.message || 'Pilot state could not be verified.';
+  }
+}
+
+pilotButton?.addEventListener('click', async () => {
+  pilotButton.disabled = true;
+  try {
+    if (!pilotFactory) {
+      const artifact = await fetch('assets/UltraRareDepositPilotFactory.json').then((response) => response.json());
+      const data = `${artifact.bytecode}${workAddressWord(WORK_NFT)}`;
+      pilotStatus.textContent = 'Confirm the factory deployment in your wallet…';
+      const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: workAccount, data }] });
+      const receipt = await transactionReceipt(hash);
+      pilotFactory = receipt.contractAddress;
+      pilotFactoryTx = hash;
+      localStorage.setItem('ultraRarePilotFactory', pilotFactory);
+      localStorage.setItem('ultraRarePilotFactoryTx', pilotFactoryTx);
+      pilotStage = 'factory';
+      localStorage.setItem('ultraRarePilotStage', pilotStage);
+    } else if (!pilotAddress) {
+      const artifact = await fetch('assets/UltraRareDepositPilotFactory.json').then((response) => response.json());
+      const selector = artifact.methodIdentifiers['activate(uint256)'];
+      pilotStatus.textContent = 'Confirm activation of Ultra Rare #420…';
+      const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: workAccount, to: pilotFactory, data: `0x${selector}${workWord(420)}` }] });
+      await transactionReceipt(hash);
+      pilotAddress = await pilotOf420(pilotFactory);
+      localStorage.setItem('ultraRarePilot420', pilotAddress);
+      pilotStage = 'activated';
+      localStorage.setItem('ultraRarePilotStage', pilotStage);
+    } else if (await pilotBalance() === 0n && pilotStage !== 'withdrawn') {
+      pilotStatus.textContent = 'Confirm the exact 0.001 ETH deposit…';
+      const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: workAccount, to: pilotAddress, value: '0x38d7ea4c68000' }] });
+      await transactionReceipt(hash);
+      pilotStage = 'deposited';
+      localStorage.setItem('ultraRarePilotStage', pilotStage);
+    } else {
+      const artifact = await fetch('assets/UltraRareDepositPilot.json').then((response) => response.json());
+      const selector = artifact.methodIdentifiers['withdrawAll(address)'];
+      pilotStatus.textContent = 'Confirm withdrawal of the entire pilot balance…';
+      const hash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: workAccount, to: pilotAddress, data: `0x${selector}${workAddressWord(workAccount)}` }] });
+      await transactionReceipt(hash);
+      pilotStage = 'withdrawn';
+      localStorage.setItem('ultraRarePilotStage', pilotStage);
+    }
+  } catch (error) {
+    pilotStatus.textContent = error.message || 'Pilot transaction was cancelled or failed.';
+  }
+  await updatePilotControls();
+});
 
 async function loadWorkBalance() {
   const data = `0x70a08231${workAddressWord(workAccount)}`;
@@ -239,6 +373,7 @@ workConnect?.addEventListener('click', async () => {
     workStatus.textContent = 'Wallet connected. Loading your Ultra Rares without requesting approvals…';
     if (workAccount.toLowerCase() === WORK_ADMIN) workStatus.textContent = 'Admin test wallet connected. Paper mode cannot request approvals or move funds.';
     await Promise.all([loadWorkBalance(), loadOwnedWorkers()]);
+    await updatePilotControls();
     workStatus.textContent = 'Ownership loaded directly from Robinhood Chain. Agent activation remains safely locked.';
   } catch (error) {
     workConnect.disabled = false;
