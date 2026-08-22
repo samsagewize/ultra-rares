@@ -1,6 +1,6 @@
 {
   "chainId": "0x1237",
-  "factoryAddress": "0xa92773451cbBEf7394eA8AC287607813522A4324",
+  "factoryAddress": "",
   "pilotMode": true,
   "launchFeeRare": "250000",
   "initialVirtualEth": "1",
