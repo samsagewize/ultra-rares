@@ -247,6 +247,13 @@
     catch (error) { setTradeStatus(error.code === 4001 ? 'Wallet connection cancelled.' : error.message, true); }
   });
   document.querySelectorAll('[data-trade-tab]').forEach((button) => button.addEventListener('click', () => selectMode(button.dataset.tradeTab)));
+  document.querySelector('[data-terminal-copy-ca]').addEventListener('click', async (event) => {
+    try {
+      await navigator.clipboard.writeText(token);
+      event.currentTarget.textContent = 'Copied ✓';
+      setTimeout(() => { event.currentTarget.textContent = 'Copy CA'; }, 1800);
+    } catch { setTradeStatus(`Copy this contract address: ${token}`, true); }
+  });
   document.querySelectorAll('[data-chart-mode]').forEach((button) => button.addEventListener('click', () => {
     chartMode = button.dataset.chartMode;
     document.querySelectorAll('[data-chart-mode]').forEach((option) => option.classList.toggle('active', option === button));
@@ -309,6 +316,7 @@
     document.title = `${name} ($${tokenSymbol}) — Token Terminal`;
     document.querySelector('[data-terminal-name]').textContent = name;
     document.querySelector('[data-terminal-symbol]').textContent = `$${tokenSymbol} / ETH`;
+    document.querySelector('[data-terminal-ca]').textContent = token;
     const logo = savedLogo();
     if (logo) document.querySelector('[data-terminal-logo]').src = logo;
     document.querySelector('[data-token-explorer]').href = `${EXPLORER}/address/${token}`;
