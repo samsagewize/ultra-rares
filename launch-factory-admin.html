@@ -13,7 +13,7 @@
     <div class="home-loader" data-home-loader role="status"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE" /><span class="home-loader-orbit"></span></div><strong>$RARE</strong><small>Loading Factory Console</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress"><i></i></span></div></div>
     <header class="site-header"><a class="wordmark" href="index.html"><img src="assets/banner-2.png" alt="Ultra Rares" /></a><nav><a class="nav-link" href="launch.html">Back to Launch</a></nav></header>
     <main class="rare-main vault-admin-main">
-      <section class="rare-token-intro"><p class="eyebrow">Administrator deployment console</p><h1>ETH LAUNCH<br />FACTORY.</h1><p class="rare-token-copy">Deploy the pilot factory that charges exactly 250,000 $RARE to create a fixed one-billion-supply token. Creation accepts no ETH; ETH trading begins only after deployment.</p></section>
+      <section class="rare-token-intro"><p class="eyebrow">Administrator deployment console</p><h1>FACTORY<br />V4.</h1><p class="rare-token-copy">Deploy the admin-only factory with a fixed one-billion supply, native ETH curve, one-time Uniswap V3 graduation, and permanently locked liquidity.</p></section>
       <section class="vault-launch-panel">
         <div class="vault-launch-summary">
           <p><span>Administrator / ETH treasury</span><code>0x562F6ac10723ef6AF9F077A83cF25135FB369612</code></p>
@@ -21,7 +21,9 @@
           <p><span>Launch Vault</span><code>0xCC8EBC12D8DF4B23D7E4A93B31A330762C211B32</code></p>
           <p><span>Curve</span><strong>Native ETH · 1 ETH virtual reserve</strong></p>
           <p><span>Trading fee</span><strong>1% · 97% creator / 3% treasury</strong></p>
-          <p><span>Pilot safety</span><strong>Admin-only creation · graduation disabled</strong></p>
+          <p><span>Graduation target</span><strong>29 ETH market cap · approximately $70K</strong></p>
+          <p><span>Official Uniswap V3</span><code>0x73991a25c818bf1f1128deaab1492d45638de0d3</code></p>
+          <p><span>Liquidity safety</span><strong>Full range · LP NFT permanently locked</strong></p>
         </div>
         <button type="button" data-launch-factory-connect>1. Connect administrator wallet</button>
         <button type="button" data-launch-factory-deploy disabled>2. Deploy ETH Factory</button>
@@ -29,8 +31,8 @@
         <div class="claim-status" data-launch-factory-status role="status" aria-live="polite">Connect only with the administrator wallet. Deployment never asks for a seed phrase.</div>
         <div class="vault-address-output" data-launch-factory-output hidden><span>ETH Launch Factory</span><code data-launch-factory-address></code><button type="button" data-launch-factory-copy>Copy Factory address</button><a data-launch-factory-explorer target="_blank" rel="noopener">Open on Blockscout ↗</a></div>
       </section>
-      <section class="request-notes"><p><strong>No upgrade keys</strong><span>The fee, supply, Vault, treasury and curve seed are immutable.</span></p><p><strong>Pilot lock</strong><span>Only the administrator can create the first token. Public creation can later be enabled once and cannot be turned off again.</span></p><p><strong>No graduation yet</strong><span>This version cannot migrate reserves to a DEX. That route remains disabled until separately reviewed.</span></p></section>
+      <section class="request-notes"><p><strong>No upgrade keys</strong><span>The fee, supply, Vault, treasury, target and Uniswap addresses are immutable.</span></p><p><strong>Admin-only launch</strong><span>Only the immutable administrator can create tokens in V4.</span></p><p><strong>Permanent lock</strong><span>The locker has no NFT transfer or liquidity-removal function. Anyone may distribute earned LP fees 97% to creator and 3% to Vault.</span></p></section>
     </main>
-    <script src="loader.js?v=1"></script><script src="launch-factory-admin.js?v=3"></script>
+    <script src="loader.js?v=1"></script><script src="launch-factory-admin.js?v=4"></script>
   </body>
 </html>

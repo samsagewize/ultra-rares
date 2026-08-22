@@ -4,7 +4,7 @@ import ganache from 'ganache';
 import solc from 'solc';
 import { BrowserProvider, Contract, ContractFactory, keccak256, parseEther, parseUnits, toUtf8Bytes } from 'ethers';
 
-const files = ['RareLaunchFactory.sol', 'MockRewardAsset.sol', 'MockLaunchAdversary.sol'];
+const files = ['RareLaunchFactory.sol', 'MockRewardAsset.sol', 'MockLaunchAdversary.sol', 'MockWorkInfrastructure.sol', 'MockUniswapV3.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = { language: 'Solidity', sources, settings: { evmVersion: 'shanghai', optimizer: { enabled: true, runs: 200 }, outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object'] } } } };
 const output = JSON.parse(solc.compile(JSON.stringify(input)));
@@ -26,15 +26,19 @@ const expectRevert = async (promise, label) => {
 const rareUnits = (value) => parseUnits(value, 18);
 const launchFee = rareUnits('250000');
 const virtualEth = parseEther('1');
+const graduationTarget = parseEther('1.1');
 const rare = await deploy('MockRewardAsset.sol', 'MockRewardAsset', admin, ['RARE', 'RARE', 18]);
+const weth = await deploy('MockWorkInfrastructure.sol', 'MockWorkWETH', admin);
+const uniFactory = await deploy('MockUniswapV3.sol', 'MockV3Factory', admin);
+const positionManager = await deploy('MockUniswapV3.sol', 'MockPositionManager', admin, [await uniFactory.getAddress(), await weth.getAddress()]);
 const vaultAddress = await stranger.getAddress();
-const factory = await deploy('RareLaunchFactory.sol', 'RareLaunchFactory', admin, [await rare.getAddress(), vaultAddress, await admin.getAddress(), await treasury.getAddress(), virtualEth]);
+const factory = await deploy('RareLaunchFactory.sol', 'RareLaunchFactory', admin, [await rare.getAddress(), vaultAddress, await admin.getAddress(), await treasury.getAddress(), virtualEth, graduationTarget, await positionManager.getAddress(), await weth.getAddress()]);
 const factoryAddress = await factory.getAddress();
 const creatorAddress = await creator.getAddress();
 
-assert.equal(await factory.GRADUATION_ENABLED(), false, 'pilot graduation is disabled');
+assert.equal(await factory.GRADUATION_ENABLED(), true, 'V4 graduation is enabled');
 assert.equal(await factory.PUBLIC_CREATION_ENABLED(), false, 'pilot creation is permanently admin-only');
-assert.equal(await factory.FACTORY_VERSION(), 3n, 'hardened zero-ETH creation factory is explicitly versioned');
+assert.equal(await factory.FACTORY_VERSION(), 4n, 'locked-liquidity factory is explicitly versioned');
 assert.equal(await factory.FIXED_TOKEN_SUPPLY(), rareUnits('1000000000'), 'all launches use one billion tokens');
 await expectRevert(factory.connect(stranger).createToken('Blocked', 'NO', launchFee), 'public creation starts disabled');
 await expectRevert(factory.createToken('Bad', 'bad!', launchFee), 'symbols are restricted to uppercase letters and numbers');
@@ -150,4 +154,37 @@ assert.equal(
   'the first launch token supply is conserved across all participants',
 );
 
-console.log('Native ETH launch factory safety tests passed: 48 assertions');
+await expectRevert(factory.graduate(tokenAddress, deadline), 'graduation before the immutable market-cap target is rejected');
+const graduationBuy = parseEther('0.1');
+const graduationQuote = await factory.quoteBuy(tokenAddress, graduationBuy);
+await (await factory.buy(tokenAddress, graduationQuote[0], deadline, { value: graduationBuy })).wait();
+assert.equal(await factory.marketCapEth(tokenAddress) >= graduationTarget, true, 'curve reaches the immutable graduation target');
+await (await factory.connect(stranger).graduate(tokenAddress, deadline, { gasLimit: 8_000_000 })).wait();
+const graduatedLaunch = await factory.launches(tokenAddress);
+assert.equal(graduatedLaunch.graduated, true, 'graduation state is permanent');
+assert.equal(graduatedLaunch.realEth, 0n, 'all real curve backing leaves for Uniswap liquidity');
+const migratorAddress = await factory.graduationMigrator();
+const migratorArtifact = output.contracts['RareLaunchFactory.sol'].RareV3Migrator;
+const migrator = new Contract(migratorAddress, migratorArtifact.abi, provider);
+const lockerAddress = await migrator.locker();
+assert.equal(await positionManager.ownerOf(1), lockerAddress, 'the Uniswap LP NFT is minted directly to the permanent locker');
+assert.equal(await token.balanceOf(await positionManager.getAddress()) > 0n, true, 'Uniswap position manager receives token liquidity');
+assert.equal(await weth.balanceOf(await positionManager.getAddress()) > 0n, true, 'Uniswap position manager receives wrapped ETH liquidity');
+await expectRevert(factory.graduate(tokenAddress, deadline), 'a token cannot graduate twice');
+await expectRevert(factory.buy(tokenAddress, 0, deadline, { value: 1n }), 'curve buys stop permanently after graduation');
+await expectRevert(migrator.connect(stranger).migrate(tokenAddress, await stranger.getAddress(), 1, deadline, { value: 1n }), 'only the immutable factory can invoke the migrator');
+const lockerArtifact = output.contracts['RareLaunchFactory.sol'].RareV3LiquidityLocker;
+assert.equal(lockerArtifact.abi.some((entry) => ['transferFrom', 'safeTransferFrom', 'decreaseLiquidity'].includes(entry.name)), false, 'LP locker exposes no NFT transfer or liquidity removal path');
+
+await (await factory.createToken('Guarded Rare', 'GUARD', launchFee, { gasLimit: 7_000_000 })).wait();
+const guardedAddress = await factory.allTokens(2);
+const guardedBuy = parseEther('0.1');
+const guardedQuote = await factory.quoteBuy(guardedAddress, guardedBuy);
+await (await factory.buy(guardedAddress, guardedQuote[0], deadline, { value: guardedBuy })).wait();
+const wethAddress = await weth.getAddress();
+const guardedToken0 = BigInt(guardedAddress) < BigInt(wethAddress) ? guardedAddress : wethAddress;
+const guardedToken1 = guardedToken0 === guardedAddress ? wethAddress : guardedAddress;
+await (await uniFactory.createPool(guardedToken0, guardedToken1, 3000, 1)).wait();
+await expectRevert(factory.graduate(guardedAddress, deadline), 'a pre-created Uniswap pool at a manipulated price blocks graduation');
+
+console.log('Native ETH launch factory safety tests passed: 61 assertions');

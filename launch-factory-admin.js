@@ -6,6 +6,9 @@
   const CHAIN_ID = '0x1237';
   const EXPLORER = 'https://robinhoodchain.blockscout.com';
   const INITIAL_VIRTUAL_ETH = 10n ** 18n;
+  const GRADUATION_MARKET_CAP_ETH = 29n * 10n ** 18n;
+  const POSITION_MANAGER = '0x73991a25c818bf1f1128deaab1492d45638de0d3';
+  const WETH = '0x0bd7d308f8e1639fab988df18a8011f41eacad73';
   const EXPECTED_LAUNCH_FEE = 250000n * 10n ** 18n;
   const connectButton = document.querySelector('[data-launch-factory-connect]');
   const deployButton = document.querySelector('[data-launch-factory-deploy]');
@@ -16,7 +19,9 @@
   const explorerLink = document.querySelector('[data-launch-factory-explorer]');
   let account = '';
   let artifact;
-  let factory = localStorage.getItem('rareEthLaunchFactoryAddressV3') || '';
+  let migratorArtifact;
+  let lockerArtifact;
+  let factory = localStorage.getItem('rareEthLaunchFactoryAddressV4') || '';
 
   const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
   const addressWord = (value) => value.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -49,20 +54,37 @@
     return ethereum.request({ method: 'eth_call', params: [{ to: factory, data: `0x${selector(signature)}` }, 'latest'] });
   }
 
+  async function readAt(target, sourceArtifact, signature) {
+    const method = sourceArtifact.methodIdentifiers[signature];
+    return ethereum.request({ method: 'eth_call', params: [{ to: target, data: `0x${method}` }, 'latest'] });
+  }
+
   async function verify() {
     if (!isAddress(factory)) throw new Error('No valid Factory address is saved.');
     const code = await ethereum.request({ method: 'eth_getCode', params: [factory, 'latest'] });
     if (!code || code === '0x') throw new Error('No deployed contract exists at the saved Factory address.');
-    const [version, rare, vault, admin, treasury, seed, fee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+    const [version, rare, vault, admin, treasury, seed, target, fee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation, migrator] = await Promise.all([
       read('FACTORY_VERSION()'),
       read('rareToken()'), read('raresVault()'), read('launchAdmin()'), read('ethTreasury()'), read('initialVirtualEth()'),
-      read('LAUNCH_FEE_RARE()'), read('TRADE_FEE_BPS()'), read('CREATOR_FEE_SHARE_BPS()'), read('TREASURY_FEE_SHARE_BPS()'),
+      read('graduationMarketCapEth()'), read('LAUNCH_FEE_RARE()'), read('TRADE_FEE_BPS()'), read('CREATOR_FEE_SHARE_BPS()'), read('TREASURY_FEE_SHARE_BPS()'),
       read('FIXED_TOKEN_SUPPLY()'), read('GRADUATION_ENABLED()'), read('PUBLIC_CREATION_ENABLED()'),
+      read('graduationMigrator()'),
     ]);
-    if (BigInt(version) !== 3n) throw new Error('This is not the hardened zero-ETH Factory V3.');
+    if (BigInt(version) !== 4n) throw new Error('This is not the locked-liquidity Factory V4.');
     if (addressResult(rare) !== RARE || addressResult(vault) !== VAULT || addressResult(admin) !== ADMIN || addressResult(treasury) !== ADMIN) throw new Error('Factory addresses do not match the reviewed mainnet configuration.');
-    if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(fee) !== EXPECTED_LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== 1_000_000_000n * 10n ** 18n) throw new Error('Factory economic constants do not match the reviewed pilot.');
-    if (BigInt(graduation) !== 0n || BigInt(publicCreation) !== 0n) throw new Error('Pilot safety state is not locked to admin-only creation with graduation disabled.');
+    if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(target) !== GRADUATION_MARKET_CAP_ETH || BigInt(fee) !== EXPECTED_LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== 1_000_000_000n * 10n ** 18n) throw new Error('Factory economic constants do not match the reviewed V4 pilot.');
+    if (BigInt(graduation) !== 1n || BigInt(publicCreation) !== 0n || !isAddress(addressResult(migrator))) throw new Error('V4 must enable locked graduation while keeping creation admin-only.');
+    const migratorAddress = addressResult(migrator);
+    const [migratorFactory, manager, weth, migratorVault, locker] = await Promise.all([
+      readAt(migratorAddress, migratorArtifact, 'factory()'), readAt(migratorAddress, migratorArtifact, 'positionManager()'),
+      readAt(migratorAddress, migratorArtifact, 'weth()'), readAt(migratorAddress, migratorArtifact, 'vault()'), readAt(migratorAddress, migratorArtifact, 'locker()'),
+    ]);
+    const lockerAddress = addressResult(locker);
+    if (addressResult(migratorFactory) !== factory.toLowerCase() || addressResult(manager) !== POSITION_MANAGER || addressResult(weth) !== WETH || addressResult(migratorVault) !== VAULT || !isAddress(lockerAddress)) throw new Error('Embedded Uniswap migrator configuration does not match V4.');
+    const [lockerMigrator, lockerManager, lockerVault] = await Promise.all([
+      readAt(lockerAddress, lockerArtifact, 'migrator()'), readAt(lockerAddress, lockerArtifact, 'positionManager()'), readAt(lockerAddress, lockerArtifact, 'vault()'),
+    ]);
+    if (addressResult(lockerMigrator) !== migratorAddress || addressResult(lockerManager) !== POSITION_MANAGER || addressResult(lockerVault) !== VAULT) throw new Error('Permanent LP locker configuration does not match V4.');
     return true;
   }
 
@@ -76,7 +98,11 @@
     connectButton.disabled = true;
     try {
       if (!window.ethereum) throw new Error('Open this page inside an EVM wallet browser.');
-      artifact = await fetch('assets/RareLaunchFactory.json').then((response) => response.json());
+      [artifact, migratorArtifact, lockerArtifact] = await Promise.all([
+        fetch('assets/RareLaunchFactory.json').then((response) => response.json()),
+        fetch('assets/RareV3Migrator.json').then((response) => response.json()),
+        fetch('assets/RareV3LiquidityLocker.json').then((response) => response.json()),
+      ]);
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       await switchNetwork();
       account = accounts[0]?.toLowerCase();
@@ -97,13 +123,13 @@
     deployButton.disabled = true;
     setStatus('Review the contract creation in your wallet. Deployment sends no ETH or $RARE.');
     try {
-      const data = `${artifact.bytecode}${addressWord(RARE)}${addressWord(VAULT)}${addressWord(ADMIN)}${addressWord(ADMIN)}${uintWord(INITIAL_VIRTUAL_ETH)}`;
+      const data = `${artifact.bytecode}${addressWord(RARE)}${addressWord(VAULT)}${addressWord(ADMIN)}${addressWord(ADMIN)}${uintWord(INITIAL_VIRTUAL_ETH)}${uintWord(GRADUATION_MARKET_CAP_ETH)}${addressWord(POSITION_MANAGER)}${addressWord(WETH)}`;
       const hash = await ethereum.request({ method: 'eth_sendTransaction', params: [{ from: account, data, value: '0x0' }] });
       setStatus('Factory deployment submitted. Waiting for confirmation…');
       const receipt = await waitForReceipt(hash);
       if (!isAddress(receipt.contractAddress)) throw new Error('No deployed Factory address was returned.');
       factory = receipt.contractAddress.toLowerCase();
-      localStorage.setItem('rareEthLaunchFactoryAddressV3', factory);
+      localStorage.setItem('rareEthLaunchFactoryAddressV4', factory);
       await verify();
       verifyButton.disabled = false;
       show();
@@ -115,7 +141,7 @@
   });
 
   verifyButton.addEventListener('click', async () => {
-    try { await verify(); setStatus('Verified: official $RARE, Launch Vault, admin, treasury, fixed supply, ETH curve, 1% fee split and disabled graduation all match.'); }
+    try { await verify(); setStatus('Verified: Factory V4, official assets, 29 ETH target, locked Uniswap graduation and admin-only creation all match.'); }
     catch (error) { setStatus(error?.message || 'Verification failed.'); }
   });
 

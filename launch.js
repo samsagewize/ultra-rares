@@ -16,8 +16,9 @@
   const DEFAULT_LOGO = 'assets/rare-token.png';
   const LAUNCH_FEE = 250000n * 10n ** 18n;
   const INITIAL_VIRTUAL_ETH = 10n ** 18n;
+  const GRADUATION_MARKET_CAP_ETH = 29n * 10n ** 18n;
   const FIXED_SUPPLY = 1_000_000_000n * 10n ** 18n;
-  const GRADUATION_TARGET_USD = 70_000;
+  const GRADUATION_TARGET_ETH = 29;
   let logoData = DEFAULT_LOGO;
   let account = '';
   let config = { factoryAddress: '', pilotMode: true };
@@ -56,16 +57,17 @@
 
   async function verifyFactory() {
     const call = (signature) => rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector(signature)}` }, 'latest']);
-    const [version, rare, vault, admin, treasury, seed, launchFee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+    const [version, rare, vault, admin, treasury, seed, target, launchFee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation, migrator] = await Promise.all([
       call('FACTORY_VERSION()'),
       call('rareToken()'), call('raresVault()'), call('launchAdmin()'), call('ethTreasury()'), call('initialVirtualEth()'),
-      call('LAUNCH_FEE_RARE()'), call('TRADE_FEE_BPS()'), call('CREATOR_FEE_SHARE_BPS()'), call('TREASURY_FEE_SHARE_BPS()'),
+      call('graduationMarketCapEth()'), call('LAUNCH_FEE_RARE()'), call('TRADE_FEE_BPS()'), call('CREATOR_FEE_SHARE_BPS()'), call('TREASURY_FEE_SHARE_BPS()'),
       call('FIXED_TOKEN_SUPPLY()'), call('GRADUATION_ENABLED()'), call('PUBLIC_CREATION_ENABLED()'),
+      call('graduationMigrator()'),
     ]);
-    if (BigInt(version) !== 3n) throw new Error('The configured Factory is not the hardened zero-ETH Factory V3.');
+    if (BigInt(version) !== 4n) throw new Error('The configured Factory is not the locked-liquidity Factory V4.');
     if (addressResult(rare) !== RARE || addressResult(vault) !== '0xcc8ebc12d8df4b23d7e4a93b31a330762c211b32' || addressResult(admin) !== ADMIN || addressResult(treasury) !== ADMIN) throw new Error('The configured Factory addresses do not match the reviewed pilot.');
-    if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(launchFee) !== LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== FIXED_SUPPLY) throw new Error('The configured Factory economics do not match the reviewed pilot.');
-    if (BigInt(graduation) !== 0n || BigInt(publicCreation) !== 0n) throw new Error('The Factory is not in the reviewed admin-only, no-graduation pilot state.');
+    if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(target) !== GRADUATION_MARKET_CAP_ETH || BigInt(launchFee) !== LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== FIXED_SUPPLY) throw new Error('The configured Factory economics do not match V4.');
+    if (BigInt(graduation) !== 1n || BigInt(publicCreation) !== 0n || !isAddress(addressResult(migrator))) throw new Error('The Factory is not the reviewed admin-only, locked-graduation V4.');
   }
 
   async function walletCall(to, data) {
@@ -114,18 +116,21 @@
       ethPriceUsd = Number(market.ethPriceUsd);
     } catch {}
     if (!Number.isFinite(ethPriceUsd) || ethPriceUsd <= 0) return;
+    const targetUsd = GRADUATION_TARGET_ETH * ethPriceUsd;
     await Promise.allSettled(cards.map(async (card, index) => {
       const address = card.dataset.launchToken;
       if (!isAddress(address)) return;
       const result = await rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector('marketCapEth(address)')}${addressWord(address)}` }, 'latest']);
       const marketCapUsd = Number(BigInt(result)) / 1e18 * ethPriceUsd;
-      const percentage = Math.max(0, Math.min(100, marketCapUsd / GRADUATION_TARGET_USD * 100));
+      const percentage = Math.max(0, Math.min(100, marketCapUsd / targetUsd * 100));
       card.querySelector('[data-token-mc]').textContent = money(marketCapUsd);
-      card.querySelector('[data-token-progress]').textContent = `${money(marketCapUsd)} / $70K`;
+      card.querySelector('[data-token-progress]').textContent = `${money(marketCapUsd)} / ${money(targetUsd)}`;
       card.querySelector('[data-token-fill]').style.width = `${percentage}%`;
+      card.querySelector('[data-token-track]').setAttribute('aria-valuemax', String(Math.round(targetUsd)));
       card.querySelector('[data-token-track]').setAttribute('aria-valuenow', String(Math.round(marketCapUsd)));
       if (index === 0) {
-        document.querySelector('[data-first-mc]').textContent = `${money(marketCapUsd)} / $70K`;
+        document.querySelector('[data-first-mc]').textContent = `${money(marketCapUsd)} / ${money(targetUsd)}`;
+        document.querySelector('[data-first-track]').setAttribute('aria-valuemax', String(Math.round(targetUsd)));
         document.querySelector('[data-first-fill]').style.width = `${percentage}%`;
         document.querySelector('[data-first-track]').setAttribute('aria-valuenow', String(Math.round(marketCapUsd)));
         document.querySelector('[data-first-status]').textContent = percentage >= 100 ? 'Target reached · migration locked' : 'Trading · progress live';

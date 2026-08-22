@@ -8,12 +8,12 @@
   "launchFeeVault": "0xCC8EBC12D8DF4B23D7E4A93B31A330762C211B32",
   "withdrawalDestination": "0x562F6ac10723ef6AF9F077A83cF25135FB369612",
   "ethTreasury": "0x562F6ac10723ef6AF9F077A83cF25135FB369612",
-  "factory": "0xa92773451cbBEf7394eA8AC287607813522A4324",
+  "factory": "PENDING_LOCKED_LIQUIDITY_V4_DEPLOYMENT",
   "supersededFactoryV1": "0x2BB68037242fEF158b1c4b9f3FCA0c7878eEe2D4",
   "supersededFactoryV1DeploymentTransaction": "0x3ba776d2ba10e2788de627ab2cc56e0aea21c4c2d28f610234eac0fc5789bc31",
   "supersededFactoryV1Reason": "Creation was payable and supported an optional opening ETH buy. V1 launched no tokens and is not connected to the website.",
   "factoryArchitecture": "native-eth-reserve-backed-curve",
-  "factoryVersion": 2,
+  "factoryVersion": 4,
   "initialVirtualEth": "1",
   "fixedLaunchFeeRare": "250000",
   "fixedTokenSupply": "1000000000",
@@ -21,8 +21,11 @@
   "vaultShareBps": 300,
   "creatorShareBps": 9700,
   "publicCreationEnabled": false,
-  "graduationEnabled": false,
+  "graduationEnabled": true,
+  "graduationMarketCapEth": "29",
+  "uniswapPositionManager": "0x73991a25c818bf1f1128deaab1492d45638de0d3",
+  "weth": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
   "feeSourcesLocked": false,
   "launchVaultSourceVerifiedAt": "2026-08-22T18:16:52Z",
-  "note": "The RARE launch payment transfers directly to the Launch Vault. ETH trading fees accrue 97% to each creator and 3% to the immutable ETH treasury for later conversion to RARE. Do not lock the Vault source list for this pilot because the Factory does not call recordFee."
+  "note": "The RARE launch payment transfers directly to the Launch Vault. Curve and locked Uniswap LP fees split 97% to creator and 3% to the Vault/treasury. Creation remains permanently admin-only."
 }
