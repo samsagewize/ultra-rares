@@ -1,0 +1,551 @@
+{
+  "contractName": "RareLaunchFeeVault",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "rareToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "withdrawalDestination_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "FeeNotReceived",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientReserve",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotFeeSource",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Reentrancy",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SourcesAlreadyLocked",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SourcesNotLocked",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "donor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "DonationAccounted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "name": "FeeSourceUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "pendingOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "destination",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Released",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "SourcesLocked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "launchToken",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "grossTradeFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "vaultShare",
+          "type": "uint256"
+        }
+      ],
+      "name": "VaultFeeRecorded",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "BPS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VAULT_SHARE_BPS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "acceptOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "accountDonation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "launchToken",
+          "type": "address"
+        }
+      ],
+      "name": "accountedByLaunchToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        }
+      ],
+      "name": "accountedBySource",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "authorizedSourceCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "availableReserve",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        }
+      ],
+      "name": "feeSources",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lockFeeSources",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rareToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20LaunchVault",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "launchToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "grossTradeFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "vaultShare",
+          "type": "uint256"
+        }
+      ],
+      "name": "recordFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "release",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "name": "setFeeSource",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sourcesLocked",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalAccounted",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalDonations",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalReleased",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawalDestination",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60c06040526001600655348015610014575f5ffd5b506040516110b73803806110b7833981016040819052610033916100f4565b6001600160a01b038316158061005057506001600160a01b038216155b8061006257506001600160a01b038116155b156100805760405163d92e233d60e01b815260040160405180910390fd5b6001600160a01b038381166080525f80546001600160a01b031916848316908117825591831660a0526040517f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a3505050610134565b80516001600160a01b03811681146100ef575f5ffd5b919050565b5f5f5f60608486031215610106575f5ffd5b61010f846100d9565b925061011d602085016100d9565b915061012b604085016100d9565b90509250925092565b60805160a051610f316101865f395f81816102ca015281816103b101526103d801525f81816101a8015281816105e40152818161083901528181610b2c01528181610b9d0152610cb60152610f315ff3fe608060405234801561000f575f5ffd5b506004361061013d575f3560e01c80638da5cb5b116100b4578063de2ed89311610079578063de2ed893146102a0578063e30c3978146102a9578063e33b7de3146102bc578063e3a5c71e146102c5578063f2fde38b146102ec578063fa60a382146102ff575f5ffd5b80638da5cb5b14610216578063a29c662014610228578063a85557521461023b578063b261106a1461026d578063de07d3c414610281575f5ffd5b806338c21d1b1161010557806338c21d1b146101a35780635e9f9613146101e257806364913b5f146101ea57806379ba5097146101f357806386de7e24146101fb5780638929b10c1461020e575f5ffd5b80630627f4ba14610141578063249d39e9146101735780632964e4e61461017c5780633048dc4f1461018557806337bdc99b1461018e575b5f5ffd5b61016061014f366004610d6c565b60086020525f908152604090205481565b6040519081526020015b60405180910390f35b61016061271081565b61016060025481565b61016061012c81565b6101a161019c366004610d8c565b610312565b005b6101ca7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161016a565b610160610441565b61016060055481565b6101a1610457565b6101a1610209366004610da3565b6104d8565b6101a161072b565b5f546101ca906001600160a01b031681565b6101a1610236366004610d8c565b6107df565b61025d610249366004610d6c565b60076020525f908152604090205460ff1681565b604051901515815260200161016a565b60015461025d90600160a01b900460ff1681565b61016061028f366004610d6c565b60096020525f908152604090205481565b61016060045481565b6001546101ca906001600160a01b031681565b61016060035481565b6101ca7f000000000000000000000000000000000000000000000000000000000000000081565b6101a16102fa366004610d6c565b610930565b6101a161030d366004610df2565b6109d1565b5f546001600160a01b0316331461033c576040516330cd747160e01b815260040160405180910390fd5b60065460011461035f5760405163558a1e0360e11b815260040160405180910390fd5b60026006558015806103775750610374610441565b81115b15610395576040516328b35f2160e01b815260040160405180910390fd5b8060035f8282546103a69190610e3b565b909155506103d690507f000000000000000000000000000000000000000000000000000000000000000082610b0b565b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03167fb21fb52d5749b80f3182f8c6992236b5e5576681880914484d7f4c9b062e619e8260405161043191815260200190565b60405180910390a2506001600655565b5f6003546002546104529190610e54565b905090565b6001546001600160a01b03163314610482576040516330cd747160e01b815260040160405180910390fd5b5f8054336001600160a01b0319808316821784556001805490911690556040516001600160a01b0390921692909183917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a350565b335f9081526007602052604090205460ff166105075760405163380aa52f60e11b815260040160405180910390fd5b600154600160a01b900460ff1661053157604051631279b85360e31b815260040160405180910390fd5b6001600160a01b038416158061054e57506001600160a01b038316155b1561056c5760405163d92e233d60e01b815260040160405180910390fd5b5f61271061057c61012c85610e67565b6105869190610e7e565b9050821580610593575080155b8061059e5750808214155b156105bc5760405163162908e360e11b815260040160405180910390fd5b816105c5610441565b6105cf9190610e3b565b6040516370a0823160e01b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa158015610631573d5f5f3e3d5ffd5b505050506040513d601f19601f820116820180604052508101906106559190610e9d565b101561067457604051636c0fb9c160e01b815260040160405180910390fd5b8160025f8282546106859190610e3b565b9091555050335f90815260086020526040812080548492906106a8908490610e3b565b90915550506001600160a01b0385165f90815260096020526040812080548492906106d4908490610e3b565b909155505060408051848152602081018490526001600160a01b03808716929088169133917fe92a71a6b5180bfd6b07ffa7683e2b8d48c9b1c92b86da018a61bb75bf306bc0910160405180910390a45050505050565b5f546001600160a01b03163314610755576040516330cd747160e01b815260040160405180910390fd5b600154600160a01b900460ff16156107805760405163a4c6b9ab60e01b815260040160405180910390fd5b6005545f036107a25760405163380aa52f60e11b815260040160405180910390fd5b6001805460ff60a01b1916600160a01b1790556040517fe947026fe06dfe4cffc440d3ae5323a670a41373e7635045c0fe91fdaa6b883f905f90a1565b5f546001600160a01b03163314610809576040516330cd747160e01b815260040160405180910390fd5b8015806108ac57508061081a610441565b6108249190610e3b565b6040516370a0823160e01b81523060048201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa158015610886573d5f5f3e3d5ffd5b505050506040513d601f19601f820116820180604052508101906108aa9190610e9d565b105b156108ca57604051636c0fb9c160e01b815260040160405180910390fd5b8060045f8282546108db9190610e3b565b925050819055508060025f8282546108f39190610e3b565b909155505060405181815233907fd514207148589af86bfef653fe1573105f7a6e993e8a0c4ae152ff4c126ec21a9060200160405180910390a250565b5f546001600160a01b0316331461095a576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b0381166109815760405163d92e233d60e01b815260040160405180910390fd5b600180546001600160a01b0319166001600160a01b038381169182179092555f8054604051929316917f38d16b8cac22d99fc7c124b9cd0de2d3fa1faef420bfe791d8c362d765e227009190a350565b5f546001600160a01b031633146109fb576040516330cd747160e01b815260040160405180910390fd5b600154600160a01b900460ff1615610a265760405163a4c6b9ab60e01b815260040160405180910390fd5b6001600160a01b038216610a4d5760405163d92e233d60e01b815260040160405180910390fd5b6001600160a01b0382165f9081526007602052604090205460ff16151581151514610aad578015610a9557600160055f828254610a8a9190610e3b565b90915550610aad9050565b600160055f828254610aa79190610e54565b90915550505b6001600160a01b0382165f81815260076020908152604091829020805460ff191685151590811790915591519182527f82b0c37de3136805986d661632d872b024517ce035086aa1c707ab62a423ee35910160405180910390a25050565b6040516370a0823160e01b81526001600160a01b0383811660048301525f917f0000000000000000000000000000000000000000000000000000000000000000909116906370a0823190602401602060405180830381865afa158015610b73573d5f5f3e3d5ffd5b505050506040513d601f19601f82011682018060405250810190610b979190610e9d565b90505f5f7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168585604051602401610bec9291906001600160a01b03929092168252602082015260400190565b60408051601f198184030181529181526020820180516001600160e01b031663a9059cbb60e01b17905251610c219190610eb4565b5f604051808303815f865af19150503d805f8114610c5a576040519150601f19603f3d011682016040523d82523d5f602084013e610c5f565b606091505b5091509150811580610c8d5750805115801590610c8d575080806020019051810190610c8b9190610ee0565b155b80610d2c57506040516370a0823160e01b81526001600160a01b038681166004830152859185917f000000000000000000000000000000000000000000000000000000000000000016906370a0823190602401602060405180830381865afa158015610cfb573d5f5f3e3d5ffd5b505050506040513d601f19601f82011682018060405250810190610d1f9190610e9d565b610d299190610e54565b14155b15610d4a576040516312171d8360e31b815260040160405180910390fd5b5050505050565b80356001600160a01b0381168114610d67575f5ffd5b919050565b5f60208284031215610d7c575f5ffd5b610d8582610d51565b9392505050565b5f60208284031215610d9c575f5ffd5b5035919050565b5f5f5f5f60808587031215610db6575f5ffd5b610dbf85610d51565b9350610dcd60208601610d51565b93969395505050506040820135916060013590565b8015158114610def575f5ffd5b50565b5f5f60408385031215610e03575f5ffd5b610e0c83610d51565b91506020830135610e1c81610de2565b809150509250929050565b634e487b7160e01b5f52601160045260245ffd5b80820180821115610e4e57610e4e610e27565b92915050565b81810381811115610e4e57610e4e610e27565b8082028115828204841417610e4e57610e4e610e27565b5f82610e9857634e487b7160e01b5f52601260045260245ffd5b500490565b5f60208284031215610ead575f5ffd5b5051919050565b5f82515f5b81811015610ed35760208186018101518583015201610eb9565b505f920191825250919050565b5f60208284031215610ef0575f5ffd5b8151610d8581610de256fea2646970667358221220674e5e2c1c8af4f0407aa792fc62071ae35da38b989ca68c231b80586d3670f464736f6c634300081e0033",
+  "methodIdentifiers": {
+    "BPS()": "249d39e9",
+    "VAULT_SHARE_BPS()": "3048dc4f",
+    "acceptOwnership()": "79ba5097",
+    "accountDonation(uint256)": "a29c6620",
+    "accountedByLaunchToken(address)": "de07d3c4",
+    "accountedBySource(address)": "0627f4ba",
+    "authorizedSourceCount()": "64913b5f",
+    "availableReserve()": "5e9f9613",
+    "feeSources(address)": "a8555752",
+    "lockFeeSources()": "8929b10c",
+    "owner()": "8da5cb5b",
+    "pendingOwner()": "e30c3978",
+    "rareToken()": "38c21d1b",
+    "recordFee(address,address,uint256,uint256)": "86de7e24",
+    "release(uint256)": "37bdc99b",
+    "setFeeSource(address,bool)": "fa60a382",
+    "sourcesLocked()": "b261106a",
+    "totalAccounted()": "2964e4e6",
+    "totalDonations()": "de2ed893",
+    "totalReleased()": "e33b7de3",
+    "transferOwnership(address)": "f2fde38b",
+    "withdrawalDestination()": "e3a5c71e"
+  }
+}
