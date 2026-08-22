@@ -7,10 +7,6 @@ interface IERC20Launch {
     function transferFrom(address, address, uint256) external returns (bool);
 }
 
-interface IRareLaunchFeeOracle {
-    function rareForEth(uint256 weiAmount) external view returns (uint256 rareAmount, uint256 updatedAt);
-}
-
 interface IRareLaunchMarketCapOracle {
     function marketCapUsd(address token) external view returns (uint256 marketCapUsdE18, uint256 updatedAt);
 }
@@ -77,9 +73,10 @@ contract RareLaunchFactory {
     uint256 public constant TRADE_FEE_BPS = 100;
     uint256 public constant CREATOR_FEE_SHARE_BPS = 9_700;
     uint256 public constant VAULT_FEE_SHARE_BPS = 300;
-    uint256 public constant LAUNCH_ETH_COST = 0.001 ether;
+    uint256 public constant LAUNCH_FEE_RARE = 250_000 ether;
     uint256 public constant GRADUATION_MARKET_CAP_USD_E18 = 70_000 ether;
     uint256 public constant MAX_ORACLE_AGE = 15 minutes;
+    uint256 public constant GRADUATION_CONFIG_DELAY = 7 days;
     uint256 public constant MIN_SUPPLY = 1_000 ether;
     uint256 public constant MAX_SUPPLY = 100_000_000_000 ether;
 
@@ -94,11 +91,14 @@ contract RareLaunchFactory {
     }
 
     IERC20Launch public immutable rareToken;
-    IRareLaunchFeeOracle public immutable launchFeeOracle;
-    IRareLaunchMarketCapOracle public immutable marketCapOracle;
-    IRareLaunchMigrator public immutable uniswapMigrator;
+    address public immutable graduationAdmin;
+    IRareLaunchMarketCapOracle public marketCapOracle;
+    IRareLaunchMigrator public uniswapMigrator;
+    address public proposedMarketCapOracle;
+    address public proposedUniswapMigrator;
+    uint64 public graduationConfigActivationTime;
+    bool public graduationConfigLocked;
     IRareLaunchVault public immutable raresVault;
-    address public immutable launchTreasury;
     uint256 public immutable initialVirtualRare;
     mapping(address token => Launch) public launches;
     address[] public allTokens;
@@ -106,28 +106,30 @@ contract RareLaunchFactory {
 
     error InvalidConfiguration(); error InvalidToken(); error InvalidAmount(); error Slippage();
     error OracleStale(); error TransferFailed(); error Reentrancy(); error Graduated(); error NotGraduated(); error NothingToClaim();
+    error NotAdmin(); error ConfigurationPending(); error ConfigurationLocked();
     event TokenCreated(address indexed token, address indexed creator, string name, string symbol, uint256 supply, uint256 launchFee);
     event Trade(address indexed token, address indexed trader, bool indexed isBuy, uint256 rareAmount, uint256 tokenAmount, uint256 fee);
     event CreatorFeesClaimed(address indexed token, address indexed creator, uint256 amount);
     event GraduationReady(address indexed token, uint256 marketCapUsdE18);
     event GraduatedToUniswap(address indexed token, uint256 tokenAmount, uint256 rareAmount);
+    event GraduationConfigProposed(address indexed oracle, address indexed migrator, uint256 activationTime);
+    event GraduationConfigActivated(address indexed oracle, address indexed migrator);
 
     modifier nonReentrant() { if (locked != 1) revert Reentrancy(); locked = 2; _; locked = 1; }
 
-    constructor(address rare_, address feeOracle_, address marketCapOracle_, address migrator_, address vault_, address launchTreasury_, uint256 initialVirtualRare_) {
-        if (rare_ == address(0) || feeOracle_ == address(0) || marketCapOracle_ == address(0) || migrator_ == address(0) || vault_ == address(0) || launchTreasury_ == address(0) || initialVirtualRare_ == 0 || initialVirtualRare_ > type(uint128).max) revert InvalidConfiguration();
-        rareToken = IERC20Launch(rare_); launchFeeOracle = IRareLaunchFeeOracle(feeOracle_); marketCapOracle = IRareLaunchMarketCapOracle(marketCapOracle_); uniswapMigrator = IRareLaunchMigrator(migrator_); raresVault = IRareLaunchVault(vault_); launchTreasury = launchTreasury_; initialVirtualRare = initialVirtualRare_;
+    constructor(address rare_, address vault_, address graduationAdmin_, uint256 initialVirtualRare_) {
+        if (rare_ == address(0) || vault_ == address(0) || graduationAdmin_ == address(0) || initialVirtualRare_ == 0 || initialVirtualRare_ > type(uint128).max) revert InvalidConfiguration();
+        rareToken = IERC20Launch(rare_); raresVault = IRareLaunchVault(vault_); graduationAdmin = graduationAdmin_; initialVirtualRare = initialVirtualRare_;
     }
 
     function tokenCount() external view returns (uint256) { return allTokens.length; }
 
     function createToken(string calldata name, string calldata symbol, uint256 supply, uint256 maxLaunchFee, uint256 openingBuyRare, uint256 minOpeningTokens) external nonReentrant returns (address token) {
         if (bytes(name).length == 0 || bytes(name).length > 32 || bytes(symbol).length == 0 || bytes(symbol).length > 10 || supply < MIN_SUPPLY || supply > MAX_SUPPLY) revert InvalidConfiguration();
-        (uint256 fee, uint256 updatedAt) = launchFeeOracle.rareForEth(LAUNCH_ETH_COST);
-        if (fee == 0 || block.timestamp > updatedAt + MAX_ORACLE_AGE) revert OracleStale();
+        uint256 fee = LAUNCH_FEE_RARE;
         if (fee > maxLaunchFee) revert Slippage();
         _pullExact(msg.sender, fee + openingBuyRare);
-        _pushExact(launchTreasury, fee);
+        _pushExact(address(raresVault), fee);
         token = address(new RareLaunchToken(name, symbol, supply, address(this)));
         launches[token] = Launch(msg.sender, uint128(initialVirtualRare), uint128(supply), 0, 0, false, false);
         allTokens.push(token);
@@ -160,10 +162,29 @@ contract RareLaunchFactory {
     }
 
     function markGraduationReady(address token) external nonReentrant {
+        if (!graduationConfigLocked) revert ConfigurationPending();
         Launch storage launch = launches[token]; if (launch.creator == address(0)) revert InvalidToken(); if (launch.graduationReady) revert Graduated();
         (uint256 cap, uint256 updatedAt) = marketCapOracle.marketCapUsd(token);
         if (block.timestamp > updatedAt + MAX_ORACLE_AGE) revert OracleStale(); if (cap < GRADUATION_MARKET_CAP_USD_E18) revert NotGraduated();
         launch.graduationReady = true; emit GraduationReady(token, cap);
+    }
+
+    function proposeGraduationConfig(address oracle, address migrator) external {
+        if (msg.sender != graduationAdmin) revert NotAdmin();
+        if (graduationConfigLocked) revert ConfigurationLocked();
+        if (oracle == address(0) || migrator == address(0)) revert InvalidConfiguration();
+        proposedMarketCapOracle = oracle; proposedUniswapMigrator = migrator;
+        graduationConfigActivationTime = uint64(block.timestamp + GRADUATION_CONFIG_DELAY);
+        emit GraduationConfigProposed(oracle, migrator, graduationConfigActivationTime);
+    }
+
+    function activateGraduationConfig() external {
+        if (graduationConfigLocked) revert ConfigurationLocked();
+        if (graduationConfigActivationTime == 0 || block.timestamp < graduationConfigActivationTime) revert ConfigurationPending();
+        marketCapOracle = IRareLaunchMarketCapOracle(proposedMarketCapOracle);
+        uniswapMigrator = IRareLaunchMigrator(proposedUniswapMigrator);
+        graduationConfigLocked = true;
+        emit GraduationConfigActivated(proposedMarketCapOracle, proposedUniswapMigrator);
     }
 
     function graduate(address token) external nonReentrant {

@@ -4,15 +4,13 @@
   const connect = document.querySelector('[data-launch-connect]');
   const form = document.querySelector('[data-launch-form]');
   const status = document.querySelector('[data-launch-status]');
-  const cost = document.querySelector('[data-launch-cost]');
-  const costSource = document.querySelector('[data-launch-cost-source]');
   const logoInput = document.querySelector('[data-logo-input]');
   const logoPreview = document.querySelector('[data-logo-preview]');
   const tokenList = document.querySelector('[data-token-list]');
   const STORAGE_KEY = 'ultraRaresLaunchPreviewsV1';
   const DEFAULT_LOGO = 'assets/rare-token.png';
   let logoData = DEFAULT_LOGO;
-  let liveRareCost = null;
+  const liveRareCost = 250000;
   let account = '';
 
   const short = (value) => `${value.slice(0, 6)}…${value.slice(-4)}`;
@@ -28,23 +26,6 @@
     const created = readTokens();
     const tokens = [{ name: 'First Rare', symbol: 'FIRST', supply: '1000000000', logo: DEFAULT_LOGO, status: 'Pre-launch test', openingBuy: '0' }, ...created];
     tokenList.innerHTML = tokens.map((token) => `<article class="launch-directory-card"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Launch preview')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / $RARE</dd></div><div><dt>Supply</dt><dd>${Number(token.supply).toLocaleString()}</dd></div><div><dt>Opening buy</dt><dd>${Number(token.openingBuy || 0).toLocaleString()} $RARE</dd></div><div><dt>Graduation</dt><dd>$70K MC</dd></div></dl></div></article>`).join('');
-  };
-  const loadRareQuote = async () => {
-    try {
-      const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/robinhood/0x8ec9c76ed191fb03397637acee1ce928426beb80', { cache: 'no-store' });
-      if (!response.ok) throw new Error('Quote unavailable');
-      const payload = await response.json();
-      const pair = payload.pair || payload.pairs?.[0];
-      const rarePerEth = 1 / Number(pair?.priceNative);
-      if (!Number.isFinite(rarePerEth) || rarePerEth <= 0) throw new Error('Invalid quote');
-      liveRareCost = Math.ceil(rarePerEth * 0.001);
-      cost.textContent = `${liveRareCost.toLocaleString()} $RARE`;
-      costSource.textContent = `Approx. 0.001 ETH at the current RARE/WETH market quote · checked ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
-    } catch {
-      liveRareCost = null;
-      cost.textContent = 'Quote temporarily unavailable';
-      costSource.textContent = 'The launch transaction stays unavailable until a fresh on-chain quote can be verified.';
-    }
   };
   logoInput.addEventListener('change', () => {
     const file = logoInput.files?.[0];
@@ -84,12 +65,10 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens.slice(0, 12))); } catch { return setStatus('The logo is too large to save in this browser. Choose a smaller image.', true); }
     renderTokens();
     document.querySelector('.launch-directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setStatus(`${name} ($${symbol}) was added to your token list. ${liveRareCost ? `Current launch fee: ${liveRareCost.toLocaleString()} $RARE.` : 'A fresh launch-fee quote is still required.'} Connect your wallet when the verified factory goes live.`);
+    setStatus(`${name} ($${symbol}) was added to your token list. Fixed launch fee: ${liveRareCost.toLocaleString()} $RARE sent directly to the Vault. Connect your wallet when the verified factory goes live.`);
     form.reset(); logoData = DEFAULT_LOGO; logoPreview.src = DEFAULT_LOGO;
   });
   window.ethereum?.on?.('accountsChanged', syncAccount);
   syncAccount().catch(() => {});
   renderTokens();
-  loadRareQuote();
-  setInterval(loadRareQuote, 30000);
 })();
