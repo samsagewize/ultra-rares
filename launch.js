@@ -12,6 +12,7 @@
   const logoInput = document.querySelector('[data-logo-input]');
   const logoPreview = document.querySelector('[data-logo-preview]');
   const tokenList = document.querySelector('[data-token-list]');
+  const createDialog = document.querySelector('[data-launch-dialog]');
   const STORAGE_KEY = 'ultraRaresLaunchTokensV2';
   const DEFAULT_LOGO = 'assets/rare-token.png';
   const PUBLISHED_LOGOS = { '0x2da461daa157b692404f6fa6da779b7f8bd81e22': 'assets/test-token.png' };
@@ -40,6 +41,16 @@
   };
   const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('is-error', error); };
   const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value < 1000 ? 2 : 0 }).format(value);
+
+  document.querySelectorAll('[data-launch-create-open]').forEach((button) => button.addEventListener('click', () => {
+    if (typeof createDialog.showModal === 'function') createDialog.showModal();
+    else createDialog.setAttribute('open', '');
+  }));
+  document.querySelector('[data-launch-create-close]').addEventListener('click', () => createDialog.close());
+  createDialog.addEventListener('click', (event) => {
+    const bounds = createDialog.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) createDialog.close();
+  });
 
   function encodeString(value) {
     const bytes = new TextEncoder().encode(value);
@@ -219,6 +230,7 @@
       saveToken({ name, symbol, supply: '1000000000', logo: logoData, status: 'Live on Robinhood Chain', address: tokenAddress, transaction: createHash, createdAt: Date.now() });
       renderTokens();
       await refreshGraduationProgress();
+      createDialog.close();
       document.querySelector('.launch-directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setStatus(`${name} ($${symbol}) is live at ${short(tokenAddress)}. The transaction and token contract are linked below.`);
       form.reset(); logoData = DEFAULT_LOGO; logoPreview.src = DEFAULT_LOGO;

@@ -7,7 +7,7 @@
     <title>Launch — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/rare-token.png" />
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
-    <link rel="stylesheet" href="styles.css?v=40" />
+    <link rel="stylesheet" href="styles.css?v=43" />
   </head>
   <body class="launch-page home-loading">
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading token launchpad"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Opening Launchpad</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
@@ -25,26 +25,30 @@
         <h1>LAUNCH<br />WITH $RARE.</h1>
         <p>Create a fixed-supply community token. Pay 250,000 $RARE directly into the Rares Vault, then let everyone buy or sell the token against native ETH on a reserve-backed curve.</p>
         <div class="launch-rule-strip"><span>250K $RARE to Vault</span><span>ETH trading</span><span>97% creator fees</span><span>3% treasury</span></div>
-      </section>
-
-      <section class="launch-create launch-create-simple" aria-labelledby="create-title">
-        <div><p class="eyebrow">Create the first token</p><h2 id="create-title">1. NAME IT.<br />2. LAUNCH IT.</h2><p>Add a logo and the basics. Token creation costs exactly 250,000 $RARE plus network gas. No ETH purchase is attached to deployment.</p></div>
-        <form data-launch-form>
-          <label class="launch-logo-picker"><span>Token logo</span><input name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-logo-input /><span class="launch-logo-preview"><img src="assets/rare-token.png" alt="Token logo preview" data-logo-preview /><b>Choose image</b></span><small>Square image recommended · maximum 2MB</small></label>
-          <div class="launch-field-pair"><label>Token name<input name="name" maxlength="32" required placeholder="Example: First Rare" /></label><label>Symbol<input name="symbol" maxlength="10" required placeholder="FIRST" /></label></div>
-          <div class="launch-route"><span>Fixed token supply</span><strong>1,000,000,000</strong><small>Every launch · cannot be changed</small></div>
-          <div class="launch-cost-card"><span>Fixed launch cost</span><strong data-launch-cost>250,000 $RARE</strong><small data-launch-cost-source>Sent directly to the Rares Vault</small></div>
-          <div class="launch-route"><span>ETH charged at creation</span><strong>0 ETH</strong><small>Buying begins only after the token contract exists</small></div>
-          <div class="launch-route"><span>Road to graduation</span><strong>29 ETH MC · ≈ $70K</strong><small>At target: curve closes, Uniswap V3 starts, and the LP NFT locks permanently</small></div>
-          <button type="submit" data-launch-submit>Create token</button>
-          <p class="launch-form-status" data-launch-status role="status">Factory deployment is pending. No launch transaction can be sent until its verified address is published here.</p>
-        </form>
+        <button class="launch-create-trigger" type="button" data-launch-create-open>Create a token <span>＋</span></button>
       </section>
 
       <section class="launch-directory" aria-labelledby="token-directory-title">
-        <div class="launch-panel-heading"><div><p class="eyebrow">Tokens created here</p><h2 id="token-directory-title">EXPLORE<br />TOKENS.</h2></div></div>
+        <div class="launch-panel-heading"><div><p class="eyebrow">Live from the Rares launchpad</p><h2 id="token-directory-title">EXPLORE<br />RARE TOKENS.</h2></div><button class="launch-directory-create" type="button" data-launch-create-open>Create token ＋</button></div>
         <div class="launch-token-grid" data-token-list></div>
       </section>
+
+      <dialog class="launch-create-dialog" data-launch-dialog aria-labelledby="create-title">
+        <section class="launch-create launch-create-simple">
+          <button class="launch-dialog-close" type="button" data-launch-create-close aria-label="Close token creator">Close ×</button>
+          <div><p class="eyebrow">Create a token</p><h2 id="create-title">NAME IT.<br />LAUNCH IT.</h2><p>Add a logo and the basics. Token creation costs exactly 250,000 $RARE plus network gas. No ETH purchase is attached to deployment.</p></div>
+          <form data-launch-form>
+            <label class="launch-logo-picker"><span>Token logo</span><input name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-logo-input /><span class="launch-logo-preview"><img src="assets/rare-token.png" alt="Token logo preview" data-logo-preview /><b>Choose image</b></span><small>Square image recommended · maximum 2MB</small></label>
+            <div class="launch-field-pair"><label>Token name<input name="name" maxlength="32" required placeholder="Example: First Rare" /></label><label>Symbol<input name="symbol" maxlength="10" required placeholder="FIRST" /></label></div>
+            <div class="launch-route"><span>Fixed token supply</span><strong>1,000,000,000</strong><small>Every launch · cannot be changed</small></div>
+            <div class="launch-cost-card"><span>Fixed launch cost</span><strong data-launch-cost>250,000 $RARE</strong><small data-launch-cost-source>Sent directly to the Rares Vault</small></div>
+            <div class="launch-route"><span>ETH charged at creation</span><strong>0 ETH</strong><small>Buying begins only after the token contract exists</small></div>
+            <div class="launch-route"><span>Road to graduation</span><strong>29 ETH MC · ≈ $70K</strong><small>At target: curve closes, Uniswap V3 starts, and the LP NFT locks permanently</small></div>
+            <button type="submit" data-launch-submit>Create token</button>
+            <p class="launch-form-status" data-launch-status role="status">Connect the administrator wallet to create a token.</p>
+          </form>
+        </section>
+      </dialog>
 
       <section class="launch-log" aria-labelledby="launch-log-title">
         <div class="launch-panel-heading"><div><p class="eyebrow">Permanent activity</p><h2 id="launch-log-title">TOKEN LOG.</h2></div></div>
@@ -53,6 +57,6 @@
       <section class="launch-safety"><strong>REVIEW EVERY SIGNATURE.</strong><p>The launchpad never asks for a seed phrase and never auto-signs. ETH curve trading and newly created tokens are experimental and can lose value. A passing test suite is not a professional audit.</p></section>
     </main>
     <footer><p>Ultra Rares © 2026</p><p>Launchpad public beta</p></footer>
-    <script src="loader.js?v=1"></script><script src="launch.js?v=7"></script>
+    <script src="loader.js?v=1"></script><script src="launch.js?v=8"></script>
   </body>
 </html>
