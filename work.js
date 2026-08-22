@@ -109,7 +109,7 @@ async function pilotBalance() {
 
 async function updatePilotControls() {
   if (!pilotButton) return;
-  pilotAddressLabel.textContent = pilotAddress ? `Pilot ${pilotAddress.slice(0, 8)}…${pilotAddress.slice(-6)}` : pilotFactory ? `Factory ${pilotFactory.slice(0, 8)}…${pilotFactory.slice(-6)}` : 'No pilot contract deployed.';
+  pilotAddressLabel.textContent = pilotAddress ? `Pilot ${pilotAddress}` : pilotFactory ? `Factory ${pilotFactory}` : 'No pilot contract deployed.';
   if (!workAccount || workAccount.toLowerCase() !== WORK_ADMIN) {
     pilotButton.disabled = true;
     pilotButton.textContent = 'Connect admin wallet first';
