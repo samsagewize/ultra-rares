@@ -8,7 +8,7 @@
   "launchFeeVault": "0xCC8EBC12D8DF4B23D7E4A93B31A330762C211B32",
   "withdrawalDestination": "0x562F6ac10723ef6AF9F077A83cF25135FB369612",
   "ethTreasury": "0x562F6ac10723ef6AF9F077A83cF25135FB369612",
-  "factory": "PENDING_HARDENED_ZERO_ETH_V3_DEPLOYMENT",
+  "factory": "0xa92773451cbBEf7394eA8AC287607813522A4324",
   "supersededFactoryV1": "0x2BB68037242fEF158b1c4b9f3FCA0c7878eEe2D4",
   "supersededFactoryV1DeploymentTransaction": "0x3ba776d2ba10e2788de627ab2cc56e0aea21c4c2d28f610234eac0fc5789bc31",
   "supersededFactoryV1Reason": "Creation was payable and supported an optional opening ETH buy. V1 launched no tokens and is not connected to the website.",
