@@ -123,6 +123,11 @@ contract UltraRareWorkAgent {
     uint32 public cooldownSeconds;
     uint64 public lastTradeAt;
     bool public tradingPaused = true;
+    uint256 public maximumDailyLossWeth;
+    uint256 public dailyRealizedLossWeth;
+    uint64 public lossWindowStartedAt;
+    uint8 public maximumConsecutiveLosses;
+    uint8 public consecutiveLosses;
 
     address public positionToken;
     uint256 public positionPrincipalWeth;
@@ -134,6 +139,8 @@ contract UltraRareWorkAgent {
     event CapitalDeposited(address indexed owner, uint256 amount);
     event PositionOpened(address indexed token, uint256 wethSpent, uint256 tokensReceived);
     event PositionClosed(address indexed token, uint256 tokensSold, uint256 wethReceived, uint256 realizedProfit, uint256 claimableProfit);
+    event RiskLimitsConfigured(address indexed owner, uint256 maximumDailyLossWeth, uint8 maximumConsecutiveLosses);
+    event LossRecorded(uint256 loss, uint256 dailyLoss, uint8 consecutiveLosses, bool circuitBreakerTriggered);
     event CapitalWithdrawn(address indexed owner, address indexed recipient, uint256 wethAmount, uint256 rareAmount, uint256 lemonAmount);
 
     constructor(
@@ -212,8 +219,22 @@ contract UltraRareWorkAgent {
     }
 
     function setPaused(bool paused_) external onlyNftOwner {
+        if (!paused_ && (maximumDailyLossWeth == 0 || maximumConsecutiveLosses == 0)) revert InvalidConfiguration();
         tradingPaused = paused_;
         emit TradingPaused(msg.sender, paused_);
+    }
+
+    function configureRiskLimits(uint256 maximumDailyLossWeth_, uint8 maximumConsecutiveLosses_) external onlyNftOwner {
+        if (positionToken != address(0)) revert PositionOpen();
+        if (maximumDailyLossWeth_ == 0 || maximumConsecutiveLosses_ == 0 || maximumConsecutiveLosses_ > 10) {
+            revert InvalidConfiguration();
+        }
+        maximumDailyLossWeth = maximumDailyLossWeth_;
+        maximumConsecutiveLosses = maximumConsecutiveLosses_;
+        dailyRealizedLossWeth = 0;
+        consecutiveLosses = 0;
+        lossWindowStartedAt = uint64(block.timestamp);
+        emit RiskLimitsConfigured(msg.sender, maximumDailyLossWeth_, maximumConsecutiveLosses_);
     }
 
     function depositEth() external payable onlyNftOwner nonReentrant {
@@ -224,6 +245,7 @@ contract UltraRareWorkAgent {
 
     function openPosition(address token, uint256 wethAmount, uint256 minimumOut) external onlyActiveKeeper nonReentrant {
         if (tradingPaused) revert Paused();
+        if (maximumDailyLossWeth == 0 || maximumConsecutiveLosses == 0) revert InvalidConfiguration();
         if (positionToken != address(0)) revert PositionOpen();
         if (token != address(rare) && token != address(lemon)) revert InvalidAsset();
         if (wethAmount == 0 || wethAmount > maximumCycleWeth || wethAmount > weth.balanceOf(address(this))) revert LimitExceeded();
@@ -281,6 +303,7 @@ contract UltraRareWorkAgent {
         if (received < minimumOut) revert UnsafeQuote();
         uint256 principal = positionPrincipalWeth;
         uint256 profit = received > principal ? received - principal : 0;
+        uint256 loss = principal > received ? principal - received : 0;
         uint256 claimAmount = profit * claimBps / BPS;
         address beneficiary = strategyOwner;
         positionToken = address(0);
@@ -290,6 +313,19 @@ contract UltraRareWorkAgent {
         if (claimAmount != 0) {
             if (!weth.transfer(address(profitEscrow), claimAmount)) revert TransferFailed();
             profitEscrow.credit(beneficiary, claimAmount);
+        }
+        if (loss != 0) {
+            if (lossWindowStartedAt == 0 || block.timestamp >= uint256(lossWindowStartedAt) + 1 days) {
+                lossWindowStartedAt = uint64(block.timestamp);
+                dailyRealizedLossWeth = 0;
+            }
+            dailyRealizedLossWeth += loss;
+            if (consecutiveLosses < type(uint8).max) consecutiveLosses += 1;
+            bool stop = dailyRealizedLossWeth >= maximumDailyLossWeth || consecutiveLosses >= maximumConsecutiveLosses;
+            if (stop) tradingPaused = true;
+            emit LossRecorded(loss, dailyRealizedLossWeth, consecutiveLosses, stop);
+        } else if (profit != 0) {
+            consecutiveLosses = 0;
         }
         emit PositionClosed(token, amount, received, profit, claimAmount);
     }

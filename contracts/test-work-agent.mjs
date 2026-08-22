@@ -57,6 +57,11 @@ await expectRevert(
   'A non-owner cannot configure the agent',
 );
 await (await agent.configure(await keeper.getAddress(), parseEther('0.05'), 7000, 500, 0)).wait();
+await expectRevert(
+  agent.connect(keeper).openPosition(await rare.getAddress(), parseEther('0.01'), parseEther('9.5')),
+  'Trading cannot start before the NFT owner configures hard loss limits',
+);
+await (await agent.configureRiskLimits(parseEther('0.01'), 2)).wait();
 await (await agent.depositEth({ value: parseEther('0.1') })).wait();
 assert.equal(await weth.balanceOf(agentAddress), parseEther('0.1'), 'Deposited ETH must become isolated WETH capital');
 
@@ -112,6 +117,19 @@ await (await escrow.claimWeth()).wait();
 assert.equal(await weth.balanceOf(await holder.getAddress()), parseEther('0.007'), 'The credited holder can claim WETH at any time');
 assert.equal(await escrow.claimable(await holder.getAddress()), 0n, 'Claim accounting must clear before transfer');
 
+await (await adapter.setRate(rareAddress, wethAddress, 9, 10000)).wait();
+await (await guard.setRate(rareAddress, wethAddress, 9, 10000)).wait();
+for (let lossNumber = 0; lossNumber < 2; lossNumber += 1) {
+  await (await agent.connect(keeper).openPosition(rareAddress, parseEther('0.01'), parseEther('9.5'), { gasLimit: 1_000_000 })).wait();
+  await (await agent.connect(keeper).closePosition(parseEther('0.00855'), { gasLimit: 1_000_000 })).wait();
+}
+assert.equal(await agent.consecutiveLosses(), 2n, 'The contract must count consecutive realized losses');
+assert.equal(await agent.tradingPaused(), true, 'Two configured consecutive losses must pause trading on-chain');
+await expectRevert(
+  agent.connect(keeper).openPosition(rareAddress, parseEther('0.01'), parseEther('9.5')),
+  'The keeper cannot trade after the loss circuit breaker fires',
+);
+
 await (await nft.connect(holder).transferFrom(await holder.getAddress(), await stranger.getAddress(), 78)).wait();
 await expectRevert(
   agent.connect(keeper).openPosition(rareAddress, parseEther('0.01'), parseEther('9.5')),
@@ -122,4 +140,4 @@ assert.equal(await agent.tradingPaused(), true, 'A transferred agent must remain
 await (await agent.connect(stranger).withdrawAll(await stranger.getAddress())).wait();
 assert.equal(await weth.balanceOf(agentAddress), 0n, 'The new NFT owner can withdraw remaining isolated capital');
 
-console.log('Work-agent safety tests passed: 20 assertions');
+console.log('Work-agent safety tests passed: 24 assertions');
