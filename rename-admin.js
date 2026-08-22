@@ -10,7 +10,7 @@ const status = document.querySelector('[data-rename-admin-status]');
 const output = document.querySelector('[data-rename-output]');
 let account = '';
 let artifact;
-let registry = localStorage.getItem('ultraRaresRenameRegistryAddress') || '';
+let registry = localStorage.getItem('ultraRaresRenameRegistryAddressV2') || '';
 
 const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
 const addressWord = (value) => value.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -46,9 +46,9 @@ async function verifyRegistry() {
   if (!isAddress(registry)) throw new Error('No valid rename registry address is saved.');
   const code = await window.ethereum.request({ method: 'eth_getCode', params: [registry, 'latest'] });
   if (!code || code === '0x') throw new Error('Saved address has no deployed contract code.');
-  const [collection, token, admin, cost] = await Promise.all([read('collection()'), read('rareToken()'), read('admin()'), read('RENAME_COST()')]);
-  if (decodedAddress(collection) !== NFT || decodedAddress(token) !== RARE || decodedAddress(admin) !== ADMIN || BigInt(cost) !== 30000n * 10n ** 18n) {
-    throw new Error('Registry configuration does not match the official collection, $RARE, administrator, and rename cost.');
+  const [version, collection, token, admin, cost] = await Promise.all([read('RENAME_VERSION()'), read('collection()'), read('rareToken()'), read('admin()'), read('RENAME_COST()')]);
+  if (BigInt(version) !== 2n || decodedAddress(collection) !== NFT || decodedAddress(token) !== RARE || decodedAddress(admin) !== ADMIN || BigInt(cost) !== 30000n * 10n ** 18n) {
+    throw new Error('Registry is not the reviewed admin-only Rename V2 deployment.');
   }
   return true;
 }
@@ -89,7 +89,7 @@ deployButton.addEventListener('click', async () => {
     const receipt = await waitForReceipt(hash);
     if (!isAddress(receipt.contractAddress)) throw new Error('Deployment did not return a contract address.');
     registry = receipt.contractAddress.toLowerCase();
-    localStorage.setItem('ultraRaresRenameRegistryAddress', registry);
+    localStorage.setItem('ultraRaresRenameRegistryAddressV2', registry);
     await verifyRegistry();
     verifyButton.disabled = false;
     showRegistry();
@@ -103,7 +103,7 @@ deployButton.addEventListener('click', async () => {
 verifyButton.addEventListener('click', async () => {
   try {
     await verifyRegistry();
-    setStatus('Verified on-chain: official NFT, official $RARE, administrator, and 30,000 $RARE cost all match.');
+    setStatus('Verified on-chain: admin-only Rename V2, official NFT, official $RARE, administrator, and 30,000 $RARE cost all match.');
   } catch (error) { setStatus(error.message || 'Verification failed.'); }
 });
 

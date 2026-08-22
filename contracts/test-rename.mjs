@@ -34,11 +34,13 @@ const cost = parseUnits('30000', 18);
 const dead = '0x000000000000000000000000000000000000dEaD';
 
 await (await nft.mint(await holder.getAddress(), 420)).wait();
-await (await rare.mint(await holder.getAddress(), cost * 2n)).wait();
-await (await rare.connect(holder).approve(await registry.getAddress(), cost * 2n)).wait();
-await expectRevert(registry.connect(stranger).requestRename(420, 'Not Yours'), 'A non-owner must not rename the NFT');
-await expectRevert(registry.connect(holder).requestRename(420, ''), 'An empty name must be rejected');
-await (await registry.connect(holder).requestRename(420, 'The Last Rare')).wait();
+await (await rare.mint(await admin.getAddress(), cost * 3n)).wait();
+await (await rare.approve(await registry.getAddress(), cost * 3n)).wait();
+assert.equal(await registry.RENAME_VERSION(), 2n, 'admin-only rename registry is explicitly versioned');
+await expectRevert(registry.connect(stranger).requestRename(420, 'Not Yours'), 'A non-admin must not rename the NFT');
+await expectRevert(registry.connect(holder).requestRename(420, 'Holder Blocked'), 'Even the NFT holder is blocked during admin-only mode');
+await expectRevert(registry.requestRename(420, ''), 'An empty name must be rejected');
+await (await registry.requestRename(420, 'The Last Rare')).wait();
 assert.equal(await rare.balanceOf(dead), cost, 'Exactly 30,000 RARE must be burned');
 assert.equal((await registry.requests(420)).pending, true, 'The rename must remain pending for manual metadata work');
 await expectRevert(registry.connect(holder).requestRename(420, 'Again'), 'A second request must not replace a pending request');
@@ -47,21 +49,9 @@ await (await registry.completeRename(420)).wait();
 assert.equal((await registry.requests(420)).pending, false, 'Admin completion must close the request');
 
 await (await nft.mint(await holder.getAddress(), 78)).wait();
-await (await registry.connect(holder).requestRename(78, 'Moving Rare')).wait();
-await expectRevert(registry.connect(stranger).clearStaleRequest(78), 'A current holder request cannot be cleared');
-await (await nft.connect(holder).transferFrom(await holder.getAddress(), await stranger.getAddress(), 78)).wait();
-await expectRevert(registry.completeRename(78), 'Admin cannot complete a request after ownership changes');
-await (await registry.connect(admin).clearStaleRequest(78)).wait();
-assert.equal((await registry.requests(78)).pending, false, 'A transferred NFT must not remain permanently rename-locked');
+await (await registry.requestRename(78, 'Admin Pending')).wait();
+await expectRevert(registry.connect(stranger).clearStaleRequest(78), 'Only admin can cancel a pending request');
+await (await registry.clearStaleRequest(78)).wait();
+assert.equal((await registry.requests(78)).pending, false, 'Admin can cancel a pending rename safely');
 
-await (await nft.mint(await holder.getAddress(), 79)).wait();
-await (await rare.mint(await holder.getAddress(), cost)).wait();
-await (await rare.connect(holder).approve(await registry.getAddress(), cost)).wait();
-await (await registry.connect(holder).requestRename(79, 'First Holder')).wait();
-await (await nft.connect(holder).transferFrom(await holder.getAddress(), await stranger.getAddress(), 79)).wait();
-await (await rare.mint(await stranger.getAddress(), cost)).wait();
-await (await rare.connect(stranger).approve(await registry.getAddress(), cost)).wait();
-await (await registry.connect(stranger).requestRename(79, 'New Holder')).wait();
-assert.equal((await registry.requests(79)).requester, await stranger.getAddress(), 'A new owner can replace only the stale prior-owner request');
-
-console.log('Rename registry safety tests passed: 12 assertions');
+console.log('Rename registry safety tests passed: 11 assertions');

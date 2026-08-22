@@ -115,14 +115,15 @@ async function verifyRenameDeployment() {
   if (!isAddress(renameRegistryAddress)) return false;
   const code = await window.ethereum.request({ method: 'eth_getCode', params: [renameRegistryAddress, 'latest'] });
   if (!code || code === '0x') throw new Error('Rename registry address has no deployed contract code.');
-  const [collection, token, admin, cost] = await Promise.all([
+  const [version, collection, token, admin, cost] = await Promise.all([
+    window.ethereum.request({ method: 'eth_call', params: [{ to: renameRegistryAddress, data: `0x${renameSelector('RENAME_VERSION()')}` }, 'latest'] }),
     readContractAddress(renameRegistryAddress, renameSelector('collection()')),
     readContractAddress(renameRegistryAddress, renameSelector('rareToken()')),
     readContractAddress(renameRegistryAddress, renameSelector('admin()')),
     window.ethereum.request({ method: 'eth_call', params: [{ to: renameRegistryAddress, data: `0x${renameSelector('RENAME_COST()')}` }, 'latest'] }),
   ]);
-  if (collection !== MARKET_NFT || token !== MARKET_RARE || admin !== MARKET_ADMIN || BigInt(cost) !== rareUnits(30000)) {
-    throw new Error('Rename registry does not match the official collection, $RARE token, administrator, and 30,000 $RARE cost.');
+  if (BigInt(version) !== 2n || collection !== MARKET_NFT || token !== MARKET_RARE || admin !== MARKET_ADMIN || BigInt(cost) !== rareUnits(30000)) {
+    throw new Error('Rename registry is not the reviewed admin-only V2 deployment.');
   }
   return true;
 }

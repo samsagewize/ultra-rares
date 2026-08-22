@@ -10,8 +10,9 @@ interface IERC721RenameCollection {
 }
 
 /// @title Ultra Rares Rename Registry
-/// @notice Burns RARE and records holder-authorized rename requests for manual metadata updates.
+/// @notice Burns RARE and records administrator-authorized rename requests for manual metadata updates.
 contract RareRenameRegistry {
+    uint256 public constant RENAME_VERSION = 2;
     uint256 public constant RENAME_COST = 30_000 ether;
     address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
@@ -26,13 +27,11 @@ contract RareRenameRegistry {
     address public immutable admin;
     mapping(uint256 tokenId => RenameRequest) public requests;
 
-    error NotTokenOwner();
     error InvalidName();
     error RequestPending();
     error TransferFailed();
     error NotAdmin();
     error RequestUnavailable();
-    error OwnerChanged();
 
     event RenameRequested(uint256 indexed tokenId, address indexed requester, string requestedName, uint256 burnedAmount);
     event RenameCompleted(uint256 indexed tokenId, address indexed requester, string completedName);
@@ -46,14 +45,10 @@ contract RareRenameRegistry {
     }
 
     function requestRename(uint256 tokenId, string calldata requestedName) external {
-        if (collection.ownerOf(tokenId) != msg.sender) revert NotTokenOwner();
+        if (msg.sender != admin) revert NotAdmin();
+        collection.ownerOf(tokenId);
         RenameRequest storage existingRequest = requests[tokenId];
-        if (existingRequest.pending) {
-            if (existingRequest.requester == msg.sender) revert RequestPending();
-            address previousRequester = existingRequest.requester;
-            delete requests[tokenId];
-            emit StaleRenameCleared(tokenId, previousRequester);
-        }
+        if (existingRequest.pending) revert RequestPending();
         _validateName(requestedName);
 
         requests[tokenId] = RenameRequest({ requester: msg.sender, requestedName: requestedName, pending: true });
@@ -65,17 +60,15 @@ contract RareRenameRegistry {
         if (msg.sender != admin) revert NotAdmin();
         RenameRequest storage request = requests[tokenId];
         if (!request.pending) revert RequestUnavailable();
-        if (collection.ownerOf(tokenId) != request.requester) revert OwnerChanged();
         request.pending = false;
         emit RenameCompleted(tokenId, request.requester, request.requestedName);
     }
 
-    /// @notice Clears a pending request after the requesting holder has transferred the NFT.
-    /// @dev Anyone may clear only a provably stale request; active-holder requests cannot be removed.
+    /// @notice Allows only the administrator to cancel a pending request before metadata is changed.
     function clearStaleRequest(uint256 tokenId) external {
+        if (msg.sender != admin) revert NotAdmin();
         RenameRequest storage request = requests[tokenId];
         if (!request.pending) revert RequestUnavailable();
-        if (collection.ownerOf(tokenId) == request.requester) revert RequestPending();
         address previousRequester = request.requester;
         delete requests[tokenId];
         emit StaleRenameCleared(tokenId, previousRequester);
