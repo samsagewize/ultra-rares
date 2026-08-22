@@ -89,6 +89,27 @@ async function loadPublicWorkLog() {
     document.querySelector('[data-work-current-goal]').textContent = payload.currentGoal;
     document.querySelector('[data-work-execution]').textContent = payload.execution;
     document.querySelector('[data-work-log-updated]').textContent = workTime(payload.updatedAt);
+    const journey = document.querySelector('[data-work-journey]');
+    journey.replaceChildren(...(payload.journey || []).map((entry) => {
+      const step = document.createElement('article');
+      step.className = `work-journey-step is-${entry.status.toLowerCase()}`;
+      const top = document.createElement('div');
+      const number = document.createElement('b');
+      number.textContent = String(entry.number).padStart(2, '0');
+      const status = document.createElement('span');
+      status.textContent = entry.status;
+      top.append(number, status);
+      const label = document.createElement('small');
+      label.textContent = entry.label;
+      const headline = document.createElement('strong');
+      headline.textContent = entry.headline;
+      const detail = document.createElement('p');
+      detail.textContent = entry.detail;
+      const time = document.createElement('time');
+      time.textContent = entry.timestamp ? workTime(entry.timestamp) : 'Timestamp appears when completed';
+      step.append(top, label, headline, detail, time);
+      return step;
+    }));
     const newest = payload.entries?.[0]?.id || '';
     container.replaceChildren(...(payload.entries || []).map((entry, index) => {
       const row = document.createElement(entry.url ? 'a' : 'article');
