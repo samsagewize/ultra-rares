@@ -28,6 +28,7 @@
   const word = (value) => BigInt(value).toString(16).padStart(64, '0');
   const addressWord = (value) => value.toLowerCase().replace('0x', '').padStart(64, '0');
   const selector = (signature) => artifact.methodIdentifiers[signature];
+  const addressResult = (value) => `0x${value.slice(-40)}`.toLowerCase();
   const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('is-error', error); };
 
   function parseDecimal(value, decimals = 18) {
@@ -57,6 +58,18 @@
     const payload = await response.json();
     if (payload.error) throw new Error(payload.error.message || 'Robinhood Chain request failed.');
     return payload.result;
+  }
+
+  async function verifyFactory() {
+    const call = (signature) => rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector(signature)}` }, 'latest']);
+    const [rare, vault, admin, treasury, seed, launchFee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+      call('rareToken()'), call('raresVault()'), call('launchAdmin()'), call('ethTreasury()'), call('initialVirtualEth()'),
+      call('LAUNCH_FEE_RARE()'), call('TRADE_FEE_BPS()'), call('CREATOR_FEE_SHARE_BPS()'), call('TREASURY_FEE_SHARE_BPS()'),
+      call('FIXED_TOKEN_SUPPLY()'), call('GRADUATION_ENABLED()'), call('publicCreationEnabled()'),
+    ]);
+    if (addressResult(rare) !== RARE || addressResult(vault) !== '0xcc8ebc12d8df4b23d7e4a93b31a330762c211b32' || addressResult(admin) !== ADMIN || addressResult(treasury) !== ADMIN) throw new Error('The configured Factory addresses do not match the reviewed pilot.');
+    if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(launchFee) !== LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== FIXED_SUPPLY) throw new Error('The configured Factory economics do not match the reviewed pilot.');
+    if (BigInt(graduation) !== 0n || BigInt(publicCreation) !== 0n) throw new Error('The Factory is not in the reviewed admin-only, no-graduation pilot state.');
   }
 
   async function walletCall(to, data) {
@@ -171,8 +184,14 @@
   async function initialize() {
     [config, artifact] = await Promise.all([fetch('launch-config.json', { cache: 'no-store' }).then((response) => response.json()), fetch('assets/RareLaunchFactory.json').then((response) => response.json())]);
     if (isAddress(config.factoryAddress)) {
-      const code = await rpc('eth_getCode', [config.factoryAddress, 'latest']);
-      if (!code || code === '0x') { config.factoryAddress = ''; setStatus('Configured Factory address has no mainnet contract code.', true); }
+      try {
+        const code = await rpc('eth_getCode', [config.factoryAddress, 'latest']);
+        if (!code || code === '0x') throw new Error('Configured Factory address has no mainnet contract code.');
+        await verifyFactory();
+      } catch (error) {
+        config.factoryAddress = '';
+        throw error;
+      }
     }
     await syncAccount();
     renderTokens();
