@@ -17,6 +17,7 @@
   const LAUNCH_FEE = 250000n * 10n ** 18n;
   const INITIAL_VIRTUAL_ETH = 10n ** 18n;
   const FIXED_SUPPLY = 1_000_000_000n * 10n ** 18n;
+  const GRADUATION_TARGET_USD = 70_000;
   let logoData = DEFAULT_LOGO;
   let account = '';
   let config = { factoryAddress: '', pilotMode: true };
@@ -30,6 +31,7 @@
   const selector = (signature) => artifact.methodIdentifiers[signature];
   const addressResult = (value) => `0x${value.slice(-40)}`.toLowerCase();
   const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('is-error', error); };
+  const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value < 1000 ? 2 : 0 }).format(value);
 
   function encodeString(value) {
     const bytes = new TextEncoder().encode(value);
@@ -100,7 +102,35 @@
 
   function renderTokens() {
     const tokens = readTokens();
-    tokenList.innerHTML = tokens.length ? tokens.map((token) => `<article class="launch-directory-card"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Live on Robinhood Chain')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Creation ETH</dt><dd>0 ETH</dd></div><div><dt>Contract</dt><dd><a href="${EXPLORER}/address/${safeText(token.address)}" target="_blank" rel="noopener">${safeText(short(token.address))} ↗</a></dd></div></dl></div></article>`).join('') : '<article class="launch-directory-card"><div><span>Waiting</span><h3>NO TOKENS LAUNCHED YET</h3><strong>The first confirmed launch will appear here.</strong></div></article>';
+    tokenList.innerHTML = tokens.length ? tokens.map((token) => `<article class="launch-directory-card" data-launch-token="${safeText(token.address)}"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Live on Robinhood Chain')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Market cap</dt><dd data-token-mc>Loading…</dd></div><div><dt>Contract</dt><dd><a href="${EXPLORER}/address/${safeText(token.address)}" target="_blank" rel="noopener">${safeText(short(token.address))} ↗</a></dd></div></dl><div class="launch-card-progress"><div><span>Road to DEX</span><strong data-token-progress>$0 / $70K</strong></div><div class="launch-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="70000" aria-valuenow="0" data-token-track><i data-token-fill></i></div><small>Live target · migration safety-locked</small></div></div></article>`).join('') : '<article class="launch-directory-card"><div><span>Waiting</span><h3>NO TOKENS LAUNCHED YET</h3><strong>The first confirmed launch will appear here.</strong></div></article>';
+  }
+
+  async function refreshGraduationProgress() {
+    const cards = [...document.querySelectorAll('[data-launch-token]')];
+    if (!cards.length || !isAddress(config.factoryAddress)) return;
+    let ethPriceUsd = null;
+    try {
+      const market = await fetch('/api/rare-market', { cache: 'no-store' }).then((response) => response.ok ? response.json() : Promise.reject());
+      ethPriceUsd = Number(market.ethPriceUsd);
+    } catch {}
+    if (!Number.isFinite(ethPriceUsd) || ethPriceUsd <= 0) return;
+    await Promise.allSettled(cards.map(async (card, index) => {
+      const address = card.dataset.launchToken;
+      if (!isAddress(address)) return;
+      const result = await rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector('marketCapEth(address)')}${addressWord(address)}` }, 'latest']);
+      const marketCapUsd = Number(BigInt(result)) / 1e18 * ethPriceUsd;
+      const percentage = Math.max(0, Math.min(100, marketCapUsd / GRADUATION_TARGET_USD * 100));
+      card.querySelector('[data-token-mc]').textContent = money(marketCapUsd);
+      card.querySelector('[data-token-progress]').textContent = `${money(marketCapUsd)} / $70K`;
+      card.querySelector('[data-token-fill]').style.width = `${percentage}%`;
+      card.querySelector('[data-token-track]').setAttribute('aria-valuenow', String(Math.round(marketCapUsd)));
+      if (index === 0) {
+        document.querySelector('[data-first-mc]').textContent = `${money(marketCapUsd)} / $70K`;
+        document.querySelector('[data-first-fill]').style.width = `${percentage}%`;
+        document.querySelector('[data-first-track]').setAttribute('aria-valuenow', String(Math.round(marketCapUsd)));
+        document.querySelector('[data-first-status]').textContent = percentage >= 100 ? 'Target reached · migration locked' : 'Trading · progress live';
+      }
+    }));
   }
 
   logoInput.addEventListener('change', () => {
@@ -160,6 +190,7 @@
       const tokenAddress = `0x${tokenResult.slice(-40)}`;
       saveToken({ name, symbol, supply: '1000000000', logo: logoData, status: 'Live on Robinhood Chain', address: tokenAddress, transaction: createHash, createdAt: Date.now() });
       renderTokens();
+      await refreshGraduationProgress();
       document.querySelector('.launch-directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setStatus(`${name} ($${symbol}) is live at ${short(tokenAddress)}. The transaction and token contract are linked below.`);
       form.reset(); logoData = DEFAULT_LOGO; logoPreview.src = DEFAULT_LOGO;
@@ -182,6 +213,8 @@
     }
     await syncAccount();
     renderTokens();
+    await refreshGraduationProgress();
+    window.setInterval(refreshGraduationProgress, 30_000);
   }
 
   window.ethereum?.on?.('accountsChanged', syncAccount);

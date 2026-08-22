@@ -54,6 +54,10 @@ module.exports = async function handler(request, response) {
     const tokenDetails = tokenResponse?.ok ? await tokenResponse.json() : null;
     const holderCount = tokenDetails ? Number(tokenDetails.holders_count || 0) : null;
     const currentPriceUsd = numberOrNull(pair.priceUsd);
+    const currentPriceNative = numberOrNull(pair.priceNative);
+    const ethPriceUsd = currentPriceUsd !== null && currentPriceNative
+      ? currentPriceUsd / currentPriceNative
+      : null;
     const firstOpenUsd = poolHistories[0]?.firstOpenUsd;
     const allTimeChangePercent = currentPriceUsd !== null && firstOpenUsd
       ? ((currentPriceUsd / firstOpenUsd) - 1) * 100
@@ -63,6 +67,7 @@ module.exports = async function handler(request, response) {
     return response.status(200).json({
       marketCap,
       priceUsd: currentPriceUsd,
+      ethPriceUsd,
       change24hPercent: numberOrNull(pair.priceChange?.h24),
       allTimeChangePercent,
       liquidityUsd: numberOrNull(pair.liquidity?.usd),
