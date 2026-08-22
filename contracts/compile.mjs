@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import solc from 'solc';
 
-const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'RareAuctionHouse.sol', 'RareFeeVault.sol', 'RareRenameRegistry.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol'];
+const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'RareAuctionHouse.sol', 'RareFeeVault.sol', 'RareRenameRegistry.sol', 'UltraRareWorkAgent.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol', 'MockWorkInfrastructure.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = {
   language: 'Solidity',
@@ -78,3 +78,16 @@ fs.writeFileSync(
     methodIdentifiers: renameRegistry.evm.methodIdentifiers,
   }, null, 2),
 );
+
+for (const contractName of ['UltraRareWorkAgentFactory', 'UltraRareWorkAgent', 'UltraRareProfitEscrow']) {
+  const artifact = output.contracts['UltraRareWorkAgent.sol'][contractName];
+  fs.writeFileSync(
+    new URL(`../assets/${contractName}.json`, import.meta.url),
+    JSON.stringify({
+      contractName,
+      abi: artifact.abi,
+      bytecode: `0x${artifact.evm.bytecode.object}`,
+      methodIdentifiers: artifact.evm.methodIdentifiers,
+    }, null, 2),
+  );
+}

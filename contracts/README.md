@@ -142,3 +142,13 @@ Deployment order:
 3. Authorize those two contracts as fee sources.
 4. Configure the holder-claim vault and liquidity/buyback treasury destinations.
 5. Independently verify every address and lock the fee-vault configuration.
+
+## Ultra Rare Work agents — locally tested, not live
+
+`UltraRareWorkAgent.sol` is the restricted first-pass architecture for putting one Ultra Rare to work with a small, owner-supplied ETH balance. The factory creates one isolated agent and one isolated profit escrow per NFT. Only the current NFT owner can configure or withdraw it, and a transfer of the NFT immediately invalidates the previous keeper. The owner can adopt the agent after a transfer, but it remains paused until explicitly enabled.
+
+The agent can hold only one open position and trade only WETH↔RARE or WETH↔LEMON through immutable adapters. The NFT owner sets the maximum WETH per cycle, profit-claim percentage, maximum slippage (hard-capped at 10%), cooldown, pause state, and keeper. Every trade must satisfy a separate immutable price guard. Approvals are exact and reset after swaps. Realized claimable WETH is moved out of trading custody into the per-NFT escrow before it can be claimed as WETH or ETH.
+
+Local tests cover owner authorization, duplicate activation, asset allowlisting, trade caps, guarded minimum output, one-position enforcement, profit accounting, escrow isolation, unauthorized claims, NFT transfers, keeper invalidation, paused adoption, and owner withdrawal. Run `npm test` for all contract suites and `npm run compile` to regenerate browser artifacts.
+
+This is **not a profitability guarantee** and it is **not ready for mainnet funds**. The example mainnet configuration remains blocked until the official Robinhood Chain WETH address, production swap adapters, and an independently reviewed manipulation-resistant TWAP price guard are fixed and verified. The keeper must not be permitted to choose arbitrary routers or calldata. Start only with a disposable test amount after an independent smart-contract review.

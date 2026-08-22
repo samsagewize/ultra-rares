@@ -1,0 +1,12 @@
+{
+  "status": "BLOCKED_PENDING_REVIEW",
+  "chainId": 4663,
+  "collection": "0x923aaaa62c12505b1bbb57ed52b730d6462c01c5",
+  "rare": "0x1d522a4c3e1f3d97b585903474b2544cf9feeffb",
+  "lemon": "0xf0e17e54239cd945cd7bea471a3a2ca6a8c7f7a3",
+  "weth": "REQUIRED_VERIFIED_ADDRESS",
+  "rareAdapter": "REQUIRED_AUDITED_ADDRESS",
+  "lemonAdapter": "REQUIRED_AUDITED_ADDRESS",
+  "priceGuard": "REQUIRED_AUDITED_TWAP_GUARD",
+  "factory": "NOT_DEPLOYED"
+}
