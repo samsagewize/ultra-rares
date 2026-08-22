@@ -7,7 +7,7 @@
     <title>Launch — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/rare-token.png" />
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
-    <link rel="stylesheet" href="styles.css?v=38" />
+    <link rel="stylesheet" href="styles.css?v=39" />
   </head>
   <body class="launch-page home-loading">
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading token launchpad"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Opening Launchpad</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
@@ -27,6 +27,25 @@
         <div class="launch-rule-strip"><span>0.001 ETH in $RARE</span><span>97% creator</span><span>3% Rares Vault</span><span>Uniswap only</span></div>
       </section>
 
+      <section class="launch-create launch-create-simple" aria-labelledby="create-title">
+        <div><p class="eyebrow">Create a token</p><h2 id="create-title">1. NAME IT.<br />2. LAUNCH IT.</h2><p>Add a logo and the basics. We show the $RARE cost before any wallet transaction. An optional opening buy can place you in your own launch after creation.</p></div>
+        <form data-launch-form>
+          <label class="launch-logo-picker"><span>Token logo</span><input name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-logo-input /><span class="launch-logo-preview"><img src="assets/rare-token.png" alt="Token logo preview" data-logo-preview /><b>Choose image</b></span><small>Square image recommended · maximum 2MB</small></label>
+          <div class="launch-field-pair"><label>Token name<input name="name" maxlength="32" required placeholder="Example: First Rare" /></label><label>Symbol<input name="symbol" maxlength="10" required placeholder="FIRST" /></label></div>
+          <label>Fixed supply<input name="supply" inputmode="numeric" required value="1000000000" /></label>
+          <div class="launch-cost-card"><span>Launch cost</span><strong data-launch-cost>Loading live $RARE quote…</strong><small data-launch-cost-source>Equal to 0.001 ETH · refreshed from the live RARE/WETH market</small></div>
+          <label>Optional buy before launch ($RARE)<input name="openingBuy" inputmode="decimal" value="0" placeholder="0" /><small>Optional. Enter 0 to skip. This is separate from the launch fee.</small></label>
+          <div class="launch-route"><span>Graduation route</span><strong>$TOKEN / $RARE → UNISWAP</strong><small>At approximately $70K market cap</small></div>
+          <button type="submit">Create token</button>
+          <p class="launch-form-status" data-launch-status role="status">Create a preview now. Connect your wallet only when you are ready for an on-chain launch.</p>
+        </form>
+      </section>
+
+      <section class="launch-directory" aria-labelledby="token-directory-title">
+        <div class="launch-panel-heading"><div><p class="eyebrow">Tokens created here</p><h2 id="token-directory-title">EXPLORE<br />TOKENS.</h2></div></div>
+        <div class="launch-token-grid" data-token-list></div>
+      </section>
+
       <section class="launch-board" aria-labelledby="launch-board-title">
         <div class="launch-token-card">
           <div class="launch-token-brand"><img src="assets/rare-token.png" alt="" /><div><p class="eyebrow">First test token</p><h2 id="launch-board-title">FIRST RARE</h2><strong>$FIRST</strong></div></div>
@@ -40,18 +59,6 @@
           <svg class="launch-chart-empty" viewBox="0 0 800 260" role="img" aria-label="Chart waiting for the first confirmed trade"><path d="M0 220 L800 220" /><path class="launch-chart-line" d="M0 220 L800 220" /></svg>
           <p>No simulated candles. The chart begins after the first confirmed on-chain trade.</p>
         </div>
-      </section>
-
-      <section class="launch-create" aria-labelledby="create-title">
-        <div><p class="eyebrow">Create a test launch</p><h2 id="create-title">YOUR TOKEN.<br />CLEAR RULES.</h2><p>Submitting this form creates a reviewable launch preview. No $RARE moves until the factory is deployed, verified, and your wallet separately approves the transaction.</p></div>
-        <form data-launch-form>
-          <label>Token name<input name="name" maxlength="32" required placeholder="Example: First Rare" /></label>
-          <label>Symbol<input name="symbol" maxlength="10" required placeholder="FIRST" /></label>
-          <label>Fixed supply<input name="supply" inputmode="numeric" required value="1000000000" /></label>
-          <label>Pair<select name="pair"><option value="RARE">$RARE — required for beta</option></select></label>
-          <button type="submit">Create launch preview</button>
-          <p class="launch-form-status" data-launch-status role="status">Connect a wallet to Robinhood testnet to prepare a launch.</p>
-        </form>
       </section>
 
       <section class="launch-log" aria-labelledby="launch-log-title">
