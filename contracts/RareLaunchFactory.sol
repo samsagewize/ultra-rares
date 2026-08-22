@@ -70,7 +70,7 @@ contract RareLaunchToken {
 /// @notice Creates fixed-supply tokens paid for in RARE and trades them against a reserve-backed ETH curve.
 /// @dev Mainnet pilot: Uniswap graduation is deliberately not implemented or enabled in this version.
 contract RareLaunchFactory {
-    uint256 public constant FACTORY_VERSION = 2;
+    uint256 public constant FACTORY_VERSION = 3;
     uint256 public constant BPS = 10_000;
     uint256 public constant TRADE_FEE_BPS = 100;
     uint256 public constant CREATOR_FEE_SHARE_BPS = 9_700;
@@ -78,6 +78,7 @@ contract RareLaunchFactory {
     uint256 public constant LAUNCH_FEE_RARE = 250_000 ether;
     uint256 public constant FIXED_TOKEN_SUPPLY = 1_000_000_000 ether;
     bool public constant GRADUATION_ENABLED = false;
+    bool public constant PUBLIC_CREATION_ENABLED = false;
 
     struct Launch {
         address creator;
@@ -93,8 +94,8 @@ contract RareLaunchFactory {
     address public immutable launchAdmin;
     address public immutable ethTreasury;
     uint256 public immutable initialVirtualEth;
-    bool public publicCreationEnabled;
     mapping(address token => Launch launch) public launches;
+    mapping(bytes32 symbolHash => address token) public tokenBySymbolHash;
     address[] public allTokens;
     uint256 private locked = 1;
 
@@ -108,7 +109,7 @@ contract RareLaunchFactory {
     error NotAdmin();
     error NotCreator();
     error NothingToClaim();
-    error PublicCreationAlreadyEnabled();
+    error SymbolAlreadyUsed();
     error DirectEthDisabled();
     error Expired();
 
@@ -116,7 +117,6 @@ contract RareLaunchFactory {
     event Trade(address indexed token, address indexed trader, bool indexed isBuy, uint256 ethAmount, uint256 tokenAmount, uint256 fee);
     event CreatorFeesClaimed(address indexed token, address indexed creator, uint256 amount);
     event TreasuryFeesClaimed(address indexed token, address indexed treasury, uint256 amount);
-    event PublicCreationEnabled();
 
     modifier nonReentrant() {
         if (locked != 1) revert Reentrancy();
@@ -138,23 +138,18 @@ contract RareLaunchFactory {
 
     function tokenCount() external view returns (uint256) { return allTokens.length; }
 
-    /// @notice Permanently opens token creation to every wallet after the pilot is reviewed.
-    function enablePublicCreation() external {
-        if (msg.sender != launchAdmin) revert NotAdmin();
-        if (publicCreationEnabled) revert PublicCreationAlreadyEnabled();
-        publicCreationEnabled = true;
-        emit PublicCreationEnabled();
-    }
-
     function createToken(string calldata name, string calldata symbol, uint256 maxLaunchFeeRare) external nonReentrant returns (address token) {
-        if (!publicCreationEnabled && msg.sender != launchAdmin) revert NotAdmin();
+        if (msg.sender != launchAdmin) revert NotAdmin();
         _validateMetadata(name, symbol);
+        bytes32 symbolHash = keccak256(bytes(symbol));
+        if (tokenBySymbolHash[symbolHash] != address(0)) revert SymbolAlreadyUsed();
         if (LAUNCH_FEE_RARE > maxLaunchFeeRare) revert Slippage();
         _pullRareExact(msg.sender, LAUNCH_FEE_RARE);
         _pushRareExact(raresVault, LAUNCH_FEE_RARE);
 
         token = address(new RareLaunchToken(name, symbol, address(this)));
         launches[token] = Launch(msg.sender, uint128(initialVirtualEth), uint128(FIXED_TOKEN_SUPPLY), 0, 0, 0);
+        tokenBySymbolHash[symbolHash] = token;
         allTokens.push(token);
         emit TokenCreated(token, msg.sender, name, symbol, FIXED_TOKEN_SUPPLY, LAUNCH_FEE_RARE);
     }

@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import ganache from 'ganache';
 import solc from 'solc';
-import { BrowserProvider, Contract, ContractFactory, parseEther, parseUnits } from 'ethers';
+import { BrowserProvider, Contract, ContractFactory, keccak256, parseEther, parseUnits, toUtf8Bytes } from 'ethers';
 
-const files = ['RareLaunchFactory.sol', 'MockRewardAsset.sol'];
+const files = ['RareLaunchFactory.sol', 'MockRewardAsset.sol', 'MockLaunchAdversary.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = { language: 'Solidity', sources, settings: { evmVersion: 'shanghai', optimizer: { enabled: true, runs: 200 }, outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object'] } } } };
 const output = JSON.parse(solc.compile(JSON.stringify(input)));
@@ -33,7 +33,8 @@ const factoryAddress = await factory.getAddress();
 const creatorAddress = await creator.getAddress();
 
 assert.equal(await factory.GRADUATION_ENABLED(), false, 'pilot graduation is disabled');
-assert.equal(await factory.FACTORY_VERSION(), 2n, 'zero-ETH creation factory is explicitly versioned');
+assert.equal(await factory.PUBLIC_CREATION_ENABLED(), false, 'pilot creation is permanently admin-only');
+assert.equal(await factory.FACTORY_VERSION(), 3n, 'hardened zero-ETH creation factory is explicitly versioned');
 assert.equal(await factory.FIXED_TOKEN_SUPPLY(), rareUnits('1000000000'), 'all launches use one billion tokens');
 await expectRevert(factory.connect(stranger).createToken('Blocked', 'NO', launchFee), 'public creation starts disabled');
 await expectRevert(factory.createToken('Bad', 'bad!', launchFee), 'symbols are restricted to uppercase letters and numbers');
@@ -56,6 +57,8 @@ const openingFee = openingBuy * 100n / 10_000n;
 const openingTreasury = openingFee * 300n / 10_000n;
 
 assert.equal(await factory.tokenCount(), 1n, 'new token is discoverable');
+assert.equal(await factory.tokenBySymbolHash(keccak256(toUtf8Bytes('FIRST'))), tokenAddress, 'symbol is reserved to exactly one launch');
+await expectRevert(factory.createToken('Imposter', 'FIRST', launchFee), 'duplicate ticker symbols are rejected');
 assert.equal(await rare.balanceOf(vaultAddress), launchFee, 'fixed RARE launch payment reaches the Vault');
 assert.equal(await token.totalSupply(), rareUnits('1000000000'), 'deployed token supply is exactly one billion');
 assert.equal(await token.balanceOf(await admin.getAddress()) > 0n, true, 'opening buyer receives tokens');
@@ -101,13 +104,11 @@ assert.equal((await factory.launches(tokenAddress)).treasuryFees, 0n, 'treasury 
 await expectRevert(factory.connect(stranger).claimTreasuryFees(tokenAddress), 'treasury fees cannot be claimed twice');
 await expectRevert(admin.sendTransaction({ to: factoryAddress, value: 1n }), 'unsolicited ETH is rejected');
 
-await (await factory.enablePublicCreation()).wait();
-assert.equal(await factory.publicCreationEnabled(), true, 'admin can irreversibly open public creation');
-await expectRevert(factory.enablePublicCreation(), 'public creation cannot be toggled or enabled twice');
 await (await rare.mint(await stranger.getAddress(), launchFee)).wait();
 await (await rare.connect(stranger).approve(factoryAddress, launchFee)).wait();
-await (await factory.connect(stranger).createToken('Public Rare', 'PUBLIC', launchFee, { gasLimit: 7_000_000 })).wait();
-assert.equal(await factory.tokenCount(), 2n, 'public creation works only after irreversible enablement');
+await expectRevert(factory.connect(stranger).createToken('Public Rare', 'PUBLIC', launchFee), 'public creation cannot be enabled in the pilot');
+await (await factory.createToken('Second Rare', 'SECOND', launchFee, { gasLimit: 7_000_000 })).wait();
+assert.equal(await factory.tokenCount(), 2n, 'admin may safely create a second unique launch');
 await (await factory.connect(stranger).buy(await factory.allTokens(1), 1, deadline, { value: 1n })).wait();
 assert.equal(await provider.getBalance(factoryAddress) > 0n, true, 'one-wei public buy is accepted when it produces tokens');
 const tinyToken = new Contract(await factory.allTokens(1), tokenArtifact.abi, provider);
@@ -115,4 +116,38 @@ const tinyBalance = await tinyToken.balanceOf(await stranger.getAddress());
 const tinySell = await factory.quoteSell(await factory.allTokens(1), tinyBalance);
 assert.equal(tinySell[0], 0n, 'rounding never turns a one-wei buy into a profitable sell');
 
-console.log('Native ETH launch factory safety tests passed: 36 assertions');
+const adversary = await deploy('MockLaunchAdversary.sol', 'MockLaunchAdversary', stranger, [factoryAddress, tokenAddress]);
+const adversaryAddress = await adversary.getAddress();
+await (await adversary.connect(stranger).buyForTest(deadline, { value: parseEther('0.001') })).wait();
+const adversaryTokens = await token.balanceOf(adversaryAddress);
+await (await adversary.connect(stranger).sellForTest(adversaryTokens, deadline)).wait();
+assert.equal(await adversary.reentryAttempted(), true, 'hostile receiver attempted a callback trade');
+assert.equal(await adversary.reentrySucceeded(), false, 'callback reentrancy is blocked while the outer sale completes');
+
+for (const ethText of ['0.000001', '0.00001', '0.0001', '0.001', '0.01', '0.1']) {
+  const ethIn = parseEther(ethText);
+  const before = await factory.launches(tokenAddress);
+  const buyResult = await factory.quoteBuy(tokenAddress, ethIn);
+  const netEth = ethIn - buyResult[1];
+  const postVirtualEth = before.virtualEth + netEth;
+  const postVirtualToken = before.virtualToken - buyResult[0];
+  const reverseGross = buyResult[0] * postVirtualEth / (postVirtualToken + buyResult[0]);
+  const reverseFee = reverseGross * 100n / 10_000n;
+  assert.equal(reverseGross - reverseFee < ethIn, true, `immediate ${ethText} ETH round trip cannot extract profit`);
+}
+
+const secondAddress = await factory.allTokens(1);
+const firstLaunch = await factory.launches(tokenAddress);
+const secondLaunch = await factory.launches(secondAddress);
+assert.equal(
+  await provider.getBalance(factoryAddress),
+  firstLaunch.realEth + firstLaunch.creatorFees + firstLaunch.treasuryFees + secondLaunch.realEth + secondLaunch.creatorFees + secondLaunch.treasuryFees,
+  'every wei is attributable across independent launch reserves and fee liabilities',
+);
+assert.equal(
+  await token.balanceOf(factoryAddress) + await token.balanceOf(await admin.getAddress()) + await token.balanceOf(await buyer.getAddress()) + await token.balanceOf(adversaryAddress),
+  await token.totalSupply(),
+  'the first launch token supply is conserved across all participants',
+);
+
+console.log('Native ETH launch factory safety tests passed: 48 assertions');

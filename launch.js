@@ -58,9 +58,9 @@
       call('FACTORY_VERSION()'),
       call('rareToken()'), call('raresVault()'), call('launchAdmin()'), call('ethTreasury()'), call('initialVirtualEth()'),
       call('LAUNCH_FEE_RARE()'), call('TRADE_FEE_BPS()'), call('CREATOR_FEE_SHARE_BPS()'), call('TREASURY_FEE_SHARE_BPS()'),
-      call('FIXED_TOKEN_SUPPLY()'), call('GRADUATION_ENABLED()'), call('publicCreationEnabled()'),
+      call('FIXED_TOKEN_SUPPLY()'), call('GRADUATION_ENABLED()'), call('PUBLIC_CREATION_ENABLED()'),
     ]);
-    if (BigInt(version) !== 2n) throw new Error('The configured Factory is not the zero-ETH token-creation V2.');
+    if (BigInt(version) !== 3n) throw new Error('The configured Factory is not the hardened zero-ETH Factory V3.');
     if (addressResult(rare) !== RARE || addressResult(vault) !== '0xcc8ebc12d8df4b23d7e4a93b31a330762c211b32' || addressResult(admin) !== ADMIN || addressResult(treasury) !== ADMIN) throw new Error('The configured Factory addresses do not match the reviewed pilot.');
     if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(launchFee) !== LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== FIXED_SUPPLY) throw new Error('The configured Factory economics do not match the reviewed pilot.');
     if (BigInt(graduation) !== 0n || BigInt(publicCreation) !== 0n) throw new Error('The Factory is not in the reviewed admin-only, no-graduation pilot state.');
