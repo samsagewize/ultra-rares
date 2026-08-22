@@ -14,6 +14,7 @@
   const tokenList = document.querySelector('[data-token-list]');
   const STORAGE_KEY = 'ultraRaresLaunchTokensV2';
   const DEFAULT_LOGO = 'assets/rare-token.png';
+  const PUBLISHED_LOGOS = { '0x2da461daa157b692404f6fa6da779b7f8bd81e22': 'assets/test-token.png' };
   const LAUNCH_FEE = 250000n * 10n ** 18n;
   const INITIAL_VIRTUAL_ETH = 10n ** 18n;
   const GRADUATION_MARKET_CAP_ETH = 29n * 10n ** 18n;
@@ -122,7 +123,7 @@
         rpc('eth_call', [{ to: address, data: '0x06fdde03' }, 'latest']),
         rpc('eth_call', [{ to: address, data: '0x95d89b41' }, 'latest']),
       ]);
-      discovered.push({ ...existing, address, name: decodeString(nameRaw), symbol: decodeString(symbolRaw), supply: '1000000000', logo: existing.logo || DEFAULT_LOGO, status: 'Live on Robinhood Chain' });
+      discovered.push({ ...existing, address, name: decodeString(nameRaw), symbol: decodeString(symbolRaw), supply: '1000000000', logo: PUBLISHED_LOGOS[address] || existing.logo || DEFAULT_LOGO, status: 'Live on Robinhood Chain' });
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(discovered));
   }

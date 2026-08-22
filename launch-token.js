@@ -7,6 +7,7 @@
   const TARGET = 29n * 10n ** 18n;
   const ONE = 10n ** 18n;
   const FACTORY_STORAGE = 'ultraRaresLaunchTokensV2';
+  const PUBLISHED_LOGOS = { '0x2da461daa157b692404f6fa6da779b7f8bd81e22': 'assets/test-token.png' };
   const terminal = document.querySelector('[data-terminal]');
   const errorPanel = document.querySelector('[data-terminal-error]');
   const errorCopy = document.querySelector('[data-terminal-error-copy]');
@@ -60,6 +61,7 @@
   };
   const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value < 1000 ? 2 : 0 }).format(value);
   const savedLogo = () => {
+    if (PUBLISHED_LOGOS[token.toLowerCase()]) return PUBLISHED_LOGOS[token.toLowerCase()];
     try { return JSON.parse(localStorage.getItem(FACTORY_STORAGE) || '[]').find((entry) => entry.address?.toLowerCase() === token.toLowerCase())?.logo; } catch { return null; }
   };
 
