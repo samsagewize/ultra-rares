@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Live Robinhood Chain token trading terminal." />
+    <title>Token Terminal — Ultra Rares</title>
+    <link rel="icon" type="image/png" href="assets/rare-token.png" />
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+    <link rel="stylesheet" href="styles.css?v=41" />
+  </head>
+  <body class="launch-page token-terminal-page home-loading">
+    <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading token terminal"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Opening terminal</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
+    <header class="site-header">
+      <a class="wordmark" href="index.html" aria-label="Ultra Rares home"><img src="assets/banner-2.png" alt="" /></a>
+      <nav aria-label="Primary navigation"><a class="nav-link" href="index.html#collection">Collection</a><a class="nav-link" href="rare.html">$RARE</a><a class="nav-link" href="marketplace.html">Auctions</a><a class="nav-link active" href="launch.html">Launch</a></nav>
+      <button class="launch-connect" type="button" data-terminal-connect>Connect wallet</button>
+    </header>
+    <main class="token-terminal" data-terminal hidden>
+      <a class="terminal-back" href="launch.html">← All launched tokens</a>
+      <section class="terminal-heading">
+        <div class="terminal-identity"><img src="assets/rare-token.png" alt="" data-terminal-logo /><div><p class="eyebrow">Live on Robinhood Chain</p><h1 data-terminal-name>LOADING</h1><strong data-terminal-symbol>—</strong></div></div>
+        <div class="terminal-price"><span>Curve market cap</span><strong data-terminal-market-cap>Loading…</strong><small data-terminal-price>Live on-chain price</small></div>
+      </section>
+      <section class="terminal-layout">
+        <div class="terminal-market">
+          <div class="terminal-chart-head"><div><p class="eyebrow">Confirmed trades only</p><h2>LIVE CHART.</h2></div><div class="terminal-stats"><span>Reserve <b data-terminal-reserve>—</b></span><span>Trades <b data-terminal-trade-count>0</b></span></div></div>
+          <div class="terminal-chart" data-terminal-chart><svg viewBox="0 0 900 360" preserveAspectRatio="none" role="img" aria-label="On-chain token price history"><g data-chart-grid></g><path data-chart-area></path><path data-chart-line></path></svg><div data-chart-empty>Waiting for the first confirmed trade.</div></div>
+          <div class="terminal-progress"><div><span>Road to locked Uniswap liquidity</span><strong data-terminal-progress-copy>—</strong></div><div class="launch-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="29" aria-valuenow="0" data-terminal-progress><i></i></div></div>
+          <div class="terminal-activity"><div class="terminal-chart-head"><div><p class="eyebrow">Robinhood Chain</p><h2>ACTIVITY.</h2></div></div><ol data-terminal-activity><li>Waiting for confirmed activity.</li></ol></div>
+        </div>
+        <aside class="terminal-trade">
+          <div class="terminal-tabs" role="tablist"><button type="button" class="active" data-trade-tab="buy">Buy</button><button type="button" data-trade-tab="sell">Sell</button></div>
+          <form data-terminal-trade-form>
+            <label><span data-trade-input-label>You pay</span><div class="terminal-amount"><input inputmode="decimal" autocomplete="off" placeholder="0.0" data-trade-amount /><b data-trade-input-unit>ETH</b></div></label>
+            <div class="terminal-balance"><span>Wallet balance</span><button type="button" data-trade-max>—</button></div>
+            <div class="terminal-quote"><span>You receive (estimated)</span><strong data-trade-quote>Enter an amount</strong><small>1% trading fee · 1% maximum slippage · quote refreshes on-chain</small></div>
+            <button type="submit" data-trade-submit>Connect wallet to buy</button>
+            <p class="launch-form-status" data-trade-status role="status">Every trade requires your wallet confirmation. Never enter a seed phrase.</p>
+          </form>
+          <dl class="terminal-contract-facts"><div><dt>Token</dt><dd><a data-token-explorer target="_blank" rel="noopener">— ↗</a></dd></div><div><dt>Factory</dt><dd><a data-factory-explorer target="_blank" rel="noopener">— ↗</a></dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Curve status</dt><dd data-terminal-status>Checking…</dd></div></dl>
+        </aside>
+      </section>
+    </main>
+    <main class="token-terminal token-terminal-error" data-terminal-error hidden><h1>TERMINAL<br />UNAVAILABLE.</h1><p data-terminal-error-copy>The token address is missing or invalid.</p><a href="launch.html">Return to launchpad</a></main>
+    <footer><p>Ultra Rares © 2026</p><p>Experimental mainnet terminal</p></footer>
+    <script src="loader.js?v=1"></script><script src="launch-token.js?v=1"></script>
+  </body>
+</html>

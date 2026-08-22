@@ -31,6 +31,12 @@
   const addressWord = (value) => value.toLowerCase().replace('0x', '').padStart(64, '0');
   const selector = (signature) => artifact.methodIdentifiers[signature];
   const addressResult = (value) => `0x${value.slice(-40)}`.toLowerCase();
+  const decodeString = (value) => {
+    const offset = Number(BigInt(`0x${value.slice(2, 66)}`)) * 2 + 2;
+    const length = Number(BigInt(`0x${value.slice(offset, offset + 64)}`));
+    const bytes = value.slice(offset + 64, offset + 64 + length * 2).match(/.{2}/g)?.map((hex) => parseInt(hex, 16)) || [];
+    return new TextDecoder().decode(new Uint8Array(bytes));
+  };
   const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('is-error', error); };
   const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value < 1000 ? 2 : 0 }).format(value);
 
@@ -102,9 +108,32 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens.slice(0, 20)));
   };
 
+  async function syncFactoryTokens() {
+    if (!isAddress(config.factoryAddress)) return;
+    const saved = readTokens();
+    const savedByAddress = new Map(saved.map((token) => [token.address?.toLowerCase(), token]));
+    const count = Number(BigInt(await rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector('tokenCount()')}` }, 'latest'])));
+    const discovered = [];
+    for (let index = count - 1; index >= 0; index -= 1) {
+      const rawAddress = await rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector('allTokens(uint256)')}${word(index)}` }, 'latest']);
+      const address = addressResult(rawAddress);
+      const existing = savedByAddress.get(address) || {};
+      const [nameRaw, symbolRaw] = await Promise.all([
+        rpc('eth_call', [{ to: address, data: '0x06fdde03' }, 'latest']),
+        rpc('eth_call', [{ to: address, data: '0x95d89b41' }, 'latest']),
+      ]);
+      discovered.push({ ...existing, address, name: decodeString(nameRaw), symbol: decodeString(symbolRaw), supply: '1000000000', logo: existing.logo || DEFAULT_LOGO, status: 'Live on Robinhood Chain' });
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(discovered));
+  }
+
   function renderTokens() {
     const tokens = readTokens();
-    tokenList.innerHTML = tokens.length ? tokens.map((token) => `<article class="launch-directory-card" data-launch-token="${safeText(token.address)}"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Live on Robinhood Chain')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Market cap</dt><dd data-token-mc>Loading…</dd></div><div><dt>Contract</dt><dd><a href="${EXPLORER}/address/${safeText(token.address)}" target="_blank" rel="noopener">${safeText(short(token.address))} ↗</a></dd></div></dl><div class="launch-card-progress"><div><span>Road to DEX</span><strong data-token-progress>$0 / $70K</strong></div><div class="launch-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="70000" aria-valuenow="0" data-token-track><i data-token-fill></i></div><small>Live target · migration safety-locked</small></div></div></article>`).join('') : '<article class="launch-directory-card"><div><span>Waiting</span><h3>NO TOKENS LAUNCHED YET</h3><strong>The first confirmed launch will appear here.</strong></div></article>';
+    tokenList.innerHTML = tokens.length ? tokens.map((token) => `<article class="launch-directory-card" data-launch-token="${safeText(token.address)}" data-terminal-href="launch-token.html?token=${safeText(token.address)}" tabindex="0" role="link"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Live on Robinhood Chain')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Market cap</dt><dd data-token-mc>Loading…</dd></div><div><dt>Contract</dt><dd><a href="${EXPLORER}/address/${safeText(token.address)}" target="_blank" rel="noopener">${safeText(short(token.address))} ↗</a></dd></div></dl><div class="launch-card-progress"><div><span>Road to DEX</span><strong data-token-progress>$0 / $70K</strong></div><div class="launch-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="70000" aria-valuenow="0" data-token-track><i data-token-fill></i></div><small>Live target · migration safety-locked</small></div><a class="launch-terminal-link" href="launch-token.html?token=${safeText(token.address)}">Open trading terminal ↗</a></div></article>`).join('') : '<article class="launch-directory-card"><div><span>Waiting</span><h3>NO TOKENS LAUNCHED YET</h3><strong>The first confirmed launch will appear here.</strong></div></article>';
+    tokenList.querySelectorAll('[data-terminal-href]').forEach((card) => {
+      card.addEventListener('click', (event) => { if (!event.target.closest('a')) location.href = card.dataset.terminalHref; });
+      card.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); location.href = card.dataset.terminalHref; } });
+    });
   }
 
   async function refreshGraduationProgress() {
@@ -217,6 +246,7 @@
       }
     }
     await syncAccount();
+    await syncFactoryTokens();
     renderTokens();
     await refreshGraduationProgress();
     window.setInterval(refreshGraduationProgress, 30_000);
