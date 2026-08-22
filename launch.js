@@ -56,9 +56,9 @@
     const data = new FormData(form);
     const name = String(data.get('name') || '').trim();
     const symbol = String(data.get('symbol') || '').trim().replace(/[^a-z0-9]/gi, '').toUpperCase();
-    const supply = String(data.get('supply') || '').replace(/,/g, '');
+    const supply = '1000000000';
     const openingBuy = String(data.get('openingBuy') || '0').replace(/,/g, '');
-    if (!name || !symbol || !/^\d+$/.test(supply) || BigInt(supply) <= 0n) return setStatus('Enter a valid name, symbol and whole-number fixed supply.', true);
+    if (!name || !symbol) return setStatus('Enter a valid token name and symbol.', true);
     if (!/^\d*(\.\d+)?$/.test(openingBuy) || Number(openingBuy) < 0) return setStatus('Enter a valid optional opening buy, or use 0 to skip it.', true);
     const tokens = readTokens();
     tokens.unshift({ name, symbol, supply, openingBuy, logo: logoData, status: 'Launch preview', createdAt: Date.now() });

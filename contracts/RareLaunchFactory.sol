@@ -77,8 +77,7 @@ contract RareLaunchFactory {
     uint256 public constant GRADUATION_MARKET_CAP_USD_E18 = 70_000 ether;
     uint256 public constant MAX_ORACLE_AGE = 15 minutes;
     uint256 public constant GRADUATION_CONFIG_DELAY = 7 days;
-    uint256 public constant MIN_SUPPLY = 1_000 ether;
-    uint256 public constant MAX_SUPPLY = 100_000_000_000 ether;
+    uint256 public constant FIXED_TOKEN_SUPPLY = 1_000_000_000 ether;
 
     struct Launch {
         address creator;
@@ -124,16 +123,16 @@ contract RareLaunchFactory {
 
     function tokenCount() external view returns (uint256) { return allTokens.length; }
 
-    function createToken(string calldata name, string calldata symbol, uint256 supply, uint256 maxLaunchFee, uint256 openingBuyRare, uint256 minOpeningTokens) external nonReentrant returns (address token) {
-        if (bytes(name).length == 0 || bytes(name).length > 32 || bytes(symbol).length == 0 || bytes(symbol).length > 10 || supply < MIN_SUPPLY || supply > MAX_SUPPLY) revert InvalidConfiguration();
+    function createToken(string calldata name, string calldata symbol, uint256 maxLaunchFee, uint256 openingBuyRare, uint256 minOpeningTokens) external nonReentrant returns (address token) {
+        if (bytes(name).length == 0 || bytes(name).length > 32 || bytes(symbol).length == 0 || bytes(symbol).length > 10) revert InvalidConfiguration();
         uint256 fee = LAUNCH_FEE_RARE;
         if (fee > maxLaunchFee) revert Slippage();
         _pullExact(msg.sender, fee + openingBuyRare);
         _pushExact(address(raresVault), fee);
-        token = address(new RareLaunchToken(name, symbol, supply, address(this)));
-        launches[token] = Launch(msg.sender, uint128(initialVirtualRare), uint128(supply), 0, 0, false, false);
+        token = address(new RareLaunchToken(name, symbol, FIXED_TOKEN_SUPPLY, address(this)));
+        launches[token] = Launch(msg.sender, uint128(initialVirtualRare), uint128(FIXED_TOKEN_SUPPLY), 0, 0, false, false);
         allTokens.push(token);
-        emit TokenCreated(token, msg.sender, name, symbol, supply, fee);
+        emit TokenCreated(token, msg.sender, name, symbol, FIXED_TOKEN_SUPPLY, fee);
         if (openingBuyRare != 0) _buy(token, msg.sender, openingBuyRare, minOpeningTokens);
     }
 

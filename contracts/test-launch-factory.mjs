@@ -15,10 +15,10 @@ const migrator=await deploy('MockLaunchInfrastructure.sol','MockLaunchMigrator',
 const vault=await deploy('RareLaunchFeeVault.sol','RareLaunchFeeVault',admin,[await rare.getAddress(),await admin.getAddress(),await treasury.getAddress()]);
 const factory=await deploy('RareLaunchFactory.sol','RareLaunchFactory',admin,[await rare.getAddress(),await vault.getAddress(),await admin.getAddress(),unit('10000')]);
 await (await vault.setFeeSource(await factory.getAddress(),true)).wait(); await (await vault.lockFeeSources()).wait();
-const launchFee=unit('250000'), opening=unit('10000'), supply=unit('1000000');
+const launchFee=unit('250000'), opening=unit('10000'), supply=unit('1000000000');
 await (await rare.mint(await creator.getAddress(),launchFee+opening)).wait(); await (await rare.connect(creator).approve(await factory.getAddress(),launchFee+opening)).wait();
-await revert(factory.connect(creator).createToken('First Rare','FIRST',supply,launchFee-1n,opening,0),'launch fee slippage protected');
-await (await factory.connect(creator).createToken('First Rare','FIRST',supply,launchFee,opening,1,{gasLimit:7000000})).wait();
+await revert(factory.connect(creator).createToken('First Rare','FIRST',launchFee-1n,opening,0),'launch fee slippage protected');
+await (await factory.connect(creator).createToken('First Rare','FIRST',launchFee,opening,1,{gasLimit:7000000})).wait();
 const tokenAddress=await factory.allTokens(0); const token=new Contract(tokenAddress,output.contracts['RareLaunchFactory.sol'].RareLaunchToken.abi,provider);
 const buyFee=opening*100n/10000n, vaultShare=buyFee*300n/10000n;
 assert.equal(await factory.tokenCount(),1n,'created token enters public registry');
