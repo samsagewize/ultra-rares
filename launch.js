@@ -146,7 +146,7 @@
     } catch {}
     if (!Number.isFinite(ethPriceUsd) || ethPriceUsd <= 0) return;
     const targetUsd = GRADUATION_TARGET_ETH * ethPriceUsd;
-    await Promise.allSettled(cards.map(async (card, index) => {
+    await Promise.allSettled(cards.map(async (card) => {
       const address = card.dataset.launchToken;
       if (!isAddress(address)) return;
       const result = await rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector('marketCapEth(address)')}${addressWord(address)}` }, 'latest']);
@@ -157,13 +157,6 @@
       card.querySelector('[data-token-fill]').style.width = `${percentage}%`;
       card.querySelector('[data-token-track]').setAttribute('aria-valuemax', String(Math.round(targetUsd)));
       card.querySelector('[data-token-track]').setAttribute('aria-valuenow', String(Math.round(marketCapUsd)));
-      if (index === 0) {
-        document.querySelector('[data-first-mc]').textContent = `${money(marketCapUsd)} / ${money(targetUsd)}`;
-        document.querySelector('[data-first-track]').setAttribute('aria-valuemax', String(Math.round(targetUsd)));
-        document.querySelector('[data-first-fill]').style.width = `${percentage}%`;
-        document.querySelector('[data-first-track]').setAttribute('aria-valuenow', String(Math.round(marketCapUsd)));
-        document.querySelector('[data-first-status]').textContent = percentage >= 100 ? 'Target reached · migration locked' : 'Trading · progress live';
-      }
     }));
   }
 
