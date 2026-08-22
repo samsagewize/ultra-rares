@@ -63,6 +63,7 @@
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: digits }).format(amount);
   };
   const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value < 1000 ? 2 : 0 }).format(value);
+  const compactMoney = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 }).format(value);
   const savedLogo = () => {
     if (PUBLISHED_LOGOS[token.toLowerCase()]) return PUBLISHED_LOGOS[token.toLowerCase()];
     try { return JSON.parse(localStorage.getItem(FACTORY_STORAGE) || '[]').find((entry) => entry.address?.toLowerCase() === token.toLowerCase())?.logo; } catch { return null; }
@@ -153,7 +154,8 @@
     const line = document.querySelector('[data-chart-line]');
     const area = document.querySelector('[data-chart-area]');
     const candles = document.querySelector('[data-chart-candles]');
-    if (!activity.length) { empty.hidden = false; line.setAttribute('d', ''); area.setAttribute('d', ''); candles.replaceChildren(); return; }
+    const marketAxis = document.querySelector('[data-chart-market-axis]');
+    if (!activity.length) { empty.hidden = false; line.setAttribute('d', ''); area.setAttribute('d', ''); candles.replaceChildren(); marketAxis.replaceChildren(); return; }
     empty.hidden = true;
     let virtualEth = ONE;
     let virtualToken = 1_000_000_000n * ONE;
@@ -174,15 +176,16 @@
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || max || 1;
-    const coords = points.map((point, index) => `${index / Math.max(1, points.length - 1) * 900},${320 - ((point.value - min) / range) * 270}`).join(' L');
+    const graphWidth = 790;
+    const coords = points.map((point, index) => `${index / Math.max(1, points.length - 1) * graphWidth},${320 - ((point.value - min) / range) * 270}`).join(' L');
     line.setAttribute('d', `M${coords}`);
-    area.setAttribute('d', `M${coords} L900,340 L0,340 Z`);
+    area.setAttribute('d', `M${coords} L${graphWidth},340 L0,340 Z`);
     const candleWidth = Math.max(4, Math.min(28, 720 / activity.length));
     const y = (value) => 320 - ((value - min) / range) * 270;
     candles.replaceChildren(...activity.map((trade, index) => {
       const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       group.setAttribute('class', trade.isBuy ? 'chart-candle is-buy' : 'chart-candle is-sell');
-      const x = (index + .5) / activity.length * 900;
+      const x = (index + .5) / activity.length * graphWidth;
       const openY = y(points[index].value);
       const closeY = y(points[index + 1].value);
       const wick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -196,6 +199,12 @@
     candles.style.display = showCandles ? '' : 'none';
     line.style.display = showCandles ? 'none' : '';
     area.style.display = showCandles ? 'none' : '';
+    const axisValues = Array.from({ length: 5 }, (_, index) => max - range * index / 4);
+    marketAxis.innerHTML = '<strong>Market cap</strong>' + axisValues.map((price, index) => {
+      const marketCapEth = price * 1_000_000_000;
+      const label = ethPriceUsd > 0 ? compactMoney(marketCapEth * ethPriceUsd) : `${marketCapEth.toFixed(3)} ETH`;
+      return `<i style="top:${50 + index * 67.5}px"><span>${label}</span></i>`;
+    }).join('');
   }
 
   async function refreshMarket() {
