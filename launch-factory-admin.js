@@ -16,7 +16,7 @@
   const explorerLink = document.querySelector('[data-launch-factory-explorer]');
   let account = '';
   let artifact;
-  let factory = localStorage.getItem('rareEthLaunchFactoryAddressV1') || '';
+  let factory = localStorage.getItem('rareEthLaunchFactoryAddressV2') || '';
 
   const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
   const addressWord = (value) => value.toLowerCase().replace('0x', '').padStart(64, '0');
@@ -53,11 +53,13 @@
     if (!isAddress(factory)) throw new Error('No valid Factory address is saved.');
     const code = await ethereum.request({ method: 'eth_getCode', params: [factory, 'latest'] });
     if (!code || code === '0x') throw new Error('No deployed contract exists at the saved Factory address.');
-    const [rare, vault, admin, treasury, seed, fee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+    const [version, rare, vault, admin, treasury, seed, fee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+      read('FACTORY_VERSION()'),
       read('rareToken()'), read('raresVault()'), read('launchAdmin()'), read('ethTreasury()'), read('initialVirtualEth()'),
       read('LAUNCH_FEE_RARE()'), read('TRADE_FEE_BPS()'), read('CREATOR_FEE_SHARE_BPS()'), read('TREASURY_FEE_SHARE_BPS()'),
       read('FIXED_TOKEN_SUPPLY()'), read('GRADUATION_ENABLED()'), read('publicCreationEnabled()'),
     ]);
+    if (BigInt(version) !== 2n) throw new Error('This is not the zero-ETH token-creation Factory V2.');
     if (addressResult(rare) !== RARE || addressResult(vault) !== VAULT || addressResult(admin) !== ADMIN || addressResult(treasury) !== ADMIN) throw new Error('Factory addresses do not match the reviewed mainnet configuration.');
     if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(fee) !== EXPECTED_LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== 1_000_000_000n * 10n ** 18n) throw new Error('Factory economic constants do not match the reviewed pilot.');
     if (BigInt(graduation) !== 0n || BigInt(publicCreation) !== 0n) throw new Error('Pilot safety state is not locked to admin-only creation with graduation disabled.');
@@ -101,7 +103,7 @@
       const receipt = await waitForReceipt(hash);
       if (!isAddress(receipt.contractAddress)) throw new Error('No deployed Factory address was returned.');
       factory = receipt.contractAddress.toLowerCase();
-      localStorage.setItem('rareEthLaunchFactoryAddressV1', factory);
+      localStorage.setItem('rareEthLaunchFactoryAddressV2', factory);
       await verify();
       verifyButton.disabled = false;
       show();

@@ -28,13 +28,13 @@
       </section>
 
       <section class="launch-create launch-create-simple" aria-labelledby="create-title">
-        <div><p class="eyebrow">Create the first token</p><h2 id="create-title">1. NAME IT.<br />2. LAUNCH IT.</h2><p>Add a logo and the basics. The wallet first approves the fixed $RARE creation charge, then creates the token with an optional opening ETH buy.</p></div>
+        <div><p class="eyebrow">Create the first token</p><h2 id="create-title">1. NAME IT.<br />2. LAUNCH IT.</h2><p>Add a logo and the basics. Token creation costs exactly 250,000 $RARE plus network gas. No ETH purchase is attached to deployment.</p></div>
         <form data-launch-form>
           <label class="launch-logo-picker"><span>Token logo</span><input name="logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-logo-input /><span class="launch-logo-preview"><img src="assets/rare-token.png" alt="Token logo preview" data-logo-preview /><b>Choose image</b></span><small>Square image recommended · maximum 2MB</small></label>
           <div class="launch-field-pair"><label>Token name<input name="name" maxlength="32" required placeholder="Example: First Rare" /></label><label>Symbol<input name="symbol" maxlength="10" required placeholder="FIRST" /></label></div>
           <div class="launch-route"><span>Fixed token supply</span><strong>1,000,000,000</strong><small>Every launch · cannot be changed</small></div>
           <div class="launch-cost-card"><span>Fixed launch cost</span><strong data-launch-cost>250,000 $RARE</strong><small data-launch-cost-source>Sent directly to the Rares Vault</small></div>
-          <label>Optional opening buy (ETH)<input name="openingBuy" inputmode="decimal" value="0" placeholder="0" /><small>Optional. Enter 0 to skip. This ETH becomes reserve backing after the 1% trading fee.</small></label>
+          <div class="launch-route"><span>ETH charged at creation</span><strong>0 ETH</strong><small>Buying begins only after the token contract exists</small></div>
           <div class="launch-route"><span>Pilot safety</span><strong>ADMIN CREATION · PUBLIC ETH TRADING</strong><small>DEX graduation is disabled in this first reviewed version</small></div>
           <button type="submit" data-launch-submit>Create token</button>
           <p class="launch-form-status" data-launch-status role="status">Factory deployment is pending. No launch transaction can be sent until its verified address is published here.</p>
@@ -68,6 +68,6 @@
       <section class="launch-safety"><strong>REVIEW EVERY SIGNATURE.</strong><p>The launchpad never asks for a seed phrase and never auto-signs. ETH curve trading and newly created tokens are experimental and can lose value. A passing test suite is not a professional audit.</p></section>
     </main>
     <footer><p>Ultra Rares © 2026</p><p>Launchpad public beta</p></footer>
-    <script src="loader.js?v=1"></script><script src="launch.js?v=1"></script>
+    <script src="loader.js?v=1"></script><script src="launch.js?v=2"></script>
   </body>
 </html>

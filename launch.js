@@ -31,26 +31,18 @@
   const addressResult = (value) => `0x${value.slice(-40)}`.toLowerCase();
   const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('is-error', error); };
 
-  function parseDecimal(value, decimals = 18) {
-    const normalized = String(value).trim().replace(/,/g, '');
-    if (!/^\d+(\.\d+)?$/.test(normalized)) throw new Error('Enter a valid non-negative amount.');
-    const [whole, fraction = ''] = normalized.split('.');
-    if (fraction.length > decimals) throw new Error(`Use no more than ${decimals} decimal places.`);
-    return BigInt(whole) * 10n ** BigInt(decimals) + BigInt((fraction + '0'.repeat(decimals)).slice(0, decimals));
-  }
-
   function encodeString(value) {
     const bytes = new TextEncoder().encode(value);
     const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
     return `${word(bytes.length)}${hex.padEnd(Math.ceil(bytes.length / 32) * 64, '0')}`;
   }
 
-  function encodeCreate(name, symbol, minOpeningTokens) {
+  function encodeCreate(name, symbol) {
     const nameTail = encodeString(name);
     const symbolTail = encodeString(symbol);
-    const headBytes = 4n * 32n;
+    const headBytes = 3n * 32n;
     const symbolOffset = headBytes + BigInt(nameTail.length / 2);
-    return `0x${selector('createToken(string,string,uint256,uint256)')}${word(headBytes)}${word(symbolOffset)}${word(LAUNCH_FEE)}${word(minOpeningTokens)}${nameTail}${symbolTail}`;
+    return `0x${selector('createToken(string,string,uint256)')}${word(headBytes)}${word(symbolOffset)}${word(LAUNCH_FEE)}${nameTail}${symbolTail}`;
   }
 
   async function rpc(method, params) {
@@ -62,11 +54,13 @@
 
   async function verifyFactory() {
     const call = (signature) => rpc('eth_call', [{ to: config.factoryAddress, data: `0x${selector(signature)}` }, 'latest']);
-    const [rare, vault, admin, treasury, seed, launchFee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+    const [version, rare, vault, admin, treasury, seed, launchFee, tradeFee, creatorShare, treasuryShare, supply, graduation, publicCreation] = await Promise.all([
+      call('FACTORY_VERSION()'),
       call('rareToken()'), call('raresVault()'), call('launchAdmin()'), call('ethTreasury()'), call('initialVirtualEth()'),
       call('LAUNCH_FEE_RARE()'), call('TRADE_FEE_BPS()'), call('CREATOR_FEE_SHARE_BPS()'), call('TREASURY_FEE_SHARE_BPS()'),
       call('FIXED_TOKEN_SUPPLY()'), call('GRADUATION_ENABLED()'), call('publicCreationEnabled()'),
     ]);
+    if (BigInt(version) !== 2n) throw new Error('The configured Factory is not the zero-ETH token-creation V2.');
     if (addressResult(rare) !== RARE || addressResult(vault) !== '0xcc8ebc12d8df4b23d7e4a93b31a330762c211b32' || addressResult(admin) !== ADMIN || addressResult(treasury) !== ADMIN) throw new Error('The configured Factory addresses do not match the reviewed pilot.');
     if (BigInt(seed) !== INITIAL_VIRTUAL_ETH || BigInt(launchFee) !== LAUNCH_FEE || BigInt(tradeFee) !== 100n || BigInt(creatorShare) !== 9700n || BigInt(treasuryShare) !== 300n || BigInt(supply) !== FIXED_SUPPLY) throw new Error('The configured Factory economics do not match the reviewed pilot.');
     if (BigInt(graduation) !== 0n || BigInt(publicCreation) !== 0n) throw new Error('The Factory is not in the reviewed admin-only, no-graduation pilot state.');
@@ -106,7 +100,7 @@
 
   function renderTokens() {
     const tokens = readTokens();
-    tokenList.innerHTML = tokens.length ? tokens.map((token) => `<article class="launch-directory-card"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Live on Robinhood Chain')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Opening buy</dt><dd>${safeText(token.openingBuy || '0')} ETH</dd></div><div><dt>Contract</dt><dd><a href="${EXPLORER}/address/${safeText(token.address)}" target="_blank" rel="noopener">${safeText(short(token.address))} ↗</a></dd></div></dl></div></article>`).join('') : '<article class="launch-directory-card"><div><span>Waiting</span><h3>NO TOKENS LAUNCHED YET</h3><strong>The first confirmed launch will appear here.</strong></div></article>';
+    tokenList.innerHTML = tokens.length ? tokens.map((token) => `<article class="launch-directory-card"><img src="${safeText(token.logo || DEFAULT_LOGO)}" alt="" /><div><span>${safeText(token.status || 'Live on Robinhood Chain')}</span><h3>${safeText(token.name)}</h3><strong>$${safeText(token.symbol)}</strong><dl><div><dt>Pair</dt><dd>$${safeText(token.symbol)} / ETH</dd></div><div><dt>Supply</dt><dd>1,000,000,000</dd></div><div><dt>Creation ETH</dt><dd>0 ETH</dd></div><div><dt>Contract</dt><dd><a href="${EXPLORER}/address/${safeText(token.address)}" target="_blank" rel="noopener">${safeText(short(token.address))} ↗</a></dd></div></dl></div></article>`).join('') : '<article class="launch-directory-card"><div><span>Waiting</span><h3>NO TOKENS LAUNCHED YET</h3><strong>The first confirmed launch will appear here.</strong></div></article>';
   }
 
   logoInput.addEventListener('change', () => {
@@ -143,10 +137,7 @@
     const data = new FormData(form);
     const name = String(data.get('name') || '').trim();
     const symbol = String(data.get('symbol') || '').trim().replace(/[^a-z0-9]/gi, '').toUpperCase();
-    const openingBuyText = String(data.get('openingBuy') || '0');
     if (!name || name.length > 32 || !symbol || symbol.length > 10) { setStatus('Enter a token name and an uppercase symbol of no more than 10 characters.', true); return; }
-    let openingBuy;
-    try { openingBuy = parseDecimal(openingBuyText); } catch (error) { setStatus(error.message, true); return; }
     if (!isAddress(config.factoryAddress)) { setStatus('The Factory is not connected yet. This form cannot send a launch transaction.', true); return; }
     if (!window.ethereum || !account) { setStatus('Connect the administrator wallet first.', true); return; }
     if (config.pilotMode && account !== ADMIN) { setStatus('Only the administrator can create the first pilot token.', true); return; }
@@ -160,18 +151,14 @@
         const approveHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: account, to: RARE, data: `0x095ea7b3${addressWord(config.factoryAddress)}${word(LAUNCH_FEE)}`, value: '0x0' }] });
         await waitForReceipt(approveHash);
       }
-      const fee = openingBuy * 100n / 10_000n;
-      const net = openingBuy - fee;
-      const expectedTokens = openingBuy === 0n ? 0n : net * FIXED_SUPPLY / (INITIAL_VIRTUAL_ETH + net);
-      const minimumTokens = expectedTokens * 95n / 100n;
       const countData = `0x${selector('tokenCount()')}`;
       const countBefore = BigInt(await walletCall(config.factoryAddress, countData));
-      setStatus('Step 2 of 2: create the token. Confirm the optional ETH amount in your wallet.');
-      const createHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: account, to: config.factoryAddress, data: encodeCreate(name, symbol, minimumTokens), value: `0x${openingBuy.toString(16)}` }] });
+      setStatus('Step 2 of 2: create the token with 0 ETH attached. Only network gas should appear in your wallet.');
+      const createHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: account, to: config.factoryAddress, data: encodeCreate(name, symbol), value: '0x0' }] });
       await waitForReceipt(createHash);
       const tokenResult = await walletCall(config.factoryAddress, `0x${selector('allTokens(uint256)')}${word(countBefore)}`);
       const tokenAddress = `0x${tokenResult.slice(-40)}`;
-      saveToken({ name, symbol, supply: '1000000000', openingBuy: openingBuyText, logo: logoData, status: 'Live on Robinhood Chain', address: tokenAddress, transaction: createHash, createdAt: Date.now() });
+      saveToken({ name, symbol, supply: '1000000000', logo: logoData, status: 'Live on Robinhood Chain', address: tokenAddress, transaction: createHash, createdAt: Date.now() });
       renderTokens();
       document.querySelector('.launch-directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setStatus(`${name} ($${symbol}) is live at ${short(tokenAddress)}. The transaction and token contract are linked below.`);

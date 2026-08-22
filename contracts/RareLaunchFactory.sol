@@ -70,6 +70,7 @@ contract RareLaunchToken {
 /// @notice Creates fixed-supply tokens paid for in RARE and trades them against a reserve-backed ETH curve.
 /// @dev Mainnet pilot: Uniswap graduation is deliberately not implemented or enabled in this version.
 contract RareLaunchFactory {
+    uint256 public constant FACTORY_VERSION = 2;
     uint256 public constant BPS = 10_000;
     uint256 public constant TRADE_FEE_BPS = 100;
     uint256 public constant CREATOR_FEE_SHARE_BPS = 9_700;
@@ -111,7 +112,7 @@ contract RareLaunchFactory {
     error DirectEthDisabled();
     error Expired();
 
-    event TokenCreated(address indexed token, address indexed creator, string name, string symbol, uint256 supply, uint256 launchFeeRare, uint256 openingBuyEth);
+    event TokenCreated(address indexed token, address indexed creator, string name, string symbol, uint256 supply, uint256 launchFeeRare);
     event Trade(address indexed token, address indexed trader, bool indexed isBuy, uint256 ethAmount, uint256 tokenAmount, uint256 fee);
     event CreatorFeesClaimed(address indexed token, address indexed creator, uint256 amount);
     event TreasuryFeesClaimed(address indexed token, address indexed treasury, uint256 amount);
@@ -145,7 +146,7 @@ contract RareLaunchFactory {
         emit PublicCreationEnabled();
     }
 
-    function createToken(string calldata name, string calldata symbol, uint256 maxLaunchFeeRare, uint256 minOpeningTokens) external payable nonReentrant returns (address token) {
+    function createToken(string calldata name, string calldata symbol, uint256 maxLaunchFeeRare) external nonReentrant returns (address token) {
         if (!publicCreationEnabled && msg.sender != launchAdmin) revert NotAdmin();
         _validateMetadata(name, symbol);
         if (LAUNCH_FEE_RARE > maxLaunchFeeRare) revert Slippage();
@@ -155,9 +156,7 @@ contract RareLaunchFactory {
         token = address(new RareLaunchToken(name, symbol, address(this)));
         launches[token] = Launch(msg.sender, uint128(initialVirtualEth), uint128(FIXED_TOKEN_SUPPLY), 0, 0, 0);
         allTokens.push(token);
-        emit TokenCreated(token, msg.sender, name, symbol, FIXED_TOKEN_SUPPLY, LAUNCH_FEE_RARE, msg.value);
-        if (msg.value != 0) _buy(token, msg.sender, msg.value, minOpeningTokens);
-        else if (minOpeningTokens != 0) revert Slippage();
+        emit TokenCreated(token, msg.sender, name, symbol, FIXED_TOKEN_SUPPLY, LAUNCH_FEE_RARE);
     }
 
     function buy(address token, uint256 minTokensOut, uint256 deadline) external payable nonReentrant returns (uint256 tokensOut) {

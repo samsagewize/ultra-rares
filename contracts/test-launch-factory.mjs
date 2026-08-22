@@ -33,20 +33,25 @@ const factoryAddress = await factory.getAddress();
 const creatorAddress = await creator.getAddress();
 
 assert.equal(await factory.GRADUATION_ENABLED(), false, 'pilot graduation is disabled');
+assert.equal(await factory.FACTORY_VERSION(), 2n, 'zero-ETH creation factory is explicitly versioned');
 assert.equal(await factory.FIXED_TOKEN_SUPPLY(), rareUnits('1000000000'), 'all launches use one billion tokens');
-await expectRevert(factory.connect(stranger).createToken('Blocked', 'NO', launchFee, 0), 'public creation starts disabled');
-await expectRevert(factory.createToken('Bad', 'bad!', launchFee, 0), 'symbols are restricted to uppercase letters and numbers');
-await expectRevert(factory.createToken('First Rare', 'FIRST', launchFee - 1n, 0), 'launch fee maximum protects the payer');
+await expectRevert(factory.connect(stranger).createToken('Blocked', 'NO', launchFee), 'public creation starts disabled');
+await expectRevert(factory.createToken('Bad', 'bad!', launchFee), 'symbols are restricted to uppercase letters and numbers');
+await expectRevert(factory.createToken('First Rare', 'FIRST', launchFee - 1n), 'launch fee maximum protects the payer');
 
 await (await rare.mint(await admin.getAddress(), launchFee * 3n)).wait();
 await (await rare.approve(factoryAddress, launchFee * 3n)).wait();
 const openingBuy = parseEther('0.001');
-await (await factory.createToken('First Rare', 'FIRST', launchFee, 1, { value: openingBuy, gasLimit: 7_000_000 })).wait();
+await expectRevert(factory.createToken('First Rare', 'FIRST', launchFee, { value: openingBuy }), 'token creation rejects attached ETH');
+await (await factory.createToken('First Rare', 'FIRST', launchFee, { gasLimit: 7_000_000 })).wait();
 const tokenAddress = await factory.allTokens(0);
 const tokenArtifact = output.contracts['RareLaunchFactory.sol'].RareLaunchToken;
 const token = new Contract(tokenAddress, tokenArtifact.abi, provider);
-let launch = await factory.launches(tokenAddress);
 const deadline = BigInt((await provider.getBlock('latest')).timestamp + 600);
+assert.equal(await provider.getBalance(factoryAddress), 0n, 'creation carries no ETH');
+const openingQuote = await factory.quoteBuy(tokenAddress, openingBuy);
+await (await factory.buy(tokenAddress, openingQuote[0], deadline, { value: openingBuy })).wait();
+let launch = await factory.launches(tokenAddress);
 const openingFee = openingBuy * 100n / 10_000n;
 const openingTreasury = openingFee * 300n / 10_000n;
 
@@ -101,7 +106,7 @@ assert.equal(await factory.publicCreationEnabled(), true, 'admin can irreversibl
 await expectRevert(factory.enablePublicCreation(), 'public creation cannot be toggled or enabled twice');
 await (await rare.mint(await stranger.getAddress(), launchFee)).wait();
 await (await rare.connect(stranger).approve(factoryAddress, launchFee)).wait();
-await (await factory.connect(stranger).createToken('Public Rare', 'PUBLIC', launchFee, 0, { gasLimit: 7_000_000 })).wait();
+await (await factory.connect(stranger).createToken('Public Rare', 'PUBLIC', launchFee, { gasLimit: 7_000_000 })).wait();
 assert.equal(await factory.tokenCount(), 2n, 'public creation works only after irreversible enablement');
 await (await factory.connect(stranger).buy(await factory.allTokens(1), 1, deadline, { value: 1n })).wait();
 assert.equal(await provider.getBalance(factoryAddress) > 0n, true, 'one-wei public buy is accepted when it produces tokens');
@@ -110,4 +115,4 @@ const tinyBalance = await tinyToken.balanceOf(await stranger.getAddress());
 const tinySell = await factory.quoteSell(await factory.allTokens(1), tinyBalance);
 assert.equal(tinySell[0], 0n, 'rounding never turns a one-wei buy into a profitable sell');
 
-console.log('Native ETH launch factory safety tests passed: 33 assertions');
+console.log('Native ETH launch factory safety tests passed: 36 assertions');
