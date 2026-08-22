@@ -30,6 +30,9 @@
   let tokenBalance = 0n;
   let walletEthBalance = 0n;
   let graduated = false;
+  let chartMode = 'candles';
+  let latestActivity = [];
+  let latestLaunch = null;
 
   const isAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value);
   const short = (value) => `${value.slice(0, 6)}…${value.slice(-4)}`;
@@ -140,6 +143,8 @@
     document.querySelector('[data-terminal-trade-count]').textContent = String(activity.length);
     const list = document.querySelector('[data-terminal-activity]');
     list.innerHTML = activity.length ? activity.slice().reverse().map((trade) => `<li class="${trade.isBuy ? 'is-buy' : 'is-sell'}"><b>${trade.isBuy ? 'BUY' : 'SELL'}</b><strong>${formatUnits(trade.tokenAmount, 2)} $${tokenSymbol}</strong><span>${formatUnits(trade.ethAmount, 6)} ETH · ${short(trade.trader)}</span><a href="${EXPLORER}/tx/${trade.hash}" target="_blank" rel="noopener">Block ${trade.block.toLocaleString()} ↗</a></li>`).join('') : '<li>Waiting for the first confirmed trade.</li>';
+    latestActivity = activity;
+    latestLaunch = launch;
     drawChart(activity, launch);
   }
 
@@ -147,7 +152,8 @@
     const empty = document.querySelector('[data-chart-empty]');
     const line = document.querySelector('[data-chart-line]');
     const area = document.querySelector('[data-chart-area]');
-    if (!activity.length) { empty.hidden = false; line.setAttribute('d', ''); area.setAttribute('d', ''); return; }
+    const candles = document.querySelector('[data-chart-candles]');
+    if (!activity.length) { empty.hidden = false; line.setAttribute('d', ''); area.setAttribute('d', ''); candles.replaceChildren(); return; }
     empty.hidden = true;
     let virtualEth = ONE;
     let virtualToken = 1_000_000_000n * ONE;
@@ -171,6 +177,25 @@
     const coords = points.map((point, index) => `${index / Math.max(1, points.length - 1) * 900},${320 - ((point.value - min) / range) * 270}`).join(' L');
     line.setAttribute('d', `M${coords}`);
     area.setAttribute('d', `M${coords} L900,340 L0,340 Z`);
+    const candleWidth = Math.max(4, Math.min(28, 720 / activity.length));
+    const y = (value) => 320 - ((value - min) / range) * 270;
+    candles.replaceChildren(...activity.map((trade, index) => {
+      const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      group.setAttribute('class', trade.isBuy ? 'chart-candle is-buy' : 'chart-candle is-sell');
+      const x = (index + .5) / activity.length * 900;
+      const openY = y(points[index].value);
+      const closeY = y(points[index + 1].value);
+      const wick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      wick.setAttribute('x1', x); wick.setAttribute('x2', x); wick.setAttribute('y1', Math.min(openY, closeY) - 5); wick.setAttribute('y2', Math.max(openY, closeY) + 5);
+      const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      body.setAttribute('x', x - candleWidth / 2); body.setAttribute('y', Math.min(openY, closeY)); body.setAttribute('width', candleWidth); body.setAttribute('height', Math.max(5, Math.abs(closeY - openY)));
+      group.append(wick, body);
+      return group;
+    }));
+    const showCandles = chartMode === 'candles';
+    candles.style.display = showCandles ? '' : 'none';
+    line.style.display = showCandles ? 'none' : '';
+    area.style.display = showCandles ? 'none' : '';
   }
 
   async function refreshMarket() {
@@ -184,6 +209,7 @@
     const marketCapUsd = Number(marketCapEth) / 1e18 * ethPriceUsd;
     const progress = Math.min(100, Number(marketCapEth) / Number(TARGET) * 100);
     document.querySelector('[data-terminal-market-cap]').textContent = ethPriceUsd ? money(marketCapUsd) : `${formatUnits(marketCapEth, 4)} ETH`;
+    document.querySelector('[data-terminal-market-cap-stat]').textContent = ethPriceUsd ? money(marketCapUsd) : `${formatUnits(marketCapEth, 3)} ETH`;
     document.querySelector('[data-terminal-price]').textContent = `1 ${tokenSymbol} = ${formatUnits(launch.virtualEth * ONE / launch.virtualToken, 12)} ETH`;
     document.querySelector('[data-terminal-reserve]').textContent = `${formatUnits(launch.realEth, 6)} ETH`;
     document.querySelector('[data-terminal-progress-copy]').textContent = `${formatUnits(marketCapEth, 3)} / 29 ETH MC`;
@@ -212,6 +238,11 @@
     catch (error) { setTradeStatus(error.code === 4001 ? 'Wallet connection cancelled.' : error.message, true); }
   });
   document.querySelectorAll('[data-trade-tab]').forEach((button) => button.addEventListener('click', () => selectMode(button.dataset.tradeTab)));
+  document.querySelectorAll('[data-chart-mode]').forEach((button) => button.addEventListener('click', () => {
+    chartMode = button.dataset.chartMode;
+    document.querySelectorAll('[data-chart-mode]').forEach((option) => option.classList.toggle('active', option === button));
+    drawChart(latestActivity, latestLaunch);
+  }));
   amountInput.addEventListener('input', () => { clearTimeout(quoteTimer); quoteTimer = setTimeout(refreshQuote, 250); });
   document.querySelector('[data-trade-max]').addEventListener('click', () => { amountInput.value = mode === 'buy' ? formatUnits(walletEthBalance * 95n / 100n, 18).replace(/,/g, '') : formatUnits(tokenBalance, 18).replace(/,/g, ''); refreshQuote(); });
   form.addEventListener('submit', async (event) => {
