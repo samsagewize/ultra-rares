@@ -12,6 +12,7 @@
   const winsElement = document.querySelector('[data-yolo-wins]');
   const amountInput = document.querySelector('[data-yolo-amount]');
   const walletInput = document.querySelector('[data-yolo-wallet]');
+  const connectButton = document.querySelector('[data-yolo-connect]');
   const enter = document.querySelector('[data-yolo-enter]');
   const odds = document.querySelector('[data-yolo-odds]');
   const message = document.querySelector('[data-yolo-message]');
@@ -27,6 +28,7 @@
   let rotation = 0;
   let roundNumber = 0;
   const wins = [];
+  let connectedWallet = '';
 
   const number = (value) => Math.round(value).toLocaleString('en-US');
   const addressPattern = /^0x[a-fA-F0-9]{40}$/;
@@ -52,8 +54,11 @@
     const selectedWallet = walletInput.value.trim().toLowerCase();
     const mine = entries.find((entry) => entry.wallet.toLowerCase() === selectedWallet);
     odds.textContent = mine ? `${(mine.amount / total * 100).toFixed(1)}%` : '0%';
-    playerList.innerHTML = entries.map((entry, index) => `<div title="${entry.wallet}"><i style="background:${colors[index % colors.length]}"></i><span>${shortAddress(entry.wallet)}</span><strong>${number(entry.amount)} $RARE</strong><small>${(entry.amount / total * 100).toFixed(1)}%</small></div>`).join('');
-    winsElement.innerHTML = wins.length ? wins.map((win) => `<div><span>Round ${win.round}</span><strong title="${win.wallet}">${shortAddress(win.wallet)}</strong><small>${number(win.prize)} $RARE</small></div>`).join('') : `<p>No completed rounds yet. Round ${roundNumber} is ${entries.length >= 3 ? 'active' : 'waiting for 3 wallets'}.</p>`;
+    playerList.innerHTML = entries.map((entry, index) => `<div class="${connectedWallet && entry.wallet.toLowerCase() === connectedWallet ? 'is-connected' : ''}" title="${entry.wallet}"><i style="background:${colors[index % colors.length]}"></i><span>${shortAddress(entry.wallet)}${connectedWallet && entry.wallet.toLowerCase() === connectedWallet ? ' · YOU' : ''}</span><strong>${number(entry.amount)} $RARE</strong><small>${(entry.amount / total * 100).toFixed(1)}%</small></div>`).join('');
+    winsElement.innerHTML = wins.length ? wins.map((win) => {
+      const isOwner = connectedWallet && win.wallet.toLowerCase() === connectedWallet;
+      return `<div class="${isOwner ? 'is-connected' : ''}"><span>Round ${win.round}</span><strong title="${win.wallet}">${shortAddress(win.wallet)}${isOwner ? ' · YOU' : ''}</strong><small>${number(win.prize)} $RARE${isOwner ? ' · preview win' : ''}</small></div>`;
+    }).join('') : `<p>No completed rounds yet. Round ${roundNumber} is ${entries.length >= 3 ? 'active' : 'waiting for 3 wallets'}.</p>`;
   }
 
   function spin() {
@@ -86,6 +91,26 @@
     else entries.push({ wallet, amount });
     message.textContent = `${shortAddress(wallet)} added ${number(amount)} simulated $RARE. No wallet transaction occurred.`;
     render();
+  });
+  connectButton.addEventListener('click', async () => {
+    if (!window.ethereum?.request) {
+      message.textContent = 'No compatible wallet was found. You may paste a public address instead.';
+      return;
+    }
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const account = String(accounts?.[0] || '');
+      if (!addressPattern.test(account)) throw new Error('No valid account returned');
+      connectedWallet = account.toLowerCase();
+      walletInput.value = account;
+      walletInput.readOnly = true;
+      connectButton.textContent = `${shortAddress(account)} · connected`;
+      connectButton.setAttribute('aria-pressed', 'true');
+      message.textContent = 'Public address connected. No approval, signature, or token permission was requested.';
+      render();
+    } catch {
+      message.textContent = 'Wallet connection was cancelled or unavailable. No permissions were granted.';
+    }
   });
   document.querySelectorAll('[data-yolo-chip]').forEach((button) => button.addEventListener('click', () => { amountInput.value = button.dataset.yoloChip; }));
   window.setInterval(() => {
