@@ -9,7 +9,7 @@
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
     <link rel="stylesheet" href="styles.css?v=42" />
   </head>
-  <body class="rare-page marketplace-page work-page home-loading">
+  <body class="rare-page marketplace-page work-page home-loading milestone-locked" data-milestone-gate="100000">
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading Ultra Rare Work"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Clocking in the Rares</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
 
     <header class="site-header">
@@ -24,19 +24,24 @@
         <a class="nav-link" href="launch.html">Launch</a>
         <a class="nav-link" href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">OpenSea</a>
       </nav>
-      <div class="market-header-wallet">
+      <div class="market-header-wallet" data-milestone-content inert>
         <span data-work-rare-balance>— $RARE</span>
         <button type="button" data-work-connect>Connect wallet</button>
         <button type="button" data-work-disconnect hidden>Disconnect</button>
       </div>
     </header>
 
-    <main class="work-main">
+    <aside class="milestone-gate" data-milestone-panel role="status" aria-live="polite">
+      <span>Work unlock</span><strong>SEE YOU AT $100K</strong><small data-milestone-status>Checking live $RARE market cap…</small>
+      <div class="milestone-gate-track" aria-hidden="true"><i data-milestone-progress></i></div>
+    </aside>
+
+    <main class="work-main" data-milestone-content inert>
       <section class="work-hero">
         <p class="eyebrow">Token-bound agents / Robinhood Chain</p>
         <h1>PUT YOUR<br />RARE TO<br />WORK.</h1>
         <p>Activate an owned Ultra Rare, fund its isolated agent wallet with ETH, and follow the work it performs across $RARE and $LEMON.</p>
-        <div class="work-lock-state"><span></span><strong>Preview live</strong><small>Funding, trading and claims stay locked until audited contracts are published.</small></div>
+        <div class="work-lock-state"><span></span><strong>Preview live</strong><small>Funding, trading and claims unlock automatically when $RARE reaches a $100K market cap.</small></div>
       </section>
 
       <section class="work-live-test" aria-labelledby="live-test-title">
@@ -122,5 +127,6 @@
 
     <script src="loader.js?v=1"></script>
     <script src="work.js?v=6"></script>
+    <script src="milestone-gate.js?v=1"></script>
   </body>
 </html>
