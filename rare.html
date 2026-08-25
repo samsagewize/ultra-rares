@@ -96,6 +96,8 @@
           </div>
           <div class="rare-yolo-panel">
             <div class="rare-yolo-pot"><span>Preview pot</span><strong data-yolo-pot>180,000 $RARE</strong><small>Winner takes the simulated round</small></div>
+            <label for="yolo-wallet">Public wallet address</label>
+            <div class="rare-yolo-entry"><input id="yolo-wallet" data-yolo-wallet type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x…" maxlength="42" /><span>ADDY</span></div>
             <label for="yolo-amount">Preview entry amount</label>
             <div class="rare-yolo-entry"><input id="yolo-amount" data-yolo-amount type="number" min="1" step="1000" value="10000" inputmode="numeric" /><span>$RARE</span></div>
             <div class="rare-yolo-chips" aria-label="Quick preview amounts"><button type="button" data-yolo-chip="10000">10K</button><button type="button" data-yolo-chip="50000">50K</button><button type="button" data-yolo-chip="100000">100K</button></div>
@@ -142,6 +144,6 @@
     </footer>
     <script src="loader.js?v=1"></script>
     <script src="rare.js?v=25"></script>
-    <script src="yolo-preview.js?v=1"></script>
+    <script src="yolo-preview.js?v=2"></script>
   </body>
 </html>
