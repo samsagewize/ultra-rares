@@ -3,6 +3,9 @@
   if (!wheel) return;
   const clock = document.querySelector('[data-yolo-clock]');
   const pot = document.querySelector('[data-yolo-pot]');
+  const gross = document.querySelector('[data-yolo-gross]');
+  const vaultCut = document.querySelector('[data-yolo-vault]');
+  const winnerShare = document.querySelector('[data-yolo-winner-share]');
   const online = document.querySelector('[data-yolo-online]');
   const amountInput = document.querySelector('[data-yolo-amount]');
   const walletInput = document.querySelector('[data-yolo-wallet]');
@@ -32,7 +35,12 @@
       return `${colors[index % colors.length]} ${start}deg ${cursor}deg`;
     });
     wheel.style.background = `conic-gradient(${slices.join(',')})`;
-    pot.textContent = `${number(total)} $RARE`;
+    const vaultAmount = total * 0.02;
+    const winnerAmount = total - vaultAmount;
+    pot.textContent = `${number(winnerAmount)} $RARE`;
+    gross.textContent = `${number(total)} $RARE entered`;
+    vaultCut.textContent = `${number(vaultAmount)} $RARE`;
+    winnerShare.textContent = `${number(winnerAmount)} $RARE`;
     online.textContent = `${entries.length} simulated players`;
     const selectedWallet = walletInput.value.trim().toLowerCase();
     const mine = entries.find((entry) => entry.wallet.toLowerCase() === selectedWallet);
