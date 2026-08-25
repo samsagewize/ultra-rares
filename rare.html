@@ -82,6 +82,32 @@
         <p>Trading fees are intended to help the project accumulate $GME for the holder rewards treasury. This does not give traders direct ownership of $GME; rewards depend on the published distribution program.</p>
       </section>
 
+      <section class="rare-yolo" aria-labelledby="rare-yolo-title">
+        <div class="rare-yolo-topline"><span><i></i> Preview round</span><strong>SIMULATION · NO TOKENS MOVE</strong></div>
+        <div class="rare-yolo-heading">
+          <div><p class="eyebrow">Five-minute weighted wheel</p><h2 id="rare-yolo-title">RARE<br />YOLO.</h2></div>
+          <div class="rare-yolo-clock"><span>Next spin</span><strong data-yolo-clock>05:00</strong><small data-yolo-online>4 simulated players</small></div>
+        </div>
+        <div class="rare-yolo-grid">
+          <div class="rare-yolo-wheel-shell">
+            <div class="rare-yolo-pointer" aria-hidden="true"></div>
+            <div class="rare-yolo-wheel" data-yolo-wheel aria-label="Simulated weighted RARE wheel"><img src="assets/rare-token.png" alt="$RARE" /></div>
+            <p>More preview $RARE means a larger slice. This demo has no monetary value.</p>
+          </div>
+          <div class="rare-yolo-panel">
+            <div class="rare-yolo-pot"><span>Preview pot</span><strong data-yolo-pot>180,000 $RARE</strong><small>Winner takes the simulated round</small></div>
+            <label for="yolo-amount">Preview entry amount</label>
+            <div class="rare-yolo-entry"><input id="yolo-amount" data-yolo-amount type="number" min="1" step="1000" value="10000" inputmode="numeric" /><span>$RARE</span></div>
+            <div class="rare-yolo-chips" aria-label="Quick preview amounts"><button type="button" data-yolo-chip="10000">10K</button><button type="button" data-yolo-chip="50000">50K</button><button type="button" data-yolo-chip="100000">100K</button></div>
+            <button class="rare-yolo-enter" type="button" data-yolo-enter>Add simulated entry</button>
+            <p class="rare-yolo-message" data-yolo-message role="status">Preview only. Wallet connection and deposits are disabled.</p>
+            <div class="rare-yolo-odds"><span>Your simulated chance</span><strong data-yolo-odds>0%</strong></div>
+          </div>
+        </div>
+        <div class="rare-yolo-players" data-yolo-players aria-label="Simulated wheel participants"></div>
+        <p class="roadmap-disclaimer">A live version would require legal review, age and location controls, audited contracts, verifiable on-chain randomness, emergency controls, and public rules. This preview cannot approve, transfer, hold, or award $RARE.</p>
+      </section>
+
       <section class="rare-roadmap" aria-label="Live market-cap goal">
         <div class="market-goal">
           <div class="market-goal-now">
@@ -116,5 +142,6 @@
     </footer>
     <script src="loader.js?v=1"></script>
     <script src="rare.js?v=25"></script>
+    <script src="yolo-preview.js?v=1"></script>
   </body>
 </html>
