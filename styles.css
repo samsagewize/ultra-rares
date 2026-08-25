@@ -1456,6 +1456,14 @@ img, iframe { max-width: 100%; }
 .milestone-gate-track { grid-column: 1 / -1; height: 8px; border: 1px solid #b6ff00; background: #111; overflow: hidden; }
 .milestone-gate-track i { display: block; width: 0; height: 100%; background: #b6ff00; transition: width .7s ease; }
 .milestone-locked [data-milestone-content] { filter: grayscale(.35); opacity: .56; }
+.milestone-locked .work-pilot-control,
+.milestone-locked .work-pilot-control button {
+  background: #777 !important;
+  border-color: #999 !important;
+  color: #cfcfcf !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
 .milestone-unlocked .milestone-gate { background: #b6ff00; color: #000; }
 .milestone-unlocked .milestone-gate-track { border-color: #000; }
 .milestone-unlocked .milestone-gate-track i { background: #000; }
