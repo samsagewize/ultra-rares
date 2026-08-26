@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Walk through the live on-chain Ultra Rares world." />
+    <title>World — Ultra Rares</title>
+    <link rel="icon" type="image/png" href="assets/rare-token.png" />
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+    <link rel="stylesheet" href="styles.css?v=49" />
+    <link rel="stylesheet" href="world.css?v=1" />
+  </head>
+  <body class="world-page home-loading">
+    <div class="home-loader" data-home-loader role="status" aria-live="polite"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit"></span></div><strong>WORLD</strong><small>Loading the chain</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress"><i></i></span></div></div>
+    <header class="site-header world-header">
+      <a class="wordmark" href="index.html"><img src="assets/banner-2.png" alt="Ultra Rares" /></a>
+      <nav aria-label="Primary navigation"><a class="nav-link" href="index.html#collection">Collection</a><a class="nav-link" href="rare.html">$RARE</a><a class="nav-link" href="marketplace.html">Auctions</a><a class="nav-link active" href="world.html">World</a><a class="nav-link" href="vault.html">Vault</a><a class="nav-link" href="launch.html">Launch</a></nav>
+      <button class="world-connect" type="button" data-world-connect>Connect wallet</button>
+    </header>
+
+    <main class="world-shell">
+      <canvas class="world-canvas" data-world-canvas aria-label="Playable pixel world showing live Ultra Rares blockchain data"></canvas>
+      <section class="world-hud" aria-label="Player and chain status">
+        <div class="world-player-card"><img data-world-avatar src="assets/9.png" alt="Ultra Rare avatar" /><p><span data-world-wallet>Guest explorer</span><strong data-world-nft>Connect to become your Rare</strong></p></div>
+        <div class="world-live"><i></i><span>Robinhood Chain</span><strong data-world-block>Live</strong></div>
+      </section>
+      <section class="world-dialog" data-world-dialog hidden aria-live="polite"><span data-world-place>Welcome</span><strong data-world-value>ULTRA RARES WORLD</strong><p data-world-copy>Walk up to a landmark to inspect its live on-chain data.</p><button type="button" data-world-close>Close</button></section>
+      <div class="world-help"><strong>EXPLORE</strong><span>Arrow keys / WASD · Space to inspect</span></div>
+      <div class="world-pad" aria-label="Touch movement controls"><button data-move="up" aria-label="Move up">▲</button><button data-move="left" aria-label="Move left">◀</button><button data-move="action" aria-label="Inspect">●</button><button data-move="right" aria-label="Move right">▶</button><button data-move="down" aria-label="Move down">▼</button></div>
+    </main>
+    <script src="loader.js?v=1"></script>
+    <script src="world.js?v=1"></script>
+  </body>
+</html>
