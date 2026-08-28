@@ -1529,14 +1529,14 @@ body:not(.home-loading) .site-header { background:rgba(6,8,10,.96); border-botto
 
 .version-toggle { position:fixed; z-index:10001; top:14px; right:16px; padding:11px 14px; color:#101820; background:var(--lime); border:3px solid #101820; box-shadow:4px 4px #101820; font:900 10px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
 .version-toggle:hover,.version-toggle:focus-visible { color:var(--lime); background:#101820; border-color:var(--lime); }
-html:not(.normal-version) body { overflow:hidden; background:#101820; }
-html:not(.normal-version) .site-header,
-html:not(.normal-version) .stats-rail,
-html:not(.normal-version) .sales-ticker,
-html:not(.normal-version) main > :not(.rare-street),
-html:not(.normal-version) footer { display:none !important; }
-html:not(.normal-version) main { margin:0; width:100%; max-width:none; }
-html.normal-version .rare-street { display:none; }
+html:not(.normal-version) body.home-page { overflow:hidden; background:#101820; }
+html:not(.normal-version) body.home-page .site-header,
+html:not(.normal-version) body.home-page .stats-rail,
+html:not(.normal-version) body.home-page .sales-ticker,
+html:not(.normal-version) body.home-page main > :not(.rare-street),
+html:not(.normal-version) body.home-page footer { display:none !important; }
+html:not(.normal-version) body.home-page main { margin:0; width:100%; max-width:none; }
+html.normal-version body.home-page .rare-street { display:none; }
 
 @media (max-width: 760px) {
   .rare-street { min-height: 760px; }
