@@ -868,6 +868,30 @@ footer {
   footer { padding: 22px; }
 }
 
+/* Ultra Rares museum lobby */
+.rare-museum { background:linear-gradient(#171716 0 10%,#dfd5bc 10% 72%,#8c806b 72% 100%); }
+.rare-museum .street-sky { background:repeating-linear-gradient(90deg,transparent 0 24.8%,rgba(39,34,27,.18) 24.8% 25.1%),linear-gradient(90deg,#cfc3a6,#f0e8d5 20%,#e4dac1 50%,#f0e8d5 80%,#cfc3a6); border-top:clamp(58px,9vh,90px) solid #171716; border-bottom:14px solid #5d5446; }
+.rare-museum .street-sky::before { content:""; position:absolute; z-index:1; inset:0 0 26%; pointer-events:none; background:radial-gradient(ellipse at 14% 2%,rgba(255,247,201,.78),transparent 16%),radial-gradient(ellipse at 38% 2%,rgba(255,247,201,.74),transparent 16%),radial-gradient(ellipse at 62% 2%,rgba(255,247,201,.74),transparent 16%),radial-gradient(ellipse at 86% 2%,rgba(255,247,201,.78),transparent 16%); }
+.rare-museum .pixel-cloud,.rare-museum .pixel-buildings { display:none; }
+.rare-museum .street-billboard { top:8%; width:min(680px,72vw); background:#101820; border:16px solid #c6a75d; outline:7px solid #342a1e; box-shadow:10px 12px rgba(40,31,20,.28),inset 0 0 45px rgba(183,241,15,.1); }
+.rare-museum .street-billboard::before,.rare-museum .street-billboard::after { display:none; }
+.rare-museum .street-info-card { right:4%; bottom:24%; color:#222; background:#e9dfc7; border:9px ridge #9b7b42; outline:3px solid #2e261d; box-shadow:9px 10px rgba(55,44,29,.22); }
+.rare-museum .street-info-card span { color:#111; }.rare-museum .street-info-card li::marker { color:#6d31d6; }
+.rare-museum .street-characters { bottom:24%; align-items:center; }
+.rare-museum .street-characters img { width:clamp(110px,13vw,180px); height:clamp(145px,18vw,235px); padding:10px; object-fit:cover; object-position:50% 34%; background:#eee4cd; border:12px ridge #8b6d3c; border-radius:0; filter:contrast(1.18) saturate(.88); box-shadow:10px 12px rgba(52,42,30,.22); }
+.rare-museum .street-characters img:nth-child(2n) { transform:none; }
+.rare-museum .street-ground { bottom:9%; height:20%; background:repeating-linear-gradient(90deg,transparent 0 119px,rgba(30,25,20,.25) 119px 122px),repeating-linear-gradient(0deg,transparent 0 58px,rgba(30,25,20,.22) 58px 61px),linear-gradient(#b5a78d,#716552); border-top:14px solid #4c4337; }
+.rare-museum .street-instruction { bottom:11.5%; color:#fff3c9; border-color:#c6a75d; }
+.rare-museum .zone-dock { background:#211d18; border-top-color:#8b6d3c; }
+.rare-museum .zone-dock a { border-color:#6d5938; background:#15130f; }
+
+@media (max-width:760px) {
+  .rare-museum .street-billboard { top:7%; width:86vw; border-width:10px; }
+  .rare-museum .street-characters { bottom:25%; left:-10%; right:-10%; }
+  .rare-museum .street-characters img { width:100px; height:135px; padding:5px; border-width:7px; }
+  .rare-museum .street-info-card { right:4%; bottom:29%; }
+}
+
 @media (max-width: 1100px) {
   main, footer { margin-right: 0; margin-left: 0; }
   .site-header { left: 0; width: 100%; }
