@@ -1501,6 +1501,8 @@ img, iframe { max-width: 100%; }
 .pixel-buildings i:nth-child(2n) { height: 70%; }.pixel-buildings i:nth-child(3n) { height: 55%; }.pixel-buildings i:nth-child(5n) { height: 86%; }
 .street-billboard { position: absolute; z-index: 4; top: 10%; left: 50%; width: min(670px,72vw); transform: translateX(-50%); padding: 25px 30px 28px; color: var(--lime); text-align: center; background: var(--street-screen); border: 10px solid #222; outline: 4px solid #4e5657; box-shadow: 10px 12px rgba(0,0,0,.25), inset 0 0 36px rgba(178,255,0,.08); }
 .street-billboard::before,.street-billboard::after { content:""; position:absolute; top:100%; width:18px; height:50vh; background:#222; border:4px solid #111; z-index:-1; }.street-billboard::before{left:12%}.street-billboard::after{right:12%}
+.super-rare-tease { position:absolute; top:-22px; right:18px; padding:9px 13px; color:#fff; background:#7a35ff; border:3px solid #fff; box-shadow:4px 4px #000,0 0 18px rgba(122,53,255,.85); font:900 11px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; transform:rotate(2deg); animation:super-rare-flicker 2.4s steps(2,end) infinite; }
+@keyframes super-rare-flicker { 50% { color:var(--lime); transform:rotate(-1deg) scale(1.04); } }
 .street-billboard p,.street-billboard strong { margin:0; font: 800 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.22em; }
 .street-billboard p { color:#b7f10f; font-size:13px; text-shadow:0 0 12px rgba(183,241,15,.5); }
 .street-billboard strong { display:block; color:#fff; font-size:13px; text-shadow:0 0 12px rgba(255,255,255,.45); }
@@ -1540,6 +1542,7 @@ html.normal-version .rare-street { display:none; }
   .rare-street { min-height: 760px; }
   .street-billboard { top:8%; width:86vw; padding:20px 10px; border-width:7px; }
   .street-billboard h1 { font-size:clamp(42px,15vw,68px); }
+  .super-rare-tease { top:-18px; right:8px; padding:7px 9px; font-size:8px; }
   .street-billboard strong { font-size:9px; letter-spacing:.1em; }
   .street-billboard p { font-size:10px; }
   .street-telegram { margin-top:12px; padding:10px 12px; font-size:10px; gap:6px; }
