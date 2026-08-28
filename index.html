@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=55" />
+    <link rel="stylesheet" href="styles.css?v=56" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -62,6 +62,11 @@
 
     <main id="top">
       <section class="rare-street rare-museum" aria-labelledby="street-title">
+        <div class="museum-newscast" aria-label="Live Ultra Rares and $RARE transactions">
+          <a class="museum-rare-logo" href="rare.html" aria-label="Open $RARE market"><img src="assets/rare-token.png" alt="$RARE" /></a>
+          <strong class="newscast-label"><i aria-hidden="true"></i> LIVE TAPE</strong>
+          <div class="newscast-window"><div class="newscast-track" data-museum-newscast><span>CONNECTING TO ROBINHOOD CHAIN · LOADING NFT SALES · LOADING $RARE BUYS ·</span></div></div>
+        </div>
         <div class="street-sky" aria-hidden="true">
           <i class="pixel-cloud cloud-one"></i><i class="pixel-cloud cloud-two"></i>
           <div class="pixel-buildings"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -200,6 +205,7 @@
 
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
+    <script src="museum-newscast.js?v=1"></script>
     <script src="view-toggle.js?v=1"></script>
   </body>
 </html>
