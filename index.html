@@ -10,10 +10,11 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=56" />
+    <link rel="stylesheet" href="styles.css?v=57" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
+    <button class="scene-toggle" type="button" data-scene-toggle aria-pressed="false">Switch to city</button>
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading Ultra Rares">
       <div class="home-loader-inner">
         <div class="home-loader-mark">
@@ -85,6 +86,7 @@
         <div class="street-characters" aria-label="Ultra Rares walking through the district">
           <img src="assets/11.png" alt="Ultra Rare character" /><img src="assets/14.png" alt="Ultra Rare character" /><img src="assets/18.png" alt="Ultra Rare character" /><img src="assets/20.png" alt="Ultra Rare character" />
         </div>
+        <div class="gallery-audience" aria-label="Museum visitors viewing the Ultra Rares artwork"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="street-ground" aria-hidden="true"></div>
         <p class="street-instruction">↓ ENTER THE ULTRA RARES GALLERY</p>
         <nav class="zone-dock" aria-label="Explore Ultra Rares">
@@ -206,6 +208,7 @@
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=1"></script>
+    <script src="scene-toggle.js?v=1"></script>
     <script src="view-toggle.js?v=1"></script>
   </body>
 </html>
