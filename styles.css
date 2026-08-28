@@ -1502,7 +1502,11 @@ img, iframe { max-width: 100%; }
 .street-billboard { position: absolute; z-index: 4; top: 10%; left: 50%; width: min(670px,72vw); transform: translateX(-50%); padding: 25px 30px 28px; color: var(--lime); text-align: center; background: var(--street-screen); border: 10px solid #222; outline: 4px solid #4e5657; box-shadow: 10px 12px rgba(0,0,0,.25), inset 0 0 36px rgba(178,255,0,.08); }
 .street-billboard::before,.street-billboard::after { content:""; position:absolute; top:100%; width:18px; height:50vh; background:#222; border:4px solid #111; z-index:-1; }.street-billboard::before{left:12%}.street-billboard::after{right:12%}
 .street-billboard p,.street-billboard strong { margin:0; font: 800 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.22em; }
-.street-billboard h1 { margin: 4px 0 10px; color:#ffd86a; font: 900 clamp(48px,7vw,110px)/.82 Impact,Arial Black,sans-serif; letter-spacing:.03em; text-shadow: 5px 5px #785c13; }
+.street-billboard p { color:#b7f10f; font-size:13px; text-shadow:0 0 12px rgba(183,241,15,.5); }
+.street-billboard strong { display:block; color:#fff; font-size:13px; text-shadow:0 0 12px rgba(255,255,255,.45); }
+.street-billboard h1 { margin: 8px 0 14px; color:#ffd86a; font: 900 clamp(48px,7vw,110px)/.82 Impact,Arial Black,sans-serif; letter-spacing:.03em; text-shadow: 5px 5px #785c13,0 0 20px rgba(255,216,106,.35); }
+.street-telegram { display:inline-flex; margin-top:18px; padding:10px 15px; color:#071015; background:var(--lime); border:3px solid #fff; font:900 11px ui-monospace,Consolas,monospace; letter-spacing:.1em; text-decoration:none; box-shadow:4px 4px #000; }
+.street-telegram:hover,.street-telegram:focus-visible { color:#fff; background:#111; border-color:var(--lime); transform:translate(-2px,-2px); }
 .street-info-card { position:absolute; z-index:5; right:5%; bottom:24%; width:245px; padding:18px 20px; color:#b6ff9e; background:#101820; border:7px solid #242424; outline:3px solid #657077; font:700 12px/1.65 ui-monospace,Consolas,monospace; box-shadow:7px 8px rgba(0,0,0,.2); }
 .street-info-card span { display:block; color:#ffd86a; text-align:center; font-weight:900; }.street-info-card ol { margin:8px 0 0; padding-left:23px; }
 .street-characters { position:absolute; z-index:3; left:4%; right:4%; bottom:19%; display:flex; justify-content:space-around; align-items:end; pointer-events:none; }
@@ -1519,15 +1523,29 @@ body:not(.home-loading) .site-header { background:rgba(6,8,10,.96); border-botto
 .nav-link { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.08em; }
 .doodle-parade { border-top:0; }
 
+.version-toggle { position:fixed; z-index:10001; top:14px; right:16px; padding:11px 14px; color:#101820; background:var(--lime); border:3px solid #101820; box-shadow:4px 4px #101820; font:900 10px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+.version-toggle:hover,.version-toggle:focus-visible { color:var(--lime); background:#101820; border-color:var(--lime); }
+html:not(.normal-version) body { overflow:hidden; background:#101820; }
+html:not(.normal-version) .site-header,
+html:not(.normal-version) .stats-rail,
+html:not(.normal-version) .sales-ticker,
+html:not(.normal-version) main > :not(.rare-street),
+html:not(.normal-version) footer { display:none !important; }
+html:not(.normal-version) main { margin:0; width:100%; max-width:none; }
+html.normal-version .rare-street { display:none; }
+
 @media (max-width: 760px) {
   .rare-street { min-height: 760px; }
   .street-billboard { top:8%; width:86vw; padding:20px 10px; border-width:7px; }
   .street-billboard h1 { font-size:clamp(42px,15vw,68px); }
   .street-billboard strong { font-size:9px; letter-spacing:.1em; }
+  .street-billboard p { font-size:10px; }
+  .street-telegram { margin-top:12px; padding:8px 10px; font-size:9px; }
   .street-info-card { right:5%; bottom:28%; width:190px; padding:12px; font-size:9px; }
   .street-characters { bottom:20%; left:-4%; right:-4%; }.street-characters img{width:92px;height:112px;border-width:3px}.street-characters img:nth-child(3){display:none}
   .street-instruction { bottom:13%; width:88%; text-align:center; font-size:8px; }
   .zone-dock { height:11%; overflow-x:auto; grid-template-columns:repeat(5,minmax(130px,1fr)); scrollbar-width:none; }
   .zone-dock::-webkit-scrollbar { display:none; }
   .zone-dock a { font-size:10px; }
+  .version-toggle { top:auto; right:10px; bottom:102px; font-size:8px; padding:9px 10px; }
 }

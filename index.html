@@ -7,9 +7,13 @@
     <title>Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
-    <link rel="stylesheet" href="styles.css?v=49" />
+    <script>
+      try { if (localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
+    </script>
+    <link rel="stylesheet" href="styles.css?v=50" />
   </head>
   <body class="home-loading">
+    <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading Ultra Rares">
       <div class="home-loader-inner">
         <div class="home-loader-mark">
@@ -66,6 +70,7 @@
           <p>Robinhood Chain · Est. 420</p>
           <h1 id="street-title">ULTRA RARES</h1>
           <strong>HAND DRAWN. EACH UNDER A MINUTE.</strong>
+          <a class="street-telegram" href="https://t.me/+wKXfspzImmNkMDgx" target="_blank" rel="noopener noreferrer">JOIN TELEGRAM ↗</a>
         </div>
         <div class="street-info-card">
           <span>THE COLLECTION</span>
@@ -194,5 +199,6 @@
 
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
+    <script src="view-toggle.js?v=1"></script>
   </body>
 </html>
