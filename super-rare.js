@@ -3,8 +3,7 @@
   if (!root) return;
 
   const set = (name, value) => {
-    const node = root.querySelector(`[data-super-${name}]`);
-    if (node) node.textContent = value;
+    document.querySelectorAll(`[data-super-${name}]`).forEach((node) => { node.textContent = value; });
   };
   const formatEth = (value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
 

@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=63" />
+    <link rel="stylesheet" href="styles.css?v=64" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -82,6 +82,14 @@
           <span>THE COLLECTION</span>
           <ol><li>125 Ordinals</li><li>320 Ultra Rare</li><li>Live Holder Auctions for $RARE</li><li>Powered by $RARE</li></ol>
         </div>
+        <aside class="super-buyback-summary" aria-label="Super Rare gross mint volume and buyback allocation">
+          <small>SUPER RARE · LIVE REVENUE</small>
+          <span>GROSS MINT VOLUME</span>
+          <strong data-super-volume>0 ETH</strong>
+          <span>90% VAULT + BUYBACK TARGET</span>
+          <b data-super-vault>0 ETH</b>
+          <em>EARMARKED · ROUTING NOT AUTOMATED</em>
+        </aside>
         <section class="super-rare-exhibit" data-super-rare aria-labelledby="super-rare-title">
           <header>
             <div><small>NEW COLLECTION · ONE ARTWORK EVERY DAY</small><h2 id="super-rare-title">SUPER RARE</h2></div>
@@ -235,7 +243,7 @@
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=1"></script>
-    <script src="super-rare.js?v=2"></script>
+    <script src="super-rare.js?v=3"></script>
     <script src="buyback-goal.js?v=1"></script>
     <script src="scene-toggle.js?v=1"></script>
     <script src="view-toggle.js?v=1"></script>
