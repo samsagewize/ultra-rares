@@ -8,6 +8,19 @@ const TRANSFER_SINGLE = '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7
 const TRANSFER_BATCH = '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb';
 const ZERO_TOPIC = `0x${'0'.repeat(64)}`;
 
+const publicImageUrl = (value = '') => value.startsWith('ipfs://')
+  ? `https://dweb.link/ipfs/${value.slice(7)}`
+  : value;
+
+const indexedImageFor = async (tokenId) => {
+  try {
+    const result = await fetch(`${EXPLORER}/api/v2/tokens/${CONTRACT}/instances/${tokenId}`, { signal: AbortSignal.timeout(8000) });
+    if (!result.ok) return '';
+    const instance = await result.json();
+    return publicImageUrl(instance.image_url || instance.media_url || instance.metadata?.image || instance.metadata?.image_url || '');
+  } catch { return ''; }
+};
+
 const rpc = async (method, params, id = 1) => {
   const result = await fetch(RPC, {
     method: 'POST', headers: { 'content-type': 'application/json' }, signal: AbortSignal.timeout(12000),
@@ -60,7 +73,9 @@ module.exports = async function handler(request, response) {
       1: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/df79c676e70fcb0487e8d96b08438d/ebdf79c676e70fcb0487e8d96b08438d.png?w=1000',
       2: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/16e0eed965304728564b640d8b791b/7c16e0eed965304728564b640d8b791b.png?w=1000',
     };
-    const featuredImageUrl = featuredImages[featuredTokenId] || '';
+    const knownListingPricesEth = { 2: 0.0019 };
+    const featuredImageUrl = featuredImages[featuredTokenId] || await indexedImageFor(featuredTokenId);
+    const featuredListingPriceEth = knownListingPricesEth[featuredTokenId] || null;
     const transferLogs = allTransfers.filter((transfer) => transfer.topics?.[2]?.toLowerCase() !== ZERO_TOPIC);
     const saleHashes = [...new Set(transferLogs.map((transfer) => transfer.transactionHash).filter(Boolean))];
     const saleTransactions = await transactionsFor(saleHashes, 1000);
@@ -107,7 +122,8 @@ module.exports = async function handler(request, response) {
       grossMintRevenueEth: grossEth, projectSalesRevenueEth, grossRevenueEth,
       vaultBuybackEth: grossRevenueEth * 0.9, remainderEth: grossRevenueEth * 0.1,
       soldCount: sales.reduce((sum, sale) => sum + sale.units, 0), featuredSoldCount, salesVolumeEth, latestSales: sales.slice(0, 10),
-      featuredTokenId, featuredUrl: `${OPENSEA}/${featuredTokenId}`, featuredImageUrl, explorerUrl: `${EXPLORER}/token/${CONTRACT}`,
+      featuredTokenId, featuredUrl: `${OPENSEA}/${featuredTokenId}`, featuredImageUrl, featuredListingPriceEth,
+      explorerUrl: `${EXPLORER}/token/${CONTRACT}`,
       methodology: 'Gross project revenue combines confirmed paid mints and native-ETH sales transferred from the project wallet. Collection sales volume includes all non-mint ERC-1155 transfers whose transaction carried native ETH. Ordinary zero-value wallet transfers are excluded. The 90/10 values are allocation targets, not proof that funds were routed.',
       updatedAt: new Date().toISOString(),
     });

@@ -20,6 +20,8 @@
       if (link) link.href = data.featuredUrl;
       if (listing) listing.href = data.featuredUrl;
       set('token', `DAILY ARTWORK · #${data.featuredTokenId}`);
+      set('listing-token', `#${data.featuredTokenId}`);
+      set('price', data.featuredListingPriceEth ? formatEth(data.featuredListingPriceEth) : 'VIEW PRICE ↗');
       set('volume', formatEth(data.grossRevenueEth ?? data.grossMintRevenueEth));
       set('vault', formatEth(data.vaultBuybackEth));
       set('remainder', formatEth(data.remainderEth));
