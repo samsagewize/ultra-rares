@@ -56,9 +56,11 @@ module.exports = async function handler(request, response) {
     const mintedUnits = mintData.reduce((sum, mint) => sum + mint.units, 0);
     const tokenIds = [...new Set(mintData.map((mint) => mint.tokenId).filter(Number.isFinite))].sort((a, b) => a - b);
     const featuredTokenId = tokenIds.length ? tokenIds[tokenIds.length - 1] : 2;
-    const featuredImageUrl = featuredTokenId === 1
-      ? 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/df79c676e70fcb0487e8d96b08438d/ebdf79c676e70fcb0487e8d96b08438d.png?w=1000'
-      : '';
+    const featuredImages = {
+      1: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/df79c676e70fcb0487e8d96b08438d/ebdf79c676e70fcb0487e8d96b08438d.png?w=1000',
+      2: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/16e0eed965304728564b640d8b791b/7c16e0eed965304728564b640d8b791b.png?w=1000',
+    };
+    const featuredImageUrl = featuredImages[featuredTokenId] || '';
     const transferLogs = allTransfers.filter((transfer) => transfer.topics?.[2]?.toLowerCase() !== ZERO_TOPIC);
     const saleHashes = [...new Set(transferLogs.map((transfer) => transfer.transactionHash).filter(Boolean))];
     const saleTransactions = await transactionsFor(saleHashes, 1000);
