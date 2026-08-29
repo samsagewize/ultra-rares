@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=61" />
+    <link rel="stylesheet" href="styles.css?v=62" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -99,11 +99,15 @@
           </div>
           <p>PRIMARY MINTS ONLY · CONFIRMED ON ROBINHOOD CHAIN · 90/10 VALUES ARE THE PROJECT ALLOCATION TARGET · <a href="https://robinhoodchain.blockscout.com/token/0x28d1b29291daeb847a3c540c2b241e153d1d7385" target="_blank" rel="noopener noreferrer">VERIFY CONTRACT ↗</a></p>
         </section>
-        <div class="buyback-desk buyback-pending" role="status" aria-live="polite" aria-label="Buyback Desk pending">
+        <div class="buyback-desk buyback-pending" data-buyback-goal role="status" aria-live="polite" aria-label="Buyback Desk market-cap goals pending">
           <span><i aria-hidden="true"></i> BUYBACK DESK</span>
           <strong>PENDING</strong>
-          <div class="buyback-loading" aria-hidden="true"><i></i></div>
-          <small>LOADING…</small>
+          <div class="buyback-goal-track" aria-label="$RARE market-cap progress toward 100 thousand dollars">
+            <i data-buyback-goal-fill></i>
+            <span class="buyback-goal-current" data-buyback-goal-marker><img src="assets/rare-token.png" alt="$RARE" /><b data-buyback-goal-value>LOADING…</b></span>
+            <em style="--goal:15%"><b>↓</b>$15K</em><em style="--goal:25%"><b>↓</b>$25K</em><em style="--goal:50%"><b>↓</b>$50K</em><em style="--goal:100%"><b>↓</b>$100K</em>
+          </div>
+          <small data-buyback-goal-status>LOADING LIVE MARKET CAP…</small>
         </div>
         <div class="street-characters" aria-label="Ultra Rares walking through the district">
           <img src="assets/11.png" alt="Ultra Rare character" /><img src="assets/14.png" alt="Ultra Rare character" /><img src="assets/18.png" alt="Ultra Rare character" /><img src="assets/20.png" alt="Ultra Rare character" />
@@ -231,6 +235,7 @@
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=1"></script>
     <script src="super-rare.js?v=1"></script>
+    <script src="buyback-goal.js?v=1"></script>
     <script src="scene-toggle.js?v=1"></script>
     <script src="view-toggle.js?v=1"></script>
   </body>
