@@ -876,6 +876,7 @@ footer {
 .newscast-window { min-width:0; overflow:hidden; border-left:1px solid #58616a; }
 .newscast-track { width:max-content; display:flex; align-items:center; animation:newscast-scroll 44s linear infinite; }.newscast-track:hover { animation-play-state:paused; }
 .newscast-item,.newscast-track > span { display:block; padding:17px 30px; color:#fff; text-decoration:none; white-space:nowrap; border-right:1px solid #58616a; }.newscast-item::before { content:"◆"; margin-right:10px; color:#ffd86a; }.newscast-item.is-buy::before { color:#46f58a; }.newscast-item:hover { color:var(--lime); background:#182129; }
+.newscast-item.is-super{color:#fff;background:#6f2cff;text-shadow:1px 1px #000}.newscast-item.is-super::before{color:var(--lime);animation:super-sale-pulse .8s steps(2,end) infinite}@keyframes super-sale-pulse{50%{color:#fff;transform:scale(1.35)}}
 @keyframes newscast-scroll { to { transform:translateX(-50%); } }
 @keyframes newscast-live { 50% { opacity:.25; } }
 html:not(.normal-version) body.home-page .version-toggle { top:62px; }

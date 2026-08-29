@@ -19,12 +19,17 @@
   };
 
   async function refresh() {
-    const [nftResult, rareResult] = await Promise.allSettled([
+    const [nftResult, rareResult, superResult] = await Promise.allSettled([
       fetch('/api/collection-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/rare-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
+      fetch('/api/super-rare-stats', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
     ]);
 
     const items = [];
+    if (superResult.status === 'fulfilled') {
+      const superData = superResult.value;
+      superData.latestSales.forEach((sale) => items.push(makeItem(`${superData.soldCount} SUPER RARE${superData.soldCount === 1 ? '' : 'S'} SOLD · #${sale.tokenId} · ${sale.priceEth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH · VOLUME ${superData.salesVolumeEth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`, 'super', sale.itemUrl)));
+    }
     if (nftResult.status === 'fulfilled') {
       nftResult.value.activity.forEach((sale) => items.push(makeItem(`NFT SOLD · ULTRA RARE #${sale.tokenId} · ${sale.priceNative ?? '—'} ${sale.priceSymbol || 'ETH'} · TO ${sale.buyer}`, 'nft', sale.itemUrl)));
     }

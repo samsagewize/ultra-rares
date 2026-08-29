@@ -23,6 +23,8 @@
       set('vault', formatEth(data.vaultBuybackEth));
       set('remainder', formatEth(data.remainderEth));
       set('minted', `${data.mintedUnits} MINTED · ${data.artworkCount} ARTWORK${data.artworkCount === 1 ? '' : 'S'}`);
+      set('sold', `${data.soldCount} SUPER RARE${data.soldCount === 1 ? '' : 'S'} SOLD`);
+      set('sales-volume', formatEth(data.salesVolumeEth));
       set('status', `LIVE · UPDATED ${new Date(data.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
     })
     .catch(() => set('status', 'LIVE FEED RETRYING'));

@@ -19,12 +19,25 @@ const rpc = async (method, params, id = 1) => {
   return payload.result;
 };
 
+const transactionsFor = async (hashes, idOffset = 10) => {
+  if (!hashes.length) return [];
+  const result = await fetch(RPC, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, signal: AbortSignal.timeout(12000),
+    body: JSON.stringify(hashes.map((hash, index) => ({ jsonrpc: '2.0', id: idOffset + index, method: 'eth_getTransactionByHash', params: [hash] }))),
+  });
+  if (!result.ok) throw new Error(`RPC returned ${result.status}`);
+  const payload = await result.json();
+  if (!Array.isArray(payload)) throw new Error('RPC batch failed');
+  return payload.sort((a, b) => a.id - b.id).map((entry) => entry.result);
+};
+
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
-    const mints = await rpc('eth_getLogs', [{ address: CONTRACT, fromBlock: DEPLOY_BLOCK, toBlock: 'latest', topics: [[TRANSFER_SINGLE, TRANSFER_BATCH], null, ZERO_TOPIC] }]);
+    const allTransfers = await rpc('eth_getLogs', [{ address: CONTRACT, fromBlock: DEPLOY_BLOCK, toBlock: 'latest', topics: [[TRANSFER_SINGLE, TRANSFER_BATCH]] }]);
+    const mints = allTransfers.filter((transfer) => transfer.topics?.[2]?.toLowerCase() === ZERO_TOPIC);
     const transactionHashes = [...new Set(mints.map((mint) => mint.transactionHash).filter(Boolean))];
-    const transactions = await Promise.all(transactionHashes.map((hash, index) => rpc('eth_getTransactionByHash', [hash], index + 2)));
+    const transactions = await transactionsFor(transactionHashes, 10);
     const grossWei = transactions.reduce((sum, transaction) => sum + BigInt(transaction?.value || '0x0'), 0n);
     const grossEth = Number(grossWei) / 1e18;
     const mintData = mints.flatMap((mint) => {
@@ -47,14 +60,48 @@ module.exports = async function handler(request, response) {
     const featuredImageUrl = featuredTokenId === 1
       ? 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/df79c676e70fcb0487e8d96b08438d/ebdf79c676e70fcb0487e8d96b08438d.png?w=1000'
       : '';
+    const transferLogs = allTransfers.filter((transfer) => transfer.topics?.[2]?.toLowerCase() !== ZERO_TOPIC);
+    const saleHashes = [...new Set(transferLogs.map((transfer) => transfer.transactionHash).filter(Boolean))];
+    const saleTransactions = await transactionsFor(saleHashes, 1000);
+    const transactionByHash = new Map(saleTransactions.map((transaction) => [transaction?.hash?.toLowerCase(), transaction]));
+    const sales = transferLogs.flatMap((transfer) => {
+      const transaction = transactionByHash.get(transfer.transactionHash?.toLowerCase());
+      const valueWei = BigInt(transaction?.value || '0x0');
+      if (valueWei <= 0n) return [];
+      const words = (transfer.data || '0x').slice(2).match(/.{64}/g) || [];
+      let transferred = [];
+      if (transfer.topics?.[0]?.toLowerCase() === TRANSFER_SINGLE) {
+        transferred = [{ tokenId: Number(BigInt(`0x${words[0] || '0'}`)), units: Number(BigInt(`0x${words[1] || '0'}`)) }];
+      } else {
+        const idsAt = Number(BigInt(`0x${words[0] || '0'}`) / 32n);
+        const valuesAt = Number(BigInt(`0x${words[1] || '0'}`) / 32n);
+        const length = Number(BigInt(`0x${words[idsAt] || '0'}`));
+        transferred = Array.from({ length }, (_, index) => ({
+          tokenId: Number(BigInt(`0x${words[idsAt + 1 + index] || '0'}`)),
+          units: Number(BigInt(`0x${words[valuesAt + 1 + index] || '0'}`)),
+        }));
+      }
+      const addressFromTopic = (topic = '') => `0x${topic.slice(-40)}`;
+      return transferred.map(({ tokenId, units }) => ({
+        tokenId, units, transactionHash: transfer.transactionHash, blockNumber: Number(BigInt(transfer.blockNumber || '0x0')),
+        seller: addressFromTopic(transfer.topics?.[2]), buyer: addressFromTopic(transfer.topics?.[3]),
+        priceEth: Number(valueWei) / 1e18,
+        itemUrl: `${OPENSEA}/${tokenId}`,
+        transactionUrl: `${EXPLORER}/tx/${transfer.transactionHash}`,
+      }));
+    }).sort((a, b) => b.blockNumber - a.blockNumber);
+    const saleTransactionValues = new Map();
+    sales.forEach((sale) => saleTransactionValues.set(sale.transactionHash, sale.priceEth));
+    const salesVolumeEth = [...saleTransactionValues.values()].reduce((sum, value) => sum + value, 0);
 
     response.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=45');
     return response.status(200).json({
       displayName: 'Super Rare', onchainName: 'Ultra Rares', symbol: 'UR', standard: 'ERC-1155', contract: CONTRACT,
       mintedUnits, artworkCount: tokenIds.length, mintTransactions: transactionHashes.length,
       grossMintRevenueEth: grossEth, vaultBuybackEth: grossEth * 0.9, remainderEth: grossEth * 0.1,
+      soldCount: sales.reduce((sum, sale) => sum + sale.units, 0), salesVolumeEth, latestSales: sales.slice(0, 10),
       featuredTokenId, featuredUrl: `${OPENSEA}/${featuredTokenId}`, featuredImageUrl, explorerUrl: `${EXPLORER}/token/${CONTRACT}`,
-      methodology: 'Gross revenue is the native ETH value of confirmed transactions that emitted ERC-1155 single or batch mint events from the zero address for this contract. Secondary sales are excluded. The 90/10 values are allocation targets, not proof that funds were routed.',
+      methodology: 'Mint revenue uses confirmed mint transactions. Sold count and sales volume use non-mint ERC-1155 transfers whose transaction carried native ETH; ordinary zero-value wallet transfers are excluded. The 90/10 values are allocation targets, not proof that funds were routed.',
       updatedAt: new Date().toISOString(),
     });
   } catch {
