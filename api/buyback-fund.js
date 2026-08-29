@@ -1,4 +1,4 @@
-const ADMIN = '0x562F6ac10723ef6AF9F077A83cF25135FB369612';
+const ADMIN = '0xd060fB7c2b6E29AcC949c85f182266804061Fe1E';
 const RARE = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const WETH = '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73';
 const EXPLORER = 'https://robinhoodchain.blockscout.com';

@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=58" />
+    <link rel="stylesheet" href="styles.css?v=59" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -83,10 +83,11 @@
           <span>THE COLLECTION</span>
           <ol><li>420 original doodles</li><li>Live holder auctions</li><li>Powered by $RARE</li></ol>
         </div>
-        <a class="buyback-desk" href="https://robinhoodchain.blockscout.com/address/0x562F6ac10723ef6AF9F077A83cF25135FB369612" target="_blank" rel="noopener noreferrer" aria-label="Open the buyback wallet on Blockscout">
+        <a class="buyback-desk" href="https://robinhoodchain.blockscout.com/address/0xd060fB7c2b6E29AcC949c85f182266804061Fe1E" target="_blank" rel="noopener noreferrer" aria-label="Open the buyback wallet on Blockscout">
           <span><i aria-hidden="true"></i> LIVE BUYBACK DESK</span>
           <small>BUYBACK FEE ESTIMATE</small>
           <strong data-buyback-eth>LOADING…</strong>
+          <strong class="buyback-rare-balance" data-buyback-rare>LOADING $RARE…</strong>
           <b data-buyback-usd>PUBLIC CHAIN DATA</b>
           <em data-buyback-breakdown>READING ADMIN WALLET</em>
           <small class="buyback-note">ESTIMATE = AVAILABLE ETH + WETH. WALLET TRANSFERS MAY INCLUDE NON-FEE DEPOSITS.</small>
