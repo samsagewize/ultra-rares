@@ -26,6 +26,7 @@
       set('sold', `${data.soldCount} SUPER RARE${data.soldCount === 1 ? '' : 'S'} SOLD`);
       set('sales-volume', formatEth(data.salesVolumeEth));
       set('status', `LIVE · UPDATED ${new Date(data.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+      root.classList.toggle('is-sold', data.soldCount > 0);
     })
     .catch(() => set('status', 'LIVE FEED RETRYING'));
 })();

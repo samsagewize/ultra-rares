@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=62" />
+    <link rel="stylesheet" href="styles.css?v=63" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -90,6 +90,7 @@
           <div class="super-rare-frame">
             <iframe title="Today's Super Rare artwork" loading="lazy" referrerpolicy="no-referrer" src="super-rare-frame.html?token=1&amp;url=https%3A%2F%2Fopensea.io%2Fitem%2Frobinhood%2F0x28d1b29291daeb847a3c540c2b241e153d1d7385%2F1&amp;image=https%3A%2F%2Fi2c.seadn.io%2Frobinhood%2F0x28d1b29291daeb847a3c540c2b241e153d1d7385%2Fdf79c676e70fcb0487e8d96b08438d%2Febdf79c676e70fcb0487e8d96b08438d.png%3Fw%3D1000"></iframe>
             <a data-super-link href="https://opensea.io/item/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/1" target="_blank" rel="noopener noreferrer">BUY NOW ON OPENSEA · 0.0019 ETH ↗</a>
+            <div class="super-rare-sold-mark" aria-hidden="true"><b>✓</b><strong>SOLD</strong></div>
           </div>
           <div class="super-rare-ledger">
             <span><small data-super-token>DAILY ARTWORK · #1</small><strong data-super-minted>1 MINTED · 1 ARTWORK</strong><strong data-super-sold>0 SUPER RARES SOLD</strong></span>
@@ -234,7 +235,7 @@
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=1"></script>
-    <script src="super-rare.js?v=1"></script>
+    <script src="super-rare.js?v=2"></script>
     <script src="buyback-goal.js?v=1"></script>
     <script src="scene-toggle.js?v=1"></script>
     <script src="view-toggle.js?v=1"></script>
