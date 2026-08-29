@@ -1,8 +1,8 @@
 const CONTRACT = '0x28d1b29291daeb847a3c540c2b241e153d1d7385';
+const PROJECT_WALLET = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
 const EXPLORER = 'https://robinhoodchain.blockscout.com';
 const RPC = 'https://rpc.mainnet.chain.robinhood.com/';
 const OPENSEA = `https://opensea.io/item/robinhood/${CONTRACT}`;
-const FEATURE_START = Date.UTC(2026, 7, 29);
 const DEPLOY_BLOCK = '0x2eafc0c';
 const TRANSFER_SINGLE = '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62';
 const TRANSFER_BATCH = '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb';
@@ -55,8 +55,7 @@ module.exports = async function handler(request, response) {
     });
     const mintedUnits = mintData.reduce((sum, mint) => sum + mint.units, 0);
     const tokenIds = [...new Set(mintData.map((mint) => mint.tokenId).filter(Number.isFinite))].sort((a, b) => a - b);
-    const days = Math.max(0, Math.floor((Date.now() - FEATURE_START) / 86400000));
-    const featuredTokenId = tokenIds.length ? tokenIds[days % tokenIds.length] : 1;
+    const featuredTokenId = tokenIds.length ? tokenIds[tokenIds.length - 1] : 2;
     const featuredImageUrl = featuredTokenId === 1
       ? 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/df79c676e70fcb0487e8d96b08438d/ebdf79c676e70fcb0487e8d96b08438d.png?w=1000'
       : '';
@@ -93,15 +92,21 @@ module.exports = async function handler(request, response) {
     const saleTransactionValues = new Map();
     sales.forEach((sale) => saleTransactionValues.set(sale.transactionHash, sale.priceEth));
     const salesVolumeEth = [...saleTransactionValues.values()].reduce((sum, value) => sum + value, 0);
+    const projectSaleTransactionValues = new Map();
+    sales.filter((sale) => sale.seller.toLowerCase() === PROJECT_WALLET).forEach((sale) => projectSaleTransactionValues.set(sale.transactionHash, sale.priceEth));
+    const projectSalesRevenueEth = [...projectSaleTransactionValues.values()].reduce((sum, value) => sum + value, 0);
+    const grossRevenueEth = grossEth + projectSalesRevenueEth;
+    const featuredSoldCount = sales.filter((sale) => sale.tokenId === featuredTokenId).reduce((sum, sale) => sum + sale.units, 0);
 
     response.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=45');
     return response.status(200).json({
       displayName: 'Super Rare', onchainName: 'Ultra Rares', symbol: 'UR', standard: 'ERC-1155', contract: CONTRACT,
       mintedUnits, artworkCount: tokenIds.length, mintTransactions: transactionHashes.length,
-      grossMintRevenueEth: grossEth, vaultBuybackEth: grossEth * 0.9, remainderEth: grossEth * 0.1,
-      soldCount: sales.reduce((sum, sale) => sum + sale.units, 0), salesVolumeEth, latestSales: sales.slice(0, 10),
+      grossMintRevenueEth: grossEth, projectSalesRevenueEth, grossRevenueEth,
+      vaultBuybackEth: grossRevenueEth * 0.9, remainderEth: grossRevenueEth * 0.1,
+      soldCount: sales.reduce((sum, sale) => sum + sale.units, 0), featuredSoldCount, salesVolumeEth, latestSales: sales.slice(0, 10),
       featuredTokenId, featuredUrl: `${OPENSEA}/${featuredTokenId}`, featuredImageUrl, explorerUrl: `${EXPLORER}/token/${CONTRACT}`,
-      methodology: 'Mint revenue uses confirmed mint transactions. Sold count and sales volume use non-mint ERC-1155 transfers whose transaction carried native ETH; ordinary zero-value wallet transfers are excluded. The 90/10 values are allocation targets, not proof that funds were routed.',
+      methodology: 'Gross project revenue combines confirmed paid mints and native-ETH sales transferred from the project wallet. Collection sales volume includes all non-mint ERC-1155 transfers whose transaction carried native ETH. Ordinary zero-value wallet transfers are excluded. The 90/10 values are allocation targets, not proof that funds were routed.',
       updatedAt: new Date().toISOString(),
     });
   } catch {
