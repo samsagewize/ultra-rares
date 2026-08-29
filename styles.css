@@ -1599,3 +1599,17 @@ html.normal-version body.home-page .rare-street { display:none; }
   .zone-dock a { font-size:10px; }
   .version-toggle { top:auto; right:10px; bottom:102px; font-size:8px; padding:9px 10px; }
 }
+.super-rare-exhibit{position:absolute;z-index:14;left:50%;bottom:11.5%;width:min(44vw,570px);transform:translateX(-50%);background:#0d171d;border:5px solid #293943;box-shadow:0 0 0 4px #080c0f,10px 12px 0 rgba(0,0,0,.25);color:#fff;font-family:"Courier New",monospace}
+.super-rare-exhibit header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 12px;background:#111e25;border-bottom:3px solid #aef600}
+.super-rare-exhibit header small,.super-rare-exhibit header b{font-size:8px;letter-spacing:1.2px;color:#aef600}
+.super-rare-exhibit h2{font-size:25px;line-height:.9;margin:4px 0 0;color:#fff}
+.super-rare-frame{position:relative;height:175px;background:#050709;overflow:hidden}
+.super-rare-frame iframe{width:100%;height:100%;border:0;background:#aef600}
+.super-rare-frame a{position:absolute;right:7px;bottom:7px;padding:7px 9px;background:#050709;color:#fff;border:2px solid #aef600;font-size:8px;font-weight:900;text-decoration:none;letter-spacing:.7px}
+.super-rare-ledger{display:grid;grid-template-columns:repeat(4,1fr);border-top:3px solid #aef600}
+.super-rare-ledger span{padding:8px;border-right:1px solid #5b6b72;min-width:0}.super-rare-ledger span:last-child{border-right:0}
+.super-rare-ledger small,.super-rare-ledger strong{display:block}.super-rare-ledger small{font-size:7px;color:#aef600;letter-spacing:.5px}.super-rare-ledger strong{font-size:11px;margin-top:5px;overflow-wrap:anywhere}
+.super-rare-exhibit>p{margin:0;padding:7px 10px;border-top:1px solid #5b6b72;font-size:7px;color:#aef600;letter-spacing:.5px}
+.super-rare-exhibit>p a{color:#fff;text-decoration:underline}
+.rare-street.rare-museum .street-characters img:nth-child(2),.rare-street.rare-museum .street-characters img:nth-child(3){opacity:.18}
+@media(max-width:720px){.super-rare-exhibit{width:calc(100% - 24px);bottom:13%;border-width:3px}.super-rare-frame{height:150px}.super-rare-exhibit header{padding:8px}.super-rare-exhibit h2{font-size:20px}.super-rare-ledger{grid-template-columns:repeat(2,1fr)}.super-rare-ledger span:nth-child(2){border-right:0}.super-rare-ledger span:nth-child(-n+2){border-bottom:1px solid #5b6b72}.super-rare-exhibit>p{font-size:6px}.rare-street{min-height:980px}}
