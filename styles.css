@@ -888,6 +888,7 @@ html.normal-version .scene-toggle { display:none; }
 .rare-museum .street-billboard::before,.rare-museum .street-billboard::after { display:none; }
 .rare-museum .street-info-card { right:4%; bottom:24%; color:#222; background:#e9dfc7; border:9px ridge #9b7b42; outline:3px solid #2e261d; box-shadow:9px 10px rgba(55,44,29,.22); }
 .rare-museum .street-info-card span { color:#111; }.rare-museum .street-info-card li::marker { color:#6d31d6; }
+.buyback-desk { position:absolute; z-index:8; left:3%; bottom:23%; width:min(270px,27vw); padding:17px 18px; display:grid; gap:6px; color:#fff; background:#101820; border:5px solid var(--lime); box-shadow:8px 9px rgba(0,0,0,.25),0 0 20px rgba(183,241,15,.28); text-decoration:none; font-family:ui-monospace,Consolas,monospace; }.buyback-desk > span{display:flex;align-items:center;gap:7px;color:var(--lime);font-size:10px;font-weight:900;letter-spacing:.1em}.buyback-desk > span i{width:8px;height:8px;background:#46f58a;border-radius:50%;box-shadow:0 0 9px #46f58a}.buyback-desk small{font-size:9px;font-weight:900;letter-spacing:.08em}.buyback-desk strong{color:#ffd86a;font-size:clamp(24px,3vw,43px);line-height:.95}.buyback-desk b{color:#fff;font-size:13px}.buyback-desk em{color:#aab6bd;font-size:8px;font-style:normal}.buyback-desk .buyback-note{margin-top:5px;padding-top:8px;color:#c9c3b5;border-top:1px solid #5c666c;font-size:7px;line-height:1.35}.buyback-desk:hover{transform:translateY(-3px);box-shadow:11px 12px rgba(0,0,0,.28),0 0 32px rgba(183,241,15,.48)}
 .rare-museum .street-characters { bottom:24%; align-items:center; }
 .rare-museum .street-characters img { width:clamp(110px,13vw,180px); height:clamp(145px,18vw,235px); padding:10px; object-fit:cover; object-position:50% 34%; background:#eee4cd; border:12px ridge #8b6d3c; border-radius:0; filter:contrast(1.18) saturate(.88); box-shadow:10px 12px rgba(52,42,30,.22); }
 .rare-museum .street-characters img:nth-child(2n) { transform:none; }
@@ -907,6 +908,7 @@ html.normal-version .scene-toggle { display:none; }
   .rare-museum .street-characters { bottom:25%; left:-10%; right:-10%; }
   .rare-museum .street-characters img { width:100px; height:135px; padding:5px; border-width:7px; }
   .rare-museum .street-info-card { right:4%; bottom:29%; }
+  .buyback-desk { left:3%; bottom:31%; width:178px; padding:10px; gap:4px; }.buyback-desk strong{font-size:21px}.buyback-desk b{font-size:10px}.buyback-desk em{font-size:6px}.buyback-desk .buyback-note{display:none}
   .rare-museum .gallery-audience { left:4%; right:4%; bottom:10%; }.gallery-audience i{width:28px;height:62px}.gallery-audience i::before{bottom:51px;width:25px;height:25px}.gallery-audience i:nth-child(2n){height:54px}.gallery-audience i:nth-child(3n){height:68px}
 }
 
