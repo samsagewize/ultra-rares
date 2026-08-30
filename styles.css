@@ -92,6 +92,7 @@
 .live-auctions-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .live-auctions-heading h2 { margin: 12px 0 0; font-size: clamp(52px, 8vw, 112px); line-height: .78; letter-spacing: -.075em; }
 .live-auctions-heading > span { padding: 9px 13px; border: 2px solid var(--ink); border-radius: 999px; font-size: 9px; font-weight: 900; letter-spacing: .08em; }
+.live-auctions-heading > span.is-live{display:inline-flex;align-items:center;gap:8px;color:#d9001b;border-color:#d9001b;background:#fff}.live-auctions-heading > span.is-live::before{content:"";width:10px;height:10px;border-radius:50%;background:#ff001f;box-shadow:0 0 0 0 rgba(255,0,31,.75);animation:auction-live-flash .85s steps(2,end) infinite}@keyframes auction-live-flash{50%{opacity:.25;box-shadow:0 0 0 8px rgba(255,0,31,0)}}
 .live-auctions-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 24px; }
 .live-auction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-content: start; }
 .live-auction-card { display: grid; grid-template-columns: minmax(150px, 42%) 1fr; min-width: 0; overflow: hidden; border: 3px solid var(--ink); border-radius: 18px; background: var(--acid); box-shadow: 0 12px 28px rgba(0,0,0,.1); }

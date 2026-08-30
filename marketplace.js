@@ -359,7 +359,8 @@ async function hydrateAuctionImage(tokenId, image) {
 function renderLiveAuctions(payload) {
   const grid = document.querySelector('[data-live-auction-grid]');
   const status = document.querySelector('[data-live-auctions-status]');
-  status.textContent = `${payload.activeAuctions.length} ON-CHAIN AUCTION${payload.activeAuctions.length === 1 ? '' : 'S'} · AUTO-UPDATING`;
+  status.textContent = `LIVE · ${payload.activeAuctions.length} ON-CHAIN AUCTION${payload.activeAuctions.length === 1 ? '' : 'S'} · AUTO-UPDATING`;
+  status.classList.add('is-live');
   if (!payload.activeAuctions.length) grid.innerHTML = '<div class="owned-empty">No Ultra Rares are currently in auction.</div>';
   else {
     const cards = payload.activeAuctions.map((auction) => {
@@ -537,7 +538,9 @@ async function loadLiveAuctions() {
     });
     renderLiveAuctions(payload);
   } catch {
-    document.querySelector('[data-live-auctions-status]').textContent = 'LIVE FEED RETRYING…';
+    const status = document.querySelector('[data-live-auctions-status]');
+    status.textContent = 'RECONNECTING TO LIVE FEED…';
+    status.classList.remove('is-live');
   }
 }
 
@@ -814,5 +817,5 @@ document.querySelector('[data-submit-live-bid]')?.addEventListener('click', asyn
 });
 
 loadLiveAuctions();
-liveAuctionRefresh = window.setInterval(loadLiveAuctions, 15000);
+liveAuctionRefresh = window.setInterval(loadLiveAuctions, 5000);
 window.setInterval(updateAuctionTimers, 1000);
