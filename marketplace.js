@@ -317,7 +317,9 @@ function openBidModal(auction) {
   document.querySelector('[data-selected-bid-id]').textContent = auction.tokenId;
   const minimumBase = BigInt(auction.highestBid) > 0n ? BigInt(auction.highestBid) + 10n ** 18n : BigInt(auction.reserve);
   const minimum = (minimumBase + 10n ** 18n - 1n) / 10n ** 18n;
-  document.querySelector('[data-selected-bid-summary]').textContent = `Current bid ${rareDisplay(auction.highestBid)} $RARE · minimum opening bid ${rareDisplay(auction.reserve)} $RARE.`;
+  document.querySelector('[data-selected-bid-summary]').textContent = BigInt(auction.highestBid) > 0n
+    ? `Winning bid ${rareDisplay(auction.highestBid)} $RARE · enter at least ${rareDisplay(minimumBase)} $RARE to counter.`
+    : `No bids yet · minimum opening bid ${rareDisplay(auction.reserve)} $RARE.`;
   const input = document.querySelector('[data-live-bid-amount]');
   input.min = minimum.toString();
   input.value = minimum.toString();
@@ -402,12 +404,14 @@ function renderLiveAuctions(payload) {
         const winningAmount = document.createElement('strong');
         winningAmount.textContent = `${rareDisplay(auction.highestBid)} $RARE`;
         const winningWallet = document.createElement('small');
+        winningWallet.className = 'winning-wallet';
         winningWallet.textContent = `LEADING WALLET ${shortAddress(auction.highestBidder)}`;
         winningBid.append(winningLabel, winningAmount, winningWallet);
       }
 
       if (!hasEnded) {
-        button.textContent = 'VIEW / PLACE BID ↗';
+        button.className = hasBid ? 'counter-bid-button' : '';
+        button.textContent = hasBid ? 'COUNTER BID ↗' : 'VIEW / PLACE BID ↗';
         button.addEventListener('click', () => openBidModal(auction));
       } else if (!hasBid && isSeller) {
         button.className = 'return-expired-auction';
