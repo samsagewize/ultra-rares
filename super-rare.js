@@ -7,7 +7,7 @@
   };
   const formatEth = (value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
 
-  fetch('/api/super-rare-stats', { headers: { accept: 'application/json' } })
+  const refresh = () => fetch(`/api/super-rare-stats?t=${Date.now()}`, { headers: { accept: 'application/json' } })
     .then((response) => {
       if (!response.ok) throw new Error('Unavailable');
       return response.json();
@@ -32,4 +32,7 @@
       root.classList.toggle('is-sold', data.featuredSoldCount > 0);
     })
     .catch(() => set('status', 'LIVE FEED RETRYING'));
+
+  refresh();
+  window.setInterval(refresh, 15000);
 })();
