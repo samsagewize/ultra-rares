@@ -385,7 +385,7 @@ function renderLiveAuctions(payload) {
       const timer = document.createElement('strong');
       timer.dataset.auctionEnd = auction.endTime;
       const stats = document.createElement('p');
-      stats.textContent = `HIGH BID ${rareDisplay(auction.highestBid)} $RARE · RESERVE ${rareDisplay(auction.reserve)} $RARE`;
+      stats.textContent = `RESERVE ${rareDisplay(auction.reserve)} $RARE`;
       const seller = document.createElement('small');
       seller.textContent = `SELLER ${shortAddress(auction.seller)}`;
       const button = document.createElement('button');
@@ -393,6 +393,17 @@ function renderLiveAuctions(payload) {
       const isSeller = marketAccount && auction.seller.toLowerCase() === marketAccount.toLowerCase();
       const hasBid = BigInt(auction.highestBid) > 0n || auction.highestBidder !== '0x0000000000000000000000000000000000000000';
       const hasEnded = auction.endTime <= Date.now() / 1000;
+      const winningBid = document.createElement('div');
+      winningBid.className = 'winning-bid-box';
+      if (hasBid) {
+        const winningLabel = document.createElement('span');
+        winningLabel.textContent = 'WINNING BID';
+        const winningAmount = document.createElement('strong');
+        winningAmount.textContent = `${rareDisplay(auction.highestBid)} $RARE`;
+        const winningWallet = document.createElement('small');
+        winningWallet.textContent = `LEADING WALLET ${shortAddress(auction.highestBidder)}`;
+        winningBid.append(winningLabel, winningAmount, winningWallet);
+      }
 
       if (!hasEnded) {
         button.textContent = 'VIEW / PLACE BID ↗';
@@ -444,7 +455,9 @@ function renderLiveAuctions(payload) {
         }
       }
 
-      content.append(title, timer, stats, seller, button);
+      content.append(title, timer, stats, seller);
+      if (hasBid) content.append(winningBid);
+      content.append(button);
       if (!hasEnded && isSeller && !hasBid) {
         const cancelButton = document.createElement('button');
         cancelButton.type = 'button';
