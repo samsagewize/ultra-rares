@@ -3,6 +3,7 @@ const EXPLORER = 'https://robinhoodchain.blockscout.com';
 const LEMON_VAULT = `https://lemon.fun/api/public/launchpad/vault/${RARE_TOKEN}`;
 const RARE_POOL = '0x8ec9c76ed191fb03397637acee1ce928426beb80';
 const LIQUIDITY_ENTRY_METHODS = new Set(['0xac9650d8', '0x88316456', '0x219f5d17']);
+const LIVE_HEADERS = { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; RaresRares/1.0; +https://www.raresrares.fun/)' };
 
 const shortAddress = (value = '') => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : 'Unknown';
 
@@ -11,17 +12,17 @@ module.exports = async function handler(request, response) {
   try {
     const [transferResult, lemonResult] = await Promise.all([
       fetch(`${EXPLORER}/api/v2/tokens/${RARE_TOKEN}/transfers`, {
-        headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
+        headers: LIVE_HEADERS,
         signal: AbortSignal.timeout(12000),
       }),
       fetch(LEMON_VAULT, {
-        headers: { accept: 'application/json', 'user-agent': 'UltraRares/1.0' },
+        headers: LIVE_HEADERS,
         signal: AbortSignal.timeout(12000),
-      }),
+      }).catch(() => null),
     ]);
-    if (!transferResult.ok || !lemonResult.ok) throw new Error('Live source unavailable');
+    if (!transferResult.ok) throw new Error(`Chain activity source returned ${transferResult.status}`);
     const payload = await transferResult.json();
-    const lemon = await lemonResult.json();
+    const lemon = lemonResult?.ok ? await lemonResult.json() : {};
     const items = payload.items || [];
     const liquidityHashes = new Set(items
       .filter((item) => item.to?.hash?.toLowerCase() === RARE_POOL && LIQUIDITY_ENTRY_METHODS.has(item.method?.toLowerCase()))
@@ -67,7 +68,8 @@ module.exports = async function handler(request, response) {
       },
       updatedAt: new Date().toISOString(),
     });
-  } catch {
+  } catch (error) {
+    console.error('RARE activity feed failed', error);
     return response.status(502).json({ error: 'Live $RARE activity is temporarily unavailable' });
   }
 };
