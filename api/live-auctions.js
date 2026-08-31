@@ -21,13 +21,24 @@ const RENAME_EVENTS = {
 async function fetchLogs(address, fromBlock) {
   const url = new URL(BLOCKSCOUT_LOGS);
   url.search = new URLSearchParams({ module: 'logs', action: 'getLogs', address, fromBlock: BigInt(fromBlock).toString(), toBlock: 'latest' });
-  const payload = await fetch(url, {
-    headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
-    signal: AbortSignal.timeout(12000),
-  }).then(async (result) => {
-    if (!result.ok) throw new Error(`Blockscout log feed returned ${result.status}`);
-    return result.json();
-  });
+  let payload;
+  try {
+    payload = await fetch(url, {
+      headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
+      signal: AbortSignal.timeout(12000),
+    }).then(async (result) => {
+      if (!result.ok) throw new Error(`Blockscout log feed returned ${result.status}`);
+      return result.json();
+    });
+  } catch {
+    const proxyUrl = `https://r.jina.ai/http://${url.host}${url.pathname}?${url.searchParams.toString().replaceAll('&', '%26')}`;
+    const proxyText = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) }).then(async (result) => {
+      if (!result.ok) throw new Error(`Auction log fallback returned ${result.status}`);
+      return result.text();
+    });
+    const marker = 'Markdown Content:';
+    payload = JSON.parse(proxyText.slice(proxyText.indexOf(marker) + marker.length).trim());
+  }
   if (payload.status !== '1' && payload.message !== 'No logs found') throw new Error(payload.message || 'Log feed unavailable');
   return Array.isArray(payload.result) ? payload.result : [];
 }
