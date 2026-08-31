@@ -39,7 +39,7 @@
             <div class="auction-chain-stats" aria-label="Verified auction statistics">
               <p><small>SETTLED VOLUME</small><strong data-auction-volume>—</strong></p>
               <p><small>2% FEES TO VAULT</small><strong data-auction-fees>—</strong></p>
-              <p class="burn-pending"><small>VERIFIED BURNED</small><strong data-auction-burned>0 $RARE</strong><em>Burn is not active in the current auction contract</em></p>
+              <p class="burn-pending"><small>VERIFIED BURNED</small><strong data-auction-burned>— $RARE</strong><em>Confirmed transfers to the permanent burn address</em><button type="button" data-open-admin-burn hidden>ADMIN: BURN + SEND 2% TO VAULT</button></p>
             </div>
           </div>
         </div>
@@ -170,6 +170,23 @@
         </div>
       </section>
 
+      <section class="auction-section auction-modal bid-modal burn-modal" aria-labelledby="burn-modal-title" data-burn-modal hidden>
+        <div class="bid-dialog">
+          <button type="button" class="auction-modal-close" data-close-admin-burn aria-label="Close burn popup">Close ×</button>
+          <div class="auction-heading">
+            <p class="eyebrow">Administrator-only voluntary burn</p>
+            <h2 id="burn-modal-title">Burn<br />$RARE.</h2>
+            <p>Enter the total amount. Your wallet will send 2% to the verified Fee Vault, then permanently send 98% to the dead address. Both transfers are public and require separate confirmations.</p>
+          </div>
+          <div class="burn-tools">
+            <label for="admin-burn-amount">Total $RARE amount</label>
+            <input id="admin-burn-amount" type="number" min="1" step="1" placeholder="1000000" data-admin-burn-amount />
+            <button type="button" data-submit-admin-burn>Review split</button>
+            <div class="market-listing-result" data-admin-burn-status role="status" aria-live="polite">Only the verified administrator wallet can use this control.</div>
+          </div>
+        </div>
+      </section>
+
       <section class="marketplace-safety">
         <p><strong>Non-custodial</strong><span>The marketplace does not hold listed NFTs.</span></p>
         <p><strong>Transparent settlement</strong><span>98% goes to the seller and 2% is split equally by the fee vault.</span></p>
@@ -177,6 +194,6 @@
       </section>
     </main>
     <script src="loader.js?v=1"></script>
-    <script src="marketplace.js?v=19"></script>
+    <script src="marketplace.js?v=20"></script>
   </body>
 </html>

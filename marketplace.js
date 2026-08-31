@@ -2,6 +2,8 @@ const MARKET_CHAIN_ID = '0x1237';
 const MARKET_NFT = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const MARKET_RARE = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const MARKET_ADMIN = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
+const MARKET_FEE_VAULT = '0x55f3ed784d5b0142a833e411d133f043df426f79';
+const MARKET_BURN_ADDRESS = '0x000000000000000000000000000000000000dead';
 const MARKET_TRANSFER_VALIDATOR = '0xa000027a9b2802e1ddf7000061001e5c005a0000';
 const marketRoot = document.querySelector('[data-marketplace]');
 const marketplaceAddress = marketRoot?.dataset.marketplaceAddress || '';
@@ -22,6 +24,9 @@ const renameStatus = document.querySelector('[data-rename-status]');
 const renameName = document.querySelector('[data-rename-name]');
 const renameSubmit = document.querySelector('[data-submit-rename]');
 const confirmModal = document.querySelector('[data-confirm-modal]');
+const burnModal = document.querySelector('[data-burn-modal]');
+const openAdminBurn = document.querySelector('[data-open-admin-burn]');
+const adminBurnStatus = document.querySelector('[data-admin-burn-status]');
 let confirmResolver = null;
 let marketAccount = '';
 let marketArtifact;
@@ -136,6 +141,7 @@ function resetWalletView(message = 'Wallet disconnected.') {
   connectMarket.disabled = false;
   disconnectMarket.hidden = true;
   rareBalance.textContent = '— $RARE';
+  if (openAdminBurn) openAdminBurn.hidden = true;
   ownedCount.textContent = 'Connect wallet to load NFTs';
   ownedGrid.innerHTML = '<div class="owned-empty">Your Ultra Rares will appear here after you connect.</div>';
   closeAuctionModal();
@@ -348,6 +354,20 @@ function updateAuctionTimers() {
   });
 }
 
+function closeAdminBurnModal() {
+  burnModal.hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
+openAdminBurn?.addEventListener('click', () => {
+  if (marketAccount.toLowerCase() !== MARKET_ADMIN) return;
+  burnModal.hidden = false;
+  document.body.classList.add('modal-open');
+  document.querySelector('[data-admin-burn-amount]')?.focus();
+});
+document.querySelector('[data-close-admin-burn]')?.addEventListener('click', closeAdminBurnModal);
+burnModal?.addEventListener('click', (event) => { if (event.target === burnModal) closeAdminBurnModal(); });
+
 async function hydrateAuctionImage(tokenId, image) {
   try {
     const metadata = await fetch(`/api/nft-metadata?tokenId=${tokenId}`).then((response) => {
@@ -370,7 +390,9 @@ function renderLiveAuctions(payload) {
   status.classList.add('is-live');
   document.querySelector('[data-auction-volume]').textContent = `${rareDisplay(payload.stats?.settledVolume || 0)} $RARE`;
   document.querySelector('[data-auction-fees]').textContent = `${rareDisplay(payload.stats?.protocolFees || 0)} $RARE`;
-  document.querySelector('[data-auction-burned]').textContent = `${rareDisplay(payload.stats?.verifiedBurned || 0)} $RARE`;
+  document.querySelector('[data-auction-burned]').textContent = payload.stats?.verifiedBurned === null || payload.stats?.verifiedBurned === undefined
+    ? '— $RARE'
+    : `${rareDisplay(payload.stats.verifiedBurned)} $RARE`;
   if (!payload.activeAuctions.length) grid.innerHTML = '<div class="owned-empty">No Ultra Rares are currently in auction.</div>';
   else {
     const cards = payload.activeAuctions.map((auction) => {
@@ -610,6 +632,7 @@ connectMarket?.addEventListener('click', async () => {
     if (chainId !== MARKET_CHAIN_ID) throw new Error('Robinhood Chain connection could not be verified.');
     if (!isAddress(accounts[0])) throw new Error('The wallet returned an invalid account address.');
     marketAccount = accounts[0];
+    if (openAdminBurn) openAdminBurn.hidden = marketAccount.toLowerCase() !== MARKET_ADMIN;
     connectMarket.textContent = `${marketAccount.slice(0, 6)}…${marketAccount.slice(-4)}`;
     connectMarket.disabled = true;
     disconnectMarket.hidden = false;
@@ -830,6 +853,37 @@ document.querySelector('[data-submit-live-bid]')?.addEventListener('click', asyn
     liveBidStatus.textContent = error?.code === 4001 ? 'Transaction cancelled. No bid was placed.' : (error.message || 'Bid could not be placed.');
     button.disabled = false;
     button.textContent = 'Approve and place bid';
+  }
+});
+
+document.querySelector('[data-submit-admin-burn]')?.addEventListener('click', async () => {
+  const button = document.querySelector('[data-submit-admin-burn]');
+  const amount = document.querySelector('[data-admin-burn-amount]').value;
+  if (marketAccount.toLowerCase() !== MARKET_ADMIN) { adminBurnStatus.textContent = 'Connect the verified administrator wallet first.'; return; }
+  if (!amount || !Number.isSafeInteger(Number(amount)) || Number(amount) < 1) { adminBurnStatus.textContent = 'Enter a whole-number amount of at least 1 $RARE.'; return; }
+  const total = rareUnits(amount);
+  const vaultShare = total * 2n / 100n;
+  const burnShare = total - vaultShare;
+  const confirmed = await siteConfirm({
+    eyebrow: 'Permanent token action',
+    title: `Burn ${rareDisplay(burnShare)} $RARE?`,
+    copy: `${rareDisplay(vaultShare)} $RARE (2%) goes to the verified Fee Vault. ${rareDisplay(burnShare)} $RARE (98%) goes permanently to 0x…dEaD. This requires two wallet confirmations and cannot be reversed.`,
+    confirmLabel: 'Continue to wallet',
+  });
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    adminBurnStatus.textContent = `Step 1 of 2: send ${rareDisplay(vaultShare)} $RARE to the Fee Vault.`;
+    await marketSend(MARKET_RARE, `0xa9059cbb${marketAddressWord(MARKET_FEE_VAULT)}${marketWord(vaultShare)}`, 'Send 2% to Fee Vault');
+    adminBurnStatus.textContent = `Step 2 of 2: permanently burn ${rareDisplay(burnShare)} $RARE.`;
+    await marketSend(MARKET_RARE, `0xa9059cbb${marketAddressWord(MARKET_BURN_ADDRESS)}${marketWord(burnShare)}`, 'Burn 98% of $RARE');
+    adminBurnStatus.textContent = `${rareDisplay(burnShare)} $RARE burned · ${rareDisplay(vaultShare)} $RARE sent to Vault ✓`;
+    button.textContent = 'Burn complete ✓';
+    await Promise.all([loadRareBalance(), loadLiveAuctions()]);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = 'Review split';
+    adminBurnStatus.textContent = error?.code === 4001 ? 'Wallet confirmation cancelled. Check the status above before retrying either step.' : (error.message || 'The transfer did not complete. Verify both transactions before retrying.');
   }
 });
 

@@ -2,6 +2,9 @@ const BLOCKSCOUT_LOGS = 'https://robinhoodchain.blockscout.com/api';
 const AUCTION = '0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8';
 const FEE_VAULT = '0x55f3ed784d5b0142a833e411d133f043df426f79';
 const RARE_TOKEN = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
+const ADMIN = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
+const BURN_ADDRESS = '0x000000000000000000000000000000000000dead';
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const RENAME_REGISTRY = '0x8d14dec25cd17081270b7052685fa0418c376cee';
 const COLLECTION = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const DEPLOY_BLOCK = '0x2588127';
@@ -65,6 +68,33 @@ async function fetchVaultBalance() {
   return rare?.value || '0';
 }
 
+async function fetchVerifiedBurns() {
+  const indexed = (address) => `0x${address.slice(2).padStart(64, '0')}`;
+  const url = new URL(BLOCKSCOUT_LOGS);
+  url.search = new URLSearchParams({
+    module: 'logs', action: 'getLogs', fromBlock: '0', toBlock: 'latest', address: RARE_TOKEN,
+    topic0: TRANSFER_TOPIC, topic1: indexed(ADMIN), topic2: indexed(BURN_ADDRESS),
+    topic0_1_opr: 'and', topic0_2_opr: 'and', topic1_2_opr: 'and',
+  });
+  let payload;
+  try {
+    payload = await fetch(url, {
+      headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
+      signal: AbortSignal.timeout(12000),
+    }).then(async (result) => {
+      if (!result.ok) throw new Error(`Burn log feed returned ${result.status}`);
+      return result.json();
+    });
+  } catch {
+    const proxyUrl = `https://r.jina.ai/http://${url.host}${url.pathname}?${url.searchParams.toString().replaceAll('&', '%26')}`;
+    const text = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) }).then((result) => result.text());
+    const marker = 'Markdown Content:';
+    payload = JSON.parse(text.slice(text.indexOf(marker) + marker.length).trim());
+  }
+  if (payload.status !== '1') return payload.message === 'No logs found' ? '0' : null;
+  return payload.result.reduce((total, log) => total + BigInt(log.data), 0n).toString();
+}
+
 const word = (value) => BigInt(value).toString(16).padStart(64, '0');
 const addressFromWord = (value) => `0x${value.slice(-40)}`.toLowerCase();
 const words = (value) => value.slice(2).match(/.{64}/g) || [];
@@ -93,10 +123,11 @@ async function artworkForToken(tokenId) {
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
-    const [logs, renameLogs, vaultBalance] = await Promise.all([
+    const [logs, renameLogs, vaultBalance, verifiedBurned] = await Promise.all([
       fetchLogs(AUCTION, DEPLOY_BLOCK),
       fetchLogs(RENAME_REGISTRY, RENAME_DEPLOY_BLOCK).catch(() => []),
       fetchVaultBalance().catch(() => null),
+      fetchVerifiedBurns().catch(() => null),
     ]);
     const auctionState = new Map();
     logs.forEach((log) => {
@@ -146,7 +177,7 @@ module.exports = async function handler(request, response) {
     return response.status(200).json({
       activeAuctions,
       activity,
-      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), vaultBalance, verifiedBurned: '0', burnActive: false },
+      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), vaultBalance, verifiedBurned, burnActive: true },
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
