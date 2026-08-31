@@ -884,6 +884,7 @@ footer {
 .newscast-window { min-width:0; overflow:hidden; border-left:1px solid #58616a; }
 .newscast-track { width:max-content; display:flex; align-items:center; animation:newscast-scroll 44s linear infinite; }.newscast-track:hover { animation-play-state:paused; }
 .newscast-item,.newscast-track > span { display:block; padding:17px 30px; color:#fff; text-decoration:none; white-space:nowrap; border-right:1px solid #58616a; }.newscast-item::before { content:"◆"; margin-right:10px; color:#ffd86a; }.newscast-item.is-buy::before { color:#46f58a; }.newscast-item:hover { color:var(--lime); background:#182129; }
+.newscast-item.is-burn{color:#ff4fc8}.newscast-item.is-burn::before{color:#ff4fc8}
 .newscast-item.is-super{color:#fff;background:#6f2cff;text-shadow:1px 1px #000}.newscast-item.is-super::before{color:var(--lime);animation:super-sale-pulse .8s steps(2,end) infinite}@keyframes super-sale-pulse{50%{color:#fff;transform:scale(1.35)}}
 @keyframes newscast-scroll { to { transform:translateX(-50%); } }
 @keyframes newscast-live { 50% { opacity:.25; } }
@@ -988,16 +989,20 @@ html.normal-version .scene-toggle { display:none; }
 .rare-transfer-item.is-rare-sell { border-left: 5px solid #ff4d57; }
 .rare-transfer-item.is-rare-liquidity { border-left: 5px solid #238cff; background: #dbeaff; }
 .rare-transfer-item.is-rare-auction { border-left: 5px solid #7a35ff; background: #eadfff; }
+.rare-transfer-item.is-rare-burn { border-left: 5px solid #ff2fb3; background: #ffd7f2; box-shadow: inset 0 0 0 2px #ff2fb3; }
 .rare-transfer-item.is-rare-buy strong, .rare-transfer-item.is-rare-buy small:last-child { color: #087b3b; }
 .rare-transfer-item.is-rare-sell strong, .rare-transfer-item.is-rare-sell small:last-child { color: #b20f23; }
 .rare-transfer-item.is-rare-liquidity strong, .rare-transfer-item.is-rare-liquidity small:last-child { color: #0758ba; }
 .rare-transfer-item.is-rare-auction strong, .rare-transfer-item.is-rare-auction small:last-child { color: #5420bd; }
+.rare-transfer-item.is-rare-burn strong, .rare-transfer-item.is-rare-burn small:last-child { color: #a90072; }
 .rare-transfer-item.is-rare-buy .rare-token-icon { border-color: #22d86f; box-shadow: 0 0 0 3px rgba(34,216,111,.2); }
 .rare-transfer-item.is-rare-sell .rare-token-icon { border-color: #ff4d57; box-shadow: 0 0 0 3px rgba(255,77,87,.18); }
 .rare-transfer-item.is-rare-liquidity .rare-token-icon { border-color: #238cff; box-shadow: 0 0 0 3px rgba(35,140,255,.22); }
 .rare-transfer-item.is-rare-auction .rare-token-icon { border-color: #7a35ff; box-shadow: 0 0 0 3px rgba(122,53,255,.24); }
+.rare-transfer-item.is-rare-burn .rare-token-icon { border-color: #ff2fb3; box-shadow: 0 0 0 4px rgba(255,47,179,.28); }
 .rare-transfer-item.is-rare-liquidity .rare-token-icon em { color: #fff; background: #238cff; }
 .rare-transfer-item.is-rare-auction .rare-token-icon em { color: #fff; background: #7a35ff; }
+.rare-transfer-item.is-rare-burn .rare-token-icon em { color: #fff; background: #ff2fb3; }
 .rare-transfer-item.is-latest-rare-buy { position: relative; border: 4px solid #22d86f; background: #e4ffeb; box-shadow: inset 0 0 0 2px #22d86f, 0 0 20px rgba(34,216,111,.34); }
 .rare-transfer-item.is-latest-rare-buy strong, .rare-transfer-item.is-latest-rare-buy small:last-child { color: #087b3b; }
 .rare-transfer-item.is-latest-rare-buy .rare-token-icon { border-color: #22d86f; box-shadow: 0 0 0 4px rgba(34,216,111,.3); }
@@ -1013,6 +1018,7 @@ html.normal-version .scene-toggle { display:none; }
 .trade-bubble.is-sell { color: #ff4d57; background: rgba(255,77,87,.32); }
 .trade-bubble.is-liquidity { color: #238cff; background: rgba(35,140,255,.32); }
 .trade-bubble.is-auction { color: #7a35ff; background: rgba(122,53,255,.34); }
+.trade-bubble.is-burn { color: #ff2fb3; background: rgba(255,47,179,.38); }
 .trade-bubble.is-transfer { color: #9a5cff; background: rgba(154,92,255,.3); }
 .rare-transfer-ticker .ticker-track { animation: none; }
 .rare-transfer-ticker.has-new-buy { width: clamp(350px, 40vw, 560px); box-shadow: -18px 0 0 var(--ink), -30px 0 50px rgba(34,216,111,.34); }

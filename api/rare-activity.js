@@ -3,6 +3,7 @@ const EXPLORER = 'https://robinhoodchain.blockscout.com';
 const LEMON_VAULT = `https://lemon.fun/api/public/launchpad/vault/${RARE_TOKEN}`;
 const RARE_POOL = '0x8ec9c76ed191fb03397637acee1ce928426beb80';
 const RARE_AUCTION_HOUSE = '0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8';
+const RARE_BURN_ADDRESS = '0x000000000000000000000000000000000000dead';
 const LIQUIDITY_ENTRY_METHODS = new Set(['0xac9650d8', '0x88316456', '0x219f5d17']);
 const LIVE_HEADERS = { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; RaresRares/1.0; +https://www.raresrares.fun/)' };
 
@@ -47,7 +48,7 @@ module.exports = async function handler(request, response) {
       value: item.total?.value || '0',
       decimals: Number(item.total?.decimals || item.token?.decimals || 18),
       timestamp: item.timestamp,
-      side: auctionHashes.has(item.transaction_hash) ? 'auction' : liquidityHashes.has(item.transaction_hash) ? 'liquidity' : buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
+      side: item.to?.hash?.toLowerCase() === RARE_BURN_ADDRESS ? 'burn' : auctionHashes.has(item.transaction_hash) ? 'auction' : liquidityHashes.has(item.transaction_hash) ? 'liquidity' : buyHashes.has(item.transaction_hash) ? 'buy' : sellHashes.has(item.transaction_hash) ? 'sell' : 'transfer',
       url: `${EXPLORER}/tx/${item.transaction_hash}`,
     }));
     response.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2');

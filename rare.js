@@ -185,6 +185,7 @@ function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new 
     if (transfer.side === 'sell') link.classList.add('is-rare-sell');
     if (transfer.side === 'liquidity') link.classList.add('is-rare-liquidity');
     if (transfer.side === 'auction') link.classList.add('is-rare-auction');
+    if (transfer.side === 'burn') link.classList.add('is-rare-burn');
     if (transfer.hash === currentLatestBuyHash && transfer.side === 'buy') link.classList.add('is-latest-rare-buy');
     if (newTradeHashes.has(transfer.hash)) link.classList.add('is-new-trade-pop');
     if (transfer.hash === newBuyHash && transfer.side === 'buy') link.classList.add('is-new-rare-buy');
@@ -213,13 +214,18 @@ function renderRareTransfers(transfers, newBuyHash = null, newTradeHashes = new 
       auctionBadge.textContent = 'BID';
       icon.append(auctionBadge);
     }
+    if (transfer.side === 'burn') {
+      const burnBadge = document.createElement('em');
+      burnBadge.textContent = 'BURN';
+      icon.append(burnBadge);
+    }
     const copy = document.createElement('span');
     const amount = document.createElement('strong');
     amount.textContent = formatRareTransfer(transfer.value, transfer.decimals);
     const route = document.createElement('small');
     route.textContent = `${transfer.fromLabel || shortWallet(transfer.from)} → ${transfer.toLabel || shortWallet(transfer.to)}`;
     const time = document.createElement('small');
-    const sideLabel = transfer.side === 'buy' ? 'BUY · ' : transfer.side === 'sell' ? 'SELL · ' : transfer.side === 'liquidity' ? 'LIQUIDITY ADDED · ' : transfer.side === 'auction' ? 'RARE AUCTION HOUSE · ' : 'TRANSFER · ';
+    const sideLabel = transfer.side === 'buy' ? 'BUY · ' : transfer.side === 'sell' ? 'SELL · ' : transfer.side === 'liquidity' ? 'LIQUIDITY ADDED · ' : transfer.side === 'auction' ? 'RARE AUCTION HOUSE · ' : transfer.side === 'burn' ? 'PERMANENT BURN · ' : 'TRANSFER · ';
     time.textContent = `${sideLabel}${new Date(transfer.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
     copy.append(amount, route, time);
     link.append(icon, copy);
@@ -242,8 +248,8 @@ function playTradePop(side, delay = 0) {
     const oscillator = tradeAudioContext.createOscillator();
     const gain = tradeAudioContext.createGain();
     oscillator.type = 'sine';
-    const startFrequency = side === 'buy' ? 680 : side === 'liquidity' ? 540 : side === 'auction' ? 590 : side === 'transfer' ? 460 : 310;
-    const endFrequency = side === 'buy' ? 420 : side === 'liquidity' ? 760 : side === 'auction' ? 360 : side === 'transfer' ? 340 : 190;
+    const startFrequency = side === 'buy' ? 680 : side === 'liquidity' ? 540 : side === 'auction' ? 590 : side === 'burn' ? 820 : side === 'transfer' ? 460 : 310;
+    const endFrequency = side === 'buy' ? 420 : side === 'liquidity' ? 760 : side === 'auction' ? 360 : side === 'burn' ? 260 : side === 'transfer' ? 340 : 190;
     oscillator.frequency.setValueAtTime(startFrequency, now);
     oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + .09);
     gain.gain.setValueAtTime(.0001, now);
@@ -274,7 +280,7 @@ function animateTradeBubbles(trades) {
 
 function findNewTrades(transfers) {
   const uniqueTrades = [...new Map(transfers
-    .filter((transfer) => ['buy', 'sell', 'liquidity', 'auction', 'transfer'].includes(transfer.side))
+    .filter((transfer) => ['buy', 'sell', 'liquidity', 'auction', 'burn', 'transfer'].includes(transfer.side))
     .map((transfer) => [transfer.hash, transfer])).values()];
   if (!rareTradesInitialized) {
     knownRareTradeHashes = new Set(uniqueTrades.map((trade) => trade.hash));
