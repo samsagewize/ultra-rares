@@ -1,5 +1,7 @@
 const BLOCKSCOUT_LOGS = 'https://robinhoodchain.blockscout.com/api';
 const AUCTION = '0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8';
+const FEE_VAULT = '0x55f3ed784d5b0142a833e411d133f043df426f79';
+const RARE_TOKEN = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const RENAME_REGISTRY = '0x8d14dec25cd17081270b7052685fa0418c376cee';
 const COLLECTION = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const DEPLOY_BLOCK = '0x2588127';
@@ -43,6 +45,26 @@ async function fetchLogs(address, fromBlock) {
   return Array.isArray(payload.result) ? payload.result : [];
 }
 
+async function fetchVaultBalance() {
+  const url = `https://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-balances`;
+  let balances;
+  try {
+    balances = await fetch(url, {
+      headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
+      signal: AbortSignal.timeout(10000),
+    }).then(async (result) => {
+      if (!result.ok) throw new Error(`Vault balance feed returned ${result.status}`);
+      return result.json();
+    });
+  } catch {
+    const text = await fetch(`https://r.jina.ai/http://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-balances`, { signal: AbortSignal.timeout(12000) }).then((result) => result.text());
+    const marker = 'Markdown Content:';
+    balances = JSON.parse(text.slice(text.indexOf(marker) + marker.length).trim());
+  }
+  const rare = balances.find((item) => item.token?.address_hash?.toLowerCase() === RARE_TOKEN);
+  return rare?.value || '0';
+}
+
 const word = (value) => BigInt(value).toString(16).padStart(64, '0');
 const addressFromWord = (value) => `0x${value.slice(-40)}`.toLowerCase();
 const words = (value) => value.slice(2).match(/.{64}/g) || [];
@@ -71,9 +93,10 @@ async function artworkForToken(tokenId) {
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
-    const [logs, renameLogs] = await Promise.all([
+    const [logs, renameLogs, vaultBalance] = await Promise.all([
       fetchLogs(AUCTION, DEPLOY_BLOCK),
       fetchLogs(RENAME_REGISTRY, RENAME_DEPLOY_BLOCK).catch(() => []),
+      fetchVaultBalance().catch(() => null),
     ]);
     const auctionState = new Map();
     logs.forEach((log) => {
@@ -123,7 +146,7 @@ module.exports = async function handler(request, response) {
     return response.status(200).json({
       activeAuctions,
       activity,
-      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), verifiedBurned: '0', burnActive: false },
+      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), vaultBalance, verifiedBurned: '0', burnActive: false },
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {

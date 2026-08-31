@@ -19,13 +19,17 @@
   };
 
   async function refresh() {
-    const [nftResult, rareResult, superResult] = await Promise.allSettled([
+    const [nftResult, rareResult, superResult, vaultResult] = await Promise.allSettled([
       fetch('/api/collection-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/rare-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/super-rare-stats', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
+      fetch('/api/live-auctions', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
     ]);
 
     const items = [];
+    if (vaultResult.status === 'fulfilled' && vaultResult.value.stats?.vaultBalance !== null) {
+      items.push(makeItem(`FEE VAULT · ${rareAmount(vaultResult.value.stats.vaultBalance)} $RARE ON-CHAIN`, 'vault', 'https://robinhoodchain.blockscout.com/address/0x55f3ed784d5b0142a833e411d133f043df426f79'));
+    }
     if (superResult.status === 'fulfilled') {
       const superData = superResult.value;
       superData.latestSales.forEach((sale) => items.push(makeItem(`${superData.soldCount} SUPER RARE${superData.soldCount === 1 ? '' : 'S'} SOLD · #${sale.tokenId} · ${sale.priceEth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH · VOLUME ${superData.salesVolumeEth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`, 'super', sale.itemUrl)));
