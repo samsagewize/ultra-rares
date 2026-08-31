@@ -49,10 +49,10 @@ async function fetchLogs(address, fromBlock) {
 }
 
 async function fetchVaultBalance() {
-  const url = `https://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-balances`;
-  let balances;
+  const url = `https://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-transfers?token=${RARE_TOKEN}`;
+  let payload;
   try {
-    balances = await fetch(url, {
+    payload = await fetch(url, {
       headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
       signal: AbortSignal.timeout(10000),
     }).then(async (result) => {
@@ -60,12 +60,17 @@ async function fetchVaultBalance() {
       return result.json();
     });
   } catch {
-    const text = await fetch(`https://r.jina.ai/http://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-balances`, { signal: AbortSignal.timeout(12000) }).then((result) => result.text());
+    const text = await fetch(`https://r.jina.ai/http://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-transfers?token=${RARE_TOKEN}`, { signal: AbortSignal.timeout(12000) }).then((result) => result.text());
     const marker = 'Markdown Content:';
-    balances = JSON.parse(text.slice(text.indexOf(marker) + marker.length).trim());
+    payload = JSON.parse(text.slice(text.indexOf(marker) + marker.length).trim());
   }
-  const rare = balances.find((item) => item.token?.address_hash?.toLowerCase() === RARE_TOKEN);
-  return rare?.value || '0';
+  return (payload.items || []).reduce((balance, item) => {
+    if (item.token?.address_hash?.toLowerCase() !== RARE_TOKEN) return balance;
+    const value = BigInt(item.total?.value || 0);
+    if (item.to?.hash?.toLowerCase() === FEE_VAULT) return balance + value;
+    if (item.from?.hash?.toLowerCase() === FEE_VAULT) return balance - value;
+    return balance;
+  }, 0n).toString();
 }
 
 async function fetchVerifiedBurns() {

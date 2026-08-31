@@ -28,7 +28,9 @@
 
     const items = [];
     if (vaultResult.status === 'fulfilled' && vaultResult.value.stats?.vaultBalance !== null) {
-      items.push(makeItem(`FEE VAULT · ${rareAmount(vaultResult.value.stats.vaultBalance)} $RARE ON-CHAIN`, 'vault', 'https://robinhoodchain.blockscout.com/address/0x55f3ed784d5b0142a833e411d133f043df426f79'));
+      const vaultCopy = `${rareAmount(vaultResult.value.stats.vaultBalance)} $RARE`;
+      document.querySelectorAll('[data-home-vault-balance]').forEach((element) => { element.textContent = vaultCopy; });
+      items.push(makeItem(`FEE VAULT · ${vaultCopy} ON-CHAIN`, 'vault', 'https://robinhoodchain.blockscout.com/address/0x55f3ed784d5b0142a833e411d133f043df426f79'));
     }
     if (superResult.status === 'fulfilled') {
       const superData = superResult.value;
