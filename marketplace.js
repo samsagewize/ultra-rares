@@ -335,7 +335,12 @@ function updateAuctionTimers() {
   const now = Math.floor(Date.now() / 1000);
   document.querySelectorAll('[data-auction-end]').forEach((element) => {
     const remaining = Number(element.dataset.auctionEnd) - now;
-    if (remaining <= 0) { element.textContent = 'ENDED · READY TO SETTLE'; return; }
+    const card = element.closest('.live-auction-card');
+    card?.classList.toggle('final-five', remaining > 0 && remaining <= 300);
+    card?.classList.toggle('auction-ended', remaining <= 0);
+    const winnerLabel = card?.querySelector('.winning-bid-box span');
+    if (winnerLabel) winnerLabel.textContent = remaining > 0 && remaining <= 300 ? 'WINNING BID · FINAL 5 MINUTES' : (remaining <= 0 ? 'WINNING BID · READY TO CLAIM' : 'WINNING BID');
+    if (remaining <= 0) { element.textContent = 'ENDED · WINNER READY TO CLAIM'; return; }
     const hours = Math.floor(remaining / 3600);
     const minutes = Math.floor((remaining % 3600) / 60);
     const seconds = remaining % 60;
@@ -363,6 +368,9 @@ function renderLiveAuctions(payload) {
   const status = document.querySelector('[data-live-auctions-status]');
   status.textContent = `LIVE · ${payload.activeAuctions.length} ON-CHAIN AUCTION${payload.activeAuctions.length === 1 ? '' : 'S'} · AUTO-UPDATING`;
   status.classList.add('is-live');
+  document.querySelector('[data-auction-volume]').textContent = `${rareDisplay(payload.stats?.settledVolume || 0)} $RARE`;
+  document.querySelector('[data-auction-fees]').textContent = `${rareDisplay(payload.stats?.protocolFees || 0)} $RARE`;
+  document.querySelector('[data-auction-burned]').textContent = `${rareDisplay(payload.stats?.verifiedBurned || 0)} $RARE`;
   if (!payload.activeAuctions.length) grid.innerHTML = '<div class="owned-empty">No Ultra Rares are currently in auction.</div>';
   else {
     const cards = payload.activeAuctions.map((auction) => {
@@ -441,9 +449,12 @@ function renderLiveAuctions(payload) {
         button.textContent = marketAccount ? 'ENDED · SELLER CAN RETURN NFT' : 'CONNECT SELLER WALLET TO RETURN NFT';
         button.disabled = true;
       } else {
-        button.textContent = marketAccount ? 'SETTLE ENDED AUCTION' : 'CONNECT WALLET TO SETTLE';
-        button.disabled = !marketAccount;
-        if (marketAccount) {
+        const isWinner = marketAccount && auction.highestBidder.toLowerCase() === marketAccount.toLowerCase();
+        button.className = 'claim-winning-auction';
+        button.textContent = !marketAccount ? 'CONNECT WINNING WALLET TO CLAIM' : (isWinner ? 'CLAIM ULTRA RARE + SETTLE' : 'SETTLE FOR WINNER');
+        if (!marketAccount) {
+          button.addEventListener('click', () => connectMarket?.click());
+        } else {
           button.addEventListener('click', async () => {
             button.disabled = true;
             button.textContent = 'CONFIRM SETTLEMENT IN WALLET…';
@@ -453,7 +464,7 @@ function renderLiveAuctions(payload) {
               await loadOwnedRares();
             } catch (error) {
               button.disabled = false;
-              button.textContent = 'SETTLE ENDED AUCTION';
+              button.textContent = isWinner ? 'CLAIM ULTRA RARE + SETTLE' : 'SETTLE FOR WINNER';
               marketStatus.textContent = error?.code === 4001 ? 'Settlement dismissed.' : (error.message || 'This auction could not be settled yet.');
             }
           });
@@ -514,6 +525,8 @@ function renderLiveAuctions(payload) {
       if (event.type.startsWith('rename_')) row.className = 'rename-activity-row';
       const label = event.type === 'bid'
         ? `${rareDisplay(event.amount)} $RARE BID`
+        : event.type === 'settled'
+          ? `WINNER CLAIMED · ${rareDisplay(event.amount)} $RARE`
         : event.type === 'rename_requested'
           ? `RENAME → “${event.requestedName}”`
           : event.type === 'rename_completed'

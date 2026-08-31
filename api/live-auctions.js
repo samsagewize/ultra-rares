@@ -1,4 +1,4 @@
-const RPC_URL = 'https://rpc.mainnet.chain.robinhood.com';
+const BLOCKSCOUT_LOGS = 'https://robinhoodchain.blockscout.com/api';
 const AUCTION = '0x3d160ff78b4e4366b46cc7aa5be073f8d6d626a8';
 const RENAME_REGISTRY = '0x8d14dec25cd17081270b7052685fa0418c376cee';
 const COLLECTION = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
@@ -18,15 +18,18 @@ const RENAME_EVENTS = {
   '0x33c82d0e4d36d15c5f9737c7514c4723f31f58658634ca85d2e38d3b4824d25e': 'rename_stale',
 };
 
-async function rpc(method, params) {
-  const result = await fetch(RPC_URL, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+async function fetchLogs(address, fromBlock) {
+  const url = new URL(BLOCKSCOUT_LOGS);
+  url.search = new URLSearchParams({ module: 'logs', action: 'getLogs', address, fromBlock: BigInt(fromBlock).toString(), toBlock: 'latest' });
+  const payload = await fetch(url, {
+    headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
     signal: AbortSignal.timeout(12000),
-  }).then((response) => response.json());
-  if (result.error) throw new Error(result.error.message);
-  return result.result;
+  }).then(async (result) => {
+    if (!result.ok) throw new Error(`Blockscout log feed returned ${result.status}`);
+    return result.json();
+  });
+  if (payload.status !== '1' && payload.message !== 'No logs found') throw new Error(payload.message || 'Log feed unavailable');
+  return Array.isArray(payload.result) ? payload.result : [];
 }
 
 const word = (value) => BigInt(value).toString(16).padStart(64, '0');
@@ -58,48 +61,62 @@ module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
     const [logs, renameLogs] = await Promise.all([
-      rpc('eth_getLogs', [{ address: AUCTION, fromBlock: DEPLOY_BLOCK, toBlock: 'latest' }]),
-      rpc('eth_getLogs', [{ address: RENAME_REGISTRY, fromBlock: RENAME_DEPLOY_BLOCK, toBlock: 'latest' }]),
+      fetchLogs(AUCTION, DEPLOY_BLOCK),
+      fetchLogs(RENAME_REGISTRY, RENAME_DEPLOY_BLOCK).catch(() => []),
     ]);
-    const tokenIds = [...new Set(logs.filter((log) => EVENTS[log.topics[0]] === 'created').map((log) => Number(BigInt(log.topics[1]))))];
-    const auctionResults = await Promise.all(tokenIds.map((tokenId) => rpc('eth_call', [{ to: AUCTION, data: `${AUCTIONS_SELECTOR}${word(tokenId)}` }, 'latest'])));
-    const activeAuctions = tokenIds.flatMap((tokenId, index) => {
-      const fields = words(auctionResults[index]);
-      if (fields.length < 5 || BigInt(`0x${fields[0]}`) === 0n) return [];
-      return [{
-        tokenId,
-        seller: addressFromWord(fields[0]),
-        endTime: Number(BigInt(`0x${fields[1]}`)),
-        reserve: BigInt(`0x${fields[2]}`).toString(),
-        highestBidder: addressFromWord(fields[3]),
-        highestBid: BigInt(`0x${fields[4]}`).toString(),
-      }];
+    const auctionState = new Map();
+    logs.forEach((log) => {
+      const type = EVENTS[log.topics[0]];
+      if (!type || !log.topics[1]) return;
+      const tokenId = Number(BigInt(log.topics[1]));
+      if (type === 'created') {
+        const fields = words(log.data);
+        auctionState.set(tokenId, {
+          tokenId,
+          seller: addressFromWord(log.topics[2].slice(2)),
+          reserve: BigInt(`0x${fields[0]}`).toString(),
+          endTime: Number(BigInt(`0x${fields[1]}`)),
+          highestBidder: '0x0000000000000000000000000000000000000000',
+          highestBid: '0',
+        });
+      } else if (type === 'bid' && auctionState.has(tokenId)) {
+        const auction = auctionState.get(tokenId);
+        auction.highestBidder = addressFromWord(log.topics[2].slice(2));
+        auction.highestBid = BigInt(log.data).toString();
+      } else if (['cancelled', 'settled', 'expired'].includes(type)) auctionState.delete(tokenId);
     });
+    const activeAuctions = [...auctionState.values()];
     const artwork = await Promise.all(activeAuctions.map(({ tokenId }) => artworkForToken(tokenId)));
     activeAuctions.forEach((auction, index) => { auction.image = artwork[index]; });
 
     const relevantLogs = [...logs.filter((log) => EVENTS[log.topics[0]]), ...renameLogs.filter((log) => RENAME_EVENTS[log.topics[0]])];
-    const blockNumbers = [...new Set(relevantLogs.map((log) => log.blockNumber))];
-    const blocks = await Promise.all(blockNumbers.map((blockNumber) => rpc('eth_getBlockByNumber', [blockNumber, false])));
-    const timestamps = new Map(blockNumbers.map((blockNumber, index) => [blockNumber, Number(BigInt(blocks[index].timestamp))]));
     const activity = relevantLogs.map((log) => {
       const type = EVENTS[log.topics[0]] || RENAME_EVENTS[log.topics[0]];
       const dataWords = words(log.data);
       return {
         type,
         tokenId: Number(BigInt(log.topics[1])),
-        account: log.topics[2] ? addressFromWord(log.topics[2].slice(2)) : '',
+        account: type === 'settled' && log.topics[3] ? addressFromWord(log.topics[3].slice(2)) : (log.topics[2] ? addressFromWord(log.topics[2].slice(2)) : ''),
         amount: type === 'bid' ? BigInt(`0x${dataWords[0]}`).toString() : (type === 'settled' ? BigInt(`0x${dataWords[0]}`).toString() : null),
         requestedName: type === 'rename_requested' || type === 'rename_completed' ? stringFromData(log.data) : null,
-        timestamp: timestamps.get(log.blockNumber),
+        timestamp: Number(BigInt(log.timeStamp || 0)),
         transactionHash: log.transactionHash,
         order: Number(BigInt(log.blockNumber)) * 100000 + Number(BigInt(log.logIndex)),
       };
     }).sort((a, b) => b.order - a.order).slice(0, 100).map(({ order, ...item }) => item);
 
-    response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=20');
-    return response.status(200).json({ activeAuctions, activity, updatedAt: new Date().toISOString() });
-  } catch {
+    const settledVolume = logs.filter((log) => EVENTS[log.topics[0]] === 'settled')
+      .reduce((total, log) => total + BigInt(log.data), 0n);
+    const protocolFees = settledVolume * 200n / 10_000n;
+    response.setHeader('Cache-Control', 's-maxage=5, stale-while-revalidate=10');
+    return response.status(200).json({
+      activeAuctions,
+      activity,
+      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), verifiedBurned: '0', burnActive: false },
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Live auction feed failed', error);
     return response.status(502).json({ error: 'Live auction data is temporarily unavailable' });
   }
 };
