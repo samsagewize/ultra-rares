@@ -5,6 +5,7 @@ const RARE_TOKEN = '0x1d522a4c3e1f3d97b585903474b2544cf9feeffb';
 const ADMIN = '0x562f6ac10723ef6af9f077a83cf25135fb369612';
 const BURN_ADDRESS = '0x000000000000000000000000000000000000dead';
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const RPC_URL = 'https://rpc.mainnet.chain.robinhood.com/';
 const RENAME_REGISTRY = '0x8d14dec25cd17081270b7052685fa0418c376cee';
 const COLLECTION = '0x923aaaa62c12505b1bbb57ed52b730d6462c01c5';
 const DEPLOY_BLOCK = '0x2588127';
@@ -46,6 +47,21 @@ async function fetchLogs(address, fromBlock) {
   }
   if (payload.status !== '1' && payload.message !== 'No logs found') throw new Error(payload.message || 'Log feed unavailable');
   return Array.isArray(payload.result) ? payload.result : [];
+}
+
+async function fetchTokenBalance(account) {
+  const data = `0x70a08231${account.slice(2).padStart(64, '0')}`;
+  const payload = await fetch(RPC_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_call', params: [{ to: RARE_TOKEN, data }, 'latest'] }),
+    signal: AbortSignal.timeout(8000),
+  }).then(async (result) => {
+    if (!result.ok) throw new Error(`Token balance RPC returned ${result.status}`);
+    return result.json();
+  });
+  if (payload.error || !payload.result) throw new Error(payload.error?.message || 'Token balance unavailable');
+  return BigInt(payload.result).toString();
 }
 
 async function fetchVaultBalance() {
@@ -131,8 +147,8 @@ module.exports = async function handler(request, response) {
     const [logs, renameLogs, vaultBalance, verifiedBurned] = await Promise.all([
       fetchLogs(AUCTION, DEPLOY_BLOCK),
       fetchLogs(RENAME_REGISTRY, RENAME_DEPLOY_BLOCK).catch(() => []),
-      fetchVaultBalance().catch(() => null),
-      fetchVerifiedBurns().catch(() => null),
+      fetchTokenBalance(FEE_VAULT).catch(() => fetchVaultBalance()).catch(() => null),
+      fetchTokenBalance(BURN_ADDRESS).catch(() => fetchVerifiedBurns()).catch(() => null),
     ]);
     const auctionState = new Map();
     logs.forEach((log) => {
