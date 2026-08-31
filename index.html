@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=69" />
+    <link rel="stylesheet" href="styles.css?v=70" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -99,7 +99,7 @@
         </aside>
         <a class="home-vault-stat" href="https://robinhoodchain.blockscout.com/address/0x55f3ed784d5b0142a833e411d133f043df426f79" target="_blank" rel="noopener noreferrer" aria-label="View verified Fee Vault contract on Blockscout">
           <small>VERIFIED FEE VAULT · LIVE</small>
-          <strong data-home-vault-balance>— $RARE</strong>
+          <div class="vault-assets-list" data-vault-assets><span><small>RARE</small><strong data-home-vault-balance>— $RARE</strong></span><span><small>ETH</small><strong>— ETH</strong></span></div>
           <span>0x55F3…6F79 ↗</span>
         </a>
         <section class="super-rare-exhibit" data-super-rare aria-labelledby="super-rare-title">
@@ -255,6 +255,7 @@
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=4"></script>
+    <script src="vault-assets.js?v=1"></script>
     <script src="super-rare.js?v=7"></script>
     <script src="buyback-goal.js?v=1"></script>
     <script src="scene-toggle.js?v=1"></script>

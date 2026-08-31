@@ -64,6 +64,41 @@ async function fetchTokenBalance(account) {
   return BigInt(payload.result).toString();
 }
 
+async function fetchExplorerJson(path) {
+  const url = `https://robinhoodchain.blockscout.com${path}`;
+  try {
+    return await fetch(url, {
+      headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; UltraRaresAuctions/1.0; +https://www.raresrares.fun)' },
+      signal: AbortSignal.timeout(10000),
+    }).then(async (result) => {
+      if (!result.ok) throw new Error(`Explorer returned ${result.status}`);
+      return result.json();
+    });
+  } catch {
+    const text = await fetch(`https://r.jina.ai/http://robinhoodchain.blockscout.com${path}`, { signal: AbortSignal.timeout(12000) }).then((result) => result.text());
+    const marker = 'Markdown Content:';
+    return JSON.parse(text.slice(text.indexOf(marker) + marker.length).trim());
+  }
+}
+
+async function fetchIndexedVaultAssets() {
+  const [address, balances] = await Promise.all([
+    fetchExplorerJson(`/api/v2/addresses/${FEE_VAULT}`),
+    fetchExplorerJson(`/api/v2/addresses/${FEE_VAULT}/token-balances`),
+  ]);
+  return [
+    { symbol: 'ETH', name: 'Ether', value: address.coin_balance || '0', decimals: 18, type: 'native' },
+    ...balances.map((item) => ({
+      symbol: item.token?.symbol || 'TOKEN',
+      name: item.token?.name || 'Token',
+      address: item.token?.address_hash || '',
+      value: item.value || '0',
+      decimals: Number(item.token?.decimals || 0),
+      type: item.token?.type || 'token',
+    })),
+  ];
+}
+
 async function fetchVaultBalance() {
   const url = `https://robinhoodchain.blockscout.com/api/v2/addresses/${FEE_VAULT}/token-transfers?token=${RARE_TOKEN}`;
   let payload;
@@ -144,11 +179,12 @@ async function artworkForToken(tokenId) {
 module.exports = async function handler(request, response) {
   if (request.method !== 'GET') return response.status(405).json({ error: 'Method not allowed' });
   try {
-    const [logs, renameLogs, vaultBalance, verifiedBurned] = await Promise.all([
+    const [logs, renameLogs, vaultBalance, verifiedBurned, indexedAssets] = await Promise.all([
       fetchLogs(AUCTION, DEPLOY_BLOCK),
       fetchLogs(RENAME_REGISTRY, RENAME_DEPLOY_BLOCK).catch(() => []),
       fetchTokenBalance(FEE_VAULT).catch(() => fetchVaultBalance()).catch(() => null),
       fetchTokenBalance(BURN_ADDRESS).catch(() => fetchVerifiedBurns()).catch(() => null),
+      fetchIndexedVaultAssets().catch(() => []),
     ]);
     const auctionState = new Map();
     logs.forEach((log) => {
@@ -194,11 +230,15 @@ module.exports = async function handler(request, response) {
     const settledVolume = logs.filter((log) => EVENTS[log.topics[0]] === 'settled')
       .reduce((total, log) => total + BigInt(log.data), 0n);
     const protocolFees = settledVolume * 200n / 10_000n;
+    const assets = indexedAssets.length ? indexedAssets : [{ symbol: 'ETH', name: 'Ether', value: '0', decimals: 18, type: 'native' }];
+    const rareAsset = assets.find((asset) => asset.address?.toLowerCase() === RARE_TOKEN);
+    if (rareAsset && vaultBalance !== null) rareAsset.value = vaultBalance;
+    else if (vaultBalance !== null) assets.push({ symbol: 'RARE', name: 'RARE', address: RARE_TOKEN, value: vaultBalance, decimals: 18, type: 'ERC-20' });
     response.setHeader('Cache-Control', 's-maxage=5, stale-while-revalidate=10');
     return response.status(200).json({
       activeAuctions,
       activity,
-      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), vaultBalance, verifiedBurned, burnActive: true },
+      stats: { settledVolume: settledVolume.toString(), protocolFees: protocolFees.toString(), vaultBalance, verifiedBurned, burnActive: true, assets },
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
