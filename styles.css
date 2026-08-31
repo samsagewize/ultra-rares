@@ -889,7 +889,7 @@ footer {
 @keyframes newscast-scroll { to { transform:translateX(-50%); } }
 @keyframes newscast-live { 50% { opacity:.25; } }
 html:not(.normal-version) body.home-page .version-toggle { top:62px; }
-.scene-toggle { position:fixed; z-index:10001; top:62px; left:50%; padding:11px 14px; color:#fff; background:#7a35ff; border:3px solid #fff; box-shadow:4px 4px #101820; font:900 10px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transform:translateX(-50%); }.scene-toggle:hover,.scene-toggle:focus-visible{color:var(--lime);background:#101820;border-color:var(--lime)}
+.scene-toggle { position:fixed; z-index:10001; top:108px; left:50%; padding:11px 14px; color:#fff; background:#7a35ff; border:3px solid #fff; box-shadow:4px 4px #101820; font:900 10px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transform:translateX(-50%); }.scene-toggle:hover,.scene-toggle:focus-visible{color:var(--lime);background:#101820;border-color:var(--lime)}
 html.normal-version .scene-toggle { display:none; }
 .rare-museum .street-sky { background:repeating-linear-gradient(90deg,transparent 0 24.8%,rgba(39,34,27,.18) 24.8% 25.1%),linear-gradient(90deg,#cfc3a6,#f0e8d5 20%,#e4dac1 50%,#f0e8d5 80%,#cfc3a6); border-top:clamp(58px,9vh,90px) solid #171716; border-bottom:14px solid #5d5446; }
 .rare-museum .street-sky::before { content:""; position:absolute; z-index:1; inset:0 0 26%; pointer-events:none; background:radial-gradient(ellipse at 14% 2%,rgba(255,247,201,.78),transparent 16%),radial-gradient(ellipse at 38% 2%,rgba(255,247,201,.74),transparent 16%),radial-gradient(ellipse at 62% 2%,rgba(255,247,201,.74),transparent 16%),radial-gradient(ellipse at 86% 2%,rgba(255,247,201,.78),transparent 16%); }
@@ -915,8 +915,8 @@ html.normal-version .scene-toggle { display:none; }
 
 @media (max-width:760px) {
   .museum-newscast { height:42px; grid-template-columns:48px 82px 1fr; font-size:8px; }.museum-rare-logo img{width:34px;height:34px}.newscast-item,.newscast-track > span{padding:14px 20px}.newscast-label{gap:4px}
-  html:not(.normal-version) body.home-page .version-toggle { top:auto; }
-  .scene-toggle { top:70px; right:auto; bottom:auto; left:50%; font-size:8px; padding:9px 10px; }
+  html:not(.normal-version) body.home-page .version-toggle { top:50px; }
+  .scene-toggle { top:92px; right:auto; bottom:auto; left:50%; font-size:8px; padding:9px 10px; }
   .rare-museum .street-billboard { top:7%; width:86vw; border-width:10px; }
   .rare-museum .street-characters { bottom:25%; left:-10%; right:-10%; }
   .rare-museum .street-characters img { width:100px; height:135px; padding:5px; border-width:7px; }
@@ -1597,7 +1597,7 @@ body:not(.home-loading) .site-header { background:rgba(6,8,10,.96); border-botto
 .nav-link { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.08em; }
 .doodle-parade { border-top:0; }
 
-.version-toggle { position:fixed; z-index:10001; top:14px; right:16px; padding:11px 14px; color:#101820; background:var(--lime); border:3px solid #101820; box-shadow:4px 4px #101820; font:900 10px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+.version-toggle { position:fixed; z-index:10001; top:14px; left:50%; padding:11px 14px; color:#101820; background:var(--lime); border:3px solid #101820; box-shadow:4px 4px #101820; font:900 10px/1 ui-monospace,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transform:translateX(-50%); }
 .version-toggle:hover,.version-toggle:focus-visible { color:var(--lime); background:#101820; border-color:var(--lime); }
 html:not(.normal-version) body.home-page { overflow:hidden; background:#101820; }
 html:not(.normal-version) body.home-page .site-header,
@@ -1622,7 +1622,7 @@ html.normal-version body.home-page .rare-street { display:none; }
   .zone-dock { height:11%; overflow-x:auto; grid-template-columns:repeat(5,minmax(130px,1fr)); scrollbar-width:none; }
   .zone-dock::-webkit-scrollbar { display:none; }
   .zone-dock a { font-size:10px; }
-  .version-toggle { top:auto; right:10px; bottom:102px; font-size:8px; padding:9px 10px; }
+  .version-toggle { top:12px; right:auto; bottom:auto; left:50%; font-size:8px; padding:9px 10px; }
 }
 .super-rare-exhibit{position:absolute;z-index:14;left:50%;bottom:11.5%;width:min(44vw,570px);transform:translateX(-50%);background:#0d171d;border:5px solid #293943;box-shadow:0 0 0 4px #080c0f,10px 12px 0 rgba(0,0,0,.25);color:#fff;font-family:"Courier New",monospace}
 .sold-super-rare{position:absolute;z-index:15;left:14px;top:58px;width:190px;padding:0;background:#0d171d;border:4px solid #293943;box-shadow:6px 7px #050505;font-family:"Courier New",monospace}.sold-super-rare a{display:block;position:relative;color:#fff;text-decoration:none}.sold-super-rare img{display:block;width:100%;height:122px;object-fit:contain;background:#aef600}.sold-super-rare span{display:flex;align-items:center;gap:7px;padding:7px;background:#050709;border-top:3px solid #39ff88}.sold-super-rare b{color:#39ff88;font:900 22px/1 Arial}.sold-super-rare strong{font-size:8px;letter-spacing:.08em}.sold-super-rare:hover{border-color:#39ff88;transform:translateY(-2px)}

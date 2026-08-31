@@ -16,7 +16,7 @@
         if (!response.ok) throw new Error('Vault feed unavailable');
         return response.json();
       });
-      const assets = payload.stats?.assets || [];
+      const assets = (payload.stats?.assets || []).filter((asset) => asset.symbol?.toUpperCase() === 'RARE');
       roots.forEach((root) => {
         root.replaceChildren(...assets.map((asset) => {
           const row = document.createElement('span');
