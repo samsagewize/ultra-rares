@@ -28,6 +28,9 @@
           return row;
         }));
       });
+      document.querySelectorAll('[data-home-rare-burned]').forEach((node) => {
+        node.textContent = `${format(payload.stats?.verifiedBurned, 18)} $RARE`;
+      });
     } catch {
       roots.forEach((root) => { if (!root.children.length) root.textContent = 'LIVE VAULT DATA RETRYING…'; });
     }

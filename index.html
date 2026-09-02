@@ -10,7 +10,7 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=72" />
+    <link rel="stylesheet" href="styles.css?v=73" />
   </head>
   <body class="home-page home-loading">
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
@@ -106,25 +106,26 @@
         <a class="home-vault-stat" href="https://robinhoodchain.blockscout.com/address/0x55f3ed784d5b0142a833e411d133f043df426f79" target="_blank" rel="noopener noreferrer" aria-label="View verified Fee Vault contract on Blockscout">
           <small>VERIFIED FEE VAULT · LIVE</small>
           <div class="vault-assets-list" data-vault-assets><span><small>RARE</small><strong data-home-vault-balance>— $RARE</strong></span></div>
+          <div class="home-burn-stat"><small>VERIFIED $RARE BURNED</small><strong data-home-rare-burned>— $RARE</strong></div>
           <span>0x55F3…6F79 ↗</span>
         </a>
         <section class="super-rare-exhibit" data-super-rare aria-labelledby="super-rare-title">
           <header>
             <div><small>NEW COLLECTION · ONE ARTWORK EVERY DAY</small><h2 id="super-rare-title">SUPER RARE</h2></div>
-            <div class="super-rare-available"><b data-super-status>CONNECTING…</b><a data-super-listing href="https://opensea.io/item/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/2" target="_blank" rel="noopener noreferrer"><small>UP FOR GRABS · SUPER RARE <i data-super-listing-token>#2</i></small><strong data-super-price>0.0019 ETH</strong></a></div>
+            <div class="super-rare-available"><b data-super-status>CONNECTING…</b><a data-super-listing href="https://opensea.io/item/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/3" target="_blank" rel="noopener noreferrer"><small>UP FOR GRABS · SUPER RARE <i data-super-listing-token>#3</i></small><strong data-super-price>0.0019 ETH</strong></a></div>
           </header>
           <div class="super-rare-frame">
-            <iframe title="Today's Super Rare artwork" loading="lazy" referrerpolicy="no-referrer" src="super-rare-frame.html?token=2&amp;url=https%3A%2F%2Fopensea.io%2Fitem%2Frobinhood%2F0x28d1b29291daeb847a3c540c2b241e153d1d7385%2F2&amp;image=https%3A%2F%2Fi2c.seadn.io%2Frobinhood%2F0x28d1b29291daeb847a3c540c2b241e153d1d7385%2F16e0eed965304728564b640d8b791b%2F7c16e0eed965304728564b640d8b791b.png%3Fw%3D1000"></iframe>
-            <a data-super-link href="https://opensea.io/item/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/2" target="_blank" rel="noopener noreferrer">SUPER RARE #2 · VIEW ON OPENSEA ↗</a>
+            <iframe title="Today's Super Rare artwork" loading="lazy" referrerpolicy="no-referrer" src="super-rare-frame.html?token=3&amp;url=https%3A%2F%2Fopensea.io%2Fitem%2Frobinhood%2F0x28d1b29291daeb847a3c540c2b241e153d1d7385%2F3&amp;image=https%3A%2F%2Fi2c.seadn.io%2Frobinhood%2F0x28d1b29291daeb847a3c540c2b241e153d1d7385%2F427b42691d2a215d2f5d04d8318ad8%2F94427b42691d2a215d2f5d04d8318ad8.png%3Fw%3D1000"></iframe>
+            <a data-super-link href="https://opensea.io/item/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/3" target="_blank" rel="noopener noreferrer">SUPER RARE #3 · VIEW ON OPENSEA ↗</a>
             <div class="super-rare-sold-mark" aria-hidden="true"><b>✓</b><strong>SOLD</strong></div>
           </div>
           <div class="super-rare-ledger">
-            <span><small data-super-token>DAILY ARTWORK · #2</small><strong data-super-minted>2 MINTED · 2 ARTWORKS</strong><strong data-super-sold>1 SUPER RARE SOLD</strong></span>
+            <span><small data-super-token>DAILY ARTWORK · #3</small><strong data-super-minted>3 MINTED · 3 ARTWORKS</strong><strong data-super-sold>2 SUPER RARES SOLD</strong></span>
             <span><small>ALL COLLECTION SALES</small><strong data-super-sales-volume>0.0019 ETH</strong></span>
             <span><small>90% VAULT + BUYBACKS</small><strong data-super-vault>0.00171 ETH</strong></span>
             <span><small>10% REMAINDER</small><strong data-super-remainder>0.00019 ETH</strong></span>
           </div>
-          <p>SUPER RARE #2 SUPPORTS THE $RARE BUYBACK PLAN · 90% IS THE PROJECT ALLOCATION TARGET · ROUTING IS NOT AUTOMATED · <a href="https://robinhoodchain.blockscout.com/token/0x28d1b29291daeb847a3c540c2b241e153d1d7385" target="_blank" rel="noopener noreferrer">VERIFY CONTRACT ↗</a></p>
+          <p>SUPER RARE #3 SUPPORTS THE $RARE BUYBACK PLAN · 90% IS THE PROJECT ALLOCATION TARGET · ROUTING IS NOT AUTOMATED · <a href="https://robinhoodchain.blockscout.com/token/0x28d1b29291daeb847a3c540c2b241e153d1d7385" target="_blank" rel="noopener noreferrer">VERIFY CONTRACT ↗</a></p>
         </section>
         <div class="buyback-desk buyback-pending" data-buyback-goal role="status" aria-live="polite" aria-label="Buyback Desk market-cap goals pending">
           <span><i aria-hidden="true"></i> BUYBACK DESK</span>
@@ -261,7 +262,7 @@
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=4"></script>
-    <script src="vault-assets.js?v=2"></script>
+    <script src="vault-assets.js?v=3"></script>
     <script src="super-rare.js?v=7"></script>
     <script src="buyback-goal.js?v=1"></script>
     <script src="scene-toggle.js?v=1"></script>

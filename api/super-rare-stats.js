@@ -68,12 +68,13 @@ module.exports = async function handler(request, response) {
     });
     const mintedUnits = mintData.reduce((sum, mint) => sum + mint.units, 0);
     const tokenIds = [...new Set(mintData.map((mint) => mint.tokenId).filter(Number.isFinite))].sort((a, b) => a - b);
-    const featuredTokenId = tokenIds.length ? tokenIds[tokenIds.length - 1] : 2;
+    const featuredTokenId = Math.max(3, tokenIds.length ? tokenIds[tokenIds.length - 1] : 3);
     const featuredImages = {
       1: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/df79c676e70fcb0487e8d96b08438d/ebdf79c676e70fcb0487e8d96b08438d.png?w=1000',
       2: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/16e0eed965304728564b640d8b791b/7c16e0eed965304728564b640d8b791b.png?w=1000',
+      3: 'https://i2c.seadn.io/robinhood/0x28d1b29291daeb847a3c540c2b241e153d1d7385/427b42691d2a215d2f5d04d8318ad8/94427b42691d2a215d2f5d04d8318ad8.png?w=1000',
     };
-    const knownListingPricesEth = { 2: 0.0019 };
+    const knownListingPricesEth = { 2: 0.0019, 3: 0.0019 };
     const featuredImageUrl = featuredImages[featuredTokenId] || await indexedImageFor(featuredTokenId);
     const featuredListingPriceEth = knownListingPricesEth[featuredTokenId] || null;
     const transferLogs = allTransfers.filter((transfer) => transfer.topics?.[2]?.toLowerCase() !== ZERO_TOPIC);
@@ -118,7 +119,7 @@ module.exports = async function handler(request, response) {
     response.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=45');
     return response.status(200).json({
       displayName: 'Super Rare', onchainName: 'Ultra Rares', symbol: 'UR', standard: 'ERC-1155', contract: CONTRACT,
-      mintedUnits, artworkCount: tokenIds.length, mintTransactions: transactionHashes.length,
+      mintedUnits, artworkCount: Math.max(tokenIds.length, 3), mintTransactions: transactionHashes.length,
       grossMintRevenueEth: grossEth, projectSalesRevenueEth, grossRevenueEth,
       vaultBuybackEth: grossRevenueEth * 0.9, remainderEth: grossRevenueEth * 0.1,
       soldCount: sales.reduce((sum, sale) => sum + sale.units, 0), featuredSoldCount, salesVolumeEth, latestSales: sales.slice(0, 10),
