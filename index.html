@@ -10,9 +10,28 @@
     <script>
       try { if (new URLSearchParams(location.search).get('view') === 'normal' || localStorage.getItem('ultra-rares-view') === 'normal') document.documentElement.classList.add('normal-version'); } catch (_) {}
     </script>
-    <link rel="stylesheet" href="styles.css?v=74" />
+    <link rel="stylesheet" href="styles.css?v=75" />
   </head>
-  <body class="home-page home-loading">
+  <body class="home-page home-loading entry-gated">
+    <section class="collection-entry" data-collection-entry aria-labelledby="entry-title">
+      <div class="entry-gallery" aria-hidden="true">
+        <img src="assets/entry/rare-1.png" alt="" /><img src="assets/entry/rare-9.png" alt="" />
+        <img src="assets/entry/rare-31.png" alt="" /><img src="assets/entry/rare-57.png" alt="" />
+        <img src="assets/entry/rare-83.png" alt="" /><img src="assets/entry/rare-125.png" alt="" />
+        <img src="assets/entry/rare-165.png" alt="" /><img src="assets/entry/rare-217.png" alt="" />
+        <img src="assets/entry/rare-295.png" alt="" /><img src="assets/entry/rare-333.png" alt="" />
+        <img src="assets/entry/rare-384.png" alt="" /><img src="assets/entry/rare-420.png" alt="" />
+      </div>
+      <header class="entry-topline"><b>RARESRARES.FUN</b><span>ROBINHOOD CHAIN · EST. 420</span></header>
+      <div class="entry-copy">
+        <small>THE ORIGINAL ONE-MINUTE COLLECTION</small>
+        <h1 id="entry-title"><span>ULTRA</span><span>RARES</span></h1>
+        <p>420 hand-drawn characters. No second takes. Every line stays rare.</p>
+        <div class="entry-facts"><span>420 ORIGINALS</span><span>1/1 DOODLES</span><span>POWERED BY $RARE</span></div>
+        <button type="button" data-enter-district><span>ENTER THE ULTRA RARES DISTRICT</span><b>↘</b></button>
+      </div>
+      <footer class="entry-footer"><span>SCROLL THE WALL · MEET THE RARES</span><span>COLLECTION 001</span></footer>
+    </section>
     <button class="version-toggle" type="button" data-version-toggle aria-pressed="false">Switch to normal version</button>
     <button class="scene-toggle" type="button" data-scene-toggle aria-pressed="false">Switch to city</button>
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading Ultra Rares">
@@ -262,6 +281,7 @@
       <p><a href="https://t.me/+wKXfspzImmNkMDgx" target="_blank" rel="noopener noreferrer">Join $RARE on Telegram ↗</a> · <a href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">View on OpenSea ↗</a></p>
     </footer>
 
+    <script src="collection-entry.js?v=1"></script>
     <script src="loader.js?v=1"></script>
     <script src="market.js?v=4"></script>
     <script src="museum-newscast.js?v=4"></script>
