@@ -7,7 +7,7 @@
     <title>$RARE — Ultra Rares</title>
     <link rel="icon" type="image/png" href="assets/banner-2.png" />
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
-    <link rel="stylesheet" href="styles.css?v=68" />
+    <link rel="stylesheet" href="styles.css?v=69" />
   </head>
   <body class="rare-page rare-market-page home-loading">
     <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading RARE"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Loading Live Market</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
@@ -53,6 +53,61 @@
     </aside>
 
     <main class="rare-main">
+      <section class="rare-swap" aria-labelledby="rare-swap-title">
+        <div class="rare-swap-copy">
+          <p class="eyebrow">Live on Robinhood Chain</p>
+          <h1 id="rare-swap-title">Swap $RARE<br />for ETH.</h1>
+          <p>Connect your wallet, preview the live market rate, then review and sign the trade through the active $RARE liquidity venue.</p>
+          <div class="rare-swap-trust">
+            <span>DEXSCREENER QUOTE</span>
+            <span>SUSHISWAP V3 EXECUTION</span>
+            <span>YOU KEEP CUSTODY</span>
+          </div>
+        </div>
+
+        <div class="rare-swap-card" data-rare-swap>
+          <div class="rare-swap-card-head">
+            <div><span>Swap</span><strong>$RARE → ETH</strong></div>
+            <button type="button" data-swap-connect>Connect wallet</button>
+          </div>
+
+          <div class="swap-asset-box">
+            <label for="swap-rare-amount">You sell</label>
+            <div class="swap-asset-input">
+              <input id="swap-rare-amount" data-swap-amount type="number" min="0" step="any" inputmode="decimal" placeholder="0.00" autocomplete="off" />
+              <span class="swap-token-pill"><img src="assets/rare-token.png" alt="" />$RARE</span>
+            </div>
+            <div class="swap-balance-row"><small>Balance: <b data-swap-rare-balance>—</b></small><button type="button" data-swap-max>MAX</button></div>
+          </div>
+
+          <div class="swap-direction" aria-hidden="true">↓</div>
+
+          <div class="swap-asset-box swap-output-box">
+            <span>You receive (estimated)</span>
+            <div class="swap-asset-input"><output data-swap-output>0.000000 ETH</output><span class="swap-token-pill swap-eth-pill">Ξ ETH</span></div>
+            <small>Wallet ETH: <b data-swap-eth-balance>—</b></small>
+          </div>
+
+          <div class="swap-market-grid">
+            <div><span>Live rate</span><strong data-swap-rate>Loading…</strong></div>
+            <div><span>Pool liquidity</span><strong data-swap-liquidity>Loading…</strong></div>
+            <div><span>Venue</span><strong data-swap-venue>SushiSwap V3</strong></div>
+            <div><span>Network</span><strong>Robinhood Chain</strong></div>
+          </div>
+
+          <div class="swap-slippage" aria-label="Slippage preference">
+            <span>Slippage</span>
+            <button type="button" data-swap-slippage="0.5">0.5%</button>
+            <button type="button" class="is-active" data-swap-slippage="1">1%</button>
+            <button type="button" data-swap-slippage="2">2%</button>
+          </div>
+
+          <button class="swap-submit" type="button" data-swap-submit disabled>Enter an amount</button>
+          <p class="swap-status" data-swap-status role="status" aria-live="polite">Live quote loading…</p>
+          <p class="swap-fine-print">Indicative quote only. The final price, route, price impact and minimum received are shown by Sushi before you sign. This site never takes custody of your funds.</p>
+        </div>
+      </section>
+
       <section class="rare-chart" aria-labelledby="rare-chart-title">
         <div class="rare-chart-heading">
           <div>
@@ -116,5 +171,6 @@
     </footer>
     <script src="loader.js?v=1"></script>
     <script src="rare.js?v=27"></script>
+    <script src="rare-swap.js?v=1"></script>
   </body>
 </html>

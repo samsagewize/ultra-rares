@@ -67,6 +67,7 @@ module.exports = async function handler(request, response) {
     return response.status(200).json({
       marketCap,
       priceUsd: currentPriceUsd,
+      priceNative: currentPriceNative,
       ethPriceUsd,
       change24hPercent: numberOrNull(pair.priceChange?.h24),
       allTimeChangePercent,
@@ -79,6 +80,9 @@ module.exports = async function handler(request, response) {
       holderCount,
       pairAddress: pair.pairAddress,
       pairUrl: pair.url,
+      dexId: pair.dexId,
+      baseToken: pair.baseToken,
+      quoteToken: pair.quoteToken,
       source: 'DexScreener + GeckoTerminal',
       updatedAt: new Date().toISOString(),
     });
