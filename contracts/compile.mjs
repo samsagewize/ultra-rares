@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import solc from 'solc';
 
-const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'RareAuctionHouse.sol', 'RareFeeVault.sol', 'RareLaunchFeeVault.sol', 'RareLaunchFactory.sol', 'RareRenameRegistry.sol', 'UltraRareWorkAgent.sol', 'UltraRareDepositPilot.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol', 'MockWorkInfrastructure.sol', 'MockLaunchInfrastructure.sol', 'MockLaunchAdversary.sol', 'MockUniswapV3.sol'];
+const files = ['UtilityRegistry.sol', 'UltraRaresToken.sol', 'RewardVault.sol', 'RareNftClaimVault.sol', 'RareMarketplace.sol', 'RareAuctionHouse.sol', 'RareFeeVault.sol', 'RareLaunchFeeVault.sol', 'RareLaunchFactory.sol', 'RareRenameRegistry.sol', 'SuperRareBurnMint.sol', 'UltraRareWorkAgent.sol', 'UltraRareDepositPilot.sol', 'MockUltraRares.sol', 'MockRewardAsset.sol', 'MockWorkInfrastructure.sol', 'MockLaunchInfrastructure.sol', 'MockLaunchAdversary.sol', 'MockUniswapV3.sol'];
 const sources = Object.fromEntries(files.map((file) => [file, { content: fs.readFileSync(new URL(file, import.meta.url), 'utf8') }]));
 const input = {
   language: 'Solidity',
@@ -88,6 +88,12 @@ fs.writeFileSync(
     bytecode: `0x${renameRegistry.evm.bytecode.object}`,
     methodIdentifiers: renameRegistry.evm.methodIdentifiers,
   }, null, 2),
+);
+
+const superRareBurnMint = output.contracts['SuperRareBurnMint.sol'].SuperRareBurnMint;
+fs.writeFileSync(
+  new URL('../assets/SuperRareBurnMint.json', import.meta.url),
+  JSON.stringify({ contractName: 'SuperRareBurnMint', abi: superRareBurnMint.abi, bytecode: `0x${superRareBurnMint.evm.bytecode.object}`, methodIdentifiers: superRareBurnMint.evm.methodIdentifiers }, null, 2),
 );
 
 for (const contractName of ['UltraRareWorkAgentFactory', 'UltraRareWorkAgent', 'UltraRareProfitEscrow']) {

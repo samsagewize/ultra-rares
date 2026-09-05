@@ -105,6 +105,16 @@ This is the recorded product direction, not yet implemented or approved for main
 
 Before implementation, fix the Last Rares supply, RARE maximum supply, allocation percentages, vesting period, curve design, auction format, reserve price, auction duration, and per-wallet limits. These parameters must not be improvised at deployment time.
 
+## Super Rare RARE burn mint
+
+`SuperRareBurnMint.sol` is a new ERC-721 collection permanently linked onchain to the existing Super Rare ERC-1155 contract at `0x28D1b29291dAeB847a3c540C2B241e153D1D7385`. It does not alter or mint into that existing SeaDrop collection. Each token ID is published by the administrator with an exact RARE cost and immutable-once-minted metadata URI. A collector approves the exact cost and calls `mint(tokenId)`; the contract transfers that RARE directly to the dead address and mints the NFT atomically.
+
+The contract tracks `totalRareBurned`, supports ERC-721 metadata and safe transfers, has a pause control, and uses two-step administrator transfer. It has no payment treasury or withdrawal function because mint payments never enter the contract. Choose the maximum supply and each artwork's burn cost before deployment; do not deploy until the metadata URIs are pinned and independently reviewed.
+
+Planned mainnet constructor values include parent collection `0x28D1b29291dAeB847a3c540C2B241e153D1D7385` and RARE token `0x1d522a4c3e1f3d97b585903474b2544cf9feeffb`. The administrator and maximum supply must be selected before deployment.
+
+This new contract will appear as a separate OpenSea collection. The immutable `parentCollection` reference and mint events provide the transparent onchain connection to the existing collection.
+
 ## Ultra Rares RARE marketplace
 
 `RareMarketplace.sol` is a non-custodial, fixed-price marketplace dedicated to the existing Ultra Rares NFT and RARE token. A seller keeps the NFT in their wallet, approves the marketplace for that token ID, and creates a listing denominated in RARE. At purchase, settlement and the NFT transfer complete atomically.

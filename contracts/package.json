@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "compile": "node compile.mjs",
-    "test": "node test-auction.mjs && node test-rename.mjs && node test-work-agent.mjs && node test-adaptive-strategy.mjs && node test-deposit-pilot.mjs && node test-launch-vault.mjs && node test-launch-factory.mjs && node ../agent-skills/rare-lemon-trading/scripts/test-evaluate-snapshot.mjs",
+    "test": "node test-auction.mjs && node test-rename.mjs && node test-super-rare-burn-mint.mjs && node test-work-agent.mjs && node test-adaptive-strategy.mjs && node test-deposit-pilot.mjs && node test-launch-vault.mjs && node test-launch-factory.mjs && node ../agent-skills/rare-lemon-trading/scripts/test-evaluate-snapshot.mjs",
     "audit:auction": "solhint RareAuctionHouse.sol RareFeeVault.sol"
   },
   "devDependencies": {
