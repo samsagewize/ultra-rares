@@ -1038,6 +1038,29 @@ html.normal-version .scene-toggle { display:none; }
 @keyframes rare-trade-bubble { 0% { transform: translate(0,0) scale(.2); opacity: 0; } 18% { opacity: .95; } 78% { opacity: .85; } 100% { transform: translate(var(--bubble-drift), -340px) scale(1.25); opacity: 0; } }
 .rare-main { min-height: 100svh; background: var(--acid); }
 
+.rare-construction-page { background: var(--acid); color: var(--ink); }
+.rare-construction-main { min-height: 100svh; background: var(--acid); }
+.rare-construction-hero { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; overflow: hidden; padding: 125px max(6vw, calc((100vw - 1400px) / 2)) 80px; border-bottom: 5px solid var(--ink); }
+.rare-construction-mark { position: absolute; z-index: -1; right: -6vw; bottom: -13vw; width: clamp(330px, 55vw, 850px); aspect-ratio: 1; opacity: .2; transform: rotate(12deg); }
+.rare-construction-mark img { width: 100%; height: 100%; border: 8px solid var(--ink); border-radius: 50%; object-fit: cover; filter: grayscale(1) contrast(1.4); }
+.rare-construction-hero h1 { max-width: 1250px; margin: 24px 0 36px; font-size: clamp(76px, 12vw, 188px); line-height: .72; letter-spacing: -.09em; }
+.rare-construction-lead { max-width: 780px; margin: 0; font-size: clamp(18px, 2vw, 30px); font-weight: 900; line-height: 1.03; letter-spacing: -.035em; }
+.construction-status { display: inline-flex; width: fit-content; align-items: center; gap: 12px; margin-top: 34px; padding: 13px 16px; border: 3px solid var(--ink); background: var(--paper); font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.construction-status i { width: 12px; height: 12px; border-radius: 50%; background: #ff365f; box-shadow: 0 0 0 0 rgba(255,54,95,.55); animation: construction-pulse 1.4s ease-out infinite; }
+@keyframes construction-pulse { 70% { box-shadow: 0 0 0 10px rgba(255,54,95,0); } 100% { box-shadow: 0 0 0 0 rgba(255,54,95,0); } }
+.collection-focus { padding: 10vh max(6vw, calc((100vw - 1400px) / 2)); background: var(--paper); }
+.collection-focus-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 48px; }
+.collection-focus-heading h2 { margin: 0; font-size: clamp(72px, 10vw, 150px); line-height: .73; letter-spacing: -.085em; }
+.collection-focus-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 4px solid var(--ink); border-left: 4px solid var(--ink); }
+.collection-focus-grid article { display: flex; min-height: 390px; flex-direction: column; padding: clamp(28px, 5vw, 65px); border-right: 4px solid var(--ink); border-bottom: 4px solid var(--ink); background: #fff; }
+.collection-focus-grid article.super-rare-coming { background: var(--ink); color: var(--acid); }
+.collection-focus-grid span { font-size: 9px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+.collection-focus-grid h3 { margin: 32px 0 24px; font-size: clamp(54px, 7vw, 105px); line-height: .76; letter-spacing: -.075em; }
+.collection-focus-grid p { max-width: 540px; margin: 0 0 36px; font-size: 15px; font-weight: 900; line-height: 1.15; }
+.collection-focus-grid a { width: fit-content; margin-top: auto; padding: 15px 18px; border: 3px solid currentColor; color: inherit; font-size: 10px; font-weight: 900; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+.collection-focus-grid a:hover, .collection-focus-grid a:focus-visible { background: var(--acid); color: var(--ink); outline: 0; }
+@media (prefers-reduced-motion: reduce) { .construction-status i { animation: none; } }
+
 .rare-swap { display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: clamp(34px, 7vw, 110px); min-height: 100svh; align-items: center; padding: 120px max(5vw, calc((100vw - 1380px) / 2)) 80px; border-bottom: 5px solid var(--ink); background: var(--acid); color: var(--ink); }
 .rare-swap-copy h1 { margin: 22px 0 30px; font-size: clamp(72px, 9vw, 148px); line-height: .76; letter-spacing: -.085em; }
 .rare-swap-copy > p:last-of-type { max-width: 630px; margin: 0; font-size: clamp(17px, 1.8vw, 25px); font-weight: 900; line-height: 1.05; letter-spacing: -.03em; }
@@ -1170,6 +1193,15 @@ html.normal-version .scene-toggle { display:none; }
 .request-notes span { font-size: 10px; font-weight: 800; line-height: 1.35; letter-spacing: .04em; }
 
 @media (max-width: 760px) {
+  .rare-construction-hero { min-height: 88svh; padding: 110px 18px 64px; }
+  .rare-construction-hero h1 { font-size: clamp(64px, 20vw, 98px); overflow-wrap: anywhere; }
+  .rare-construction-mark { right: -150px; bottom: -70px; width: 430px; }
+  .construction-status { line-height: 1.25; }
+  .collection-focus { padding: 70px 18px; }
+  .collection-focus-heading { align-items: flex-start; flex-direction: column; }
+  .collection-focus-heading h2 { font-size: clamp(62px, 19vw, 92px); }
+  .collection-focus-grid { grid-template-columns: 1fr; }
+  .collection-focus-grid article { min-height: 340px; }
   .rare-swap { grid-template-columns: 1fr; min-height: auto; padding: 110px 16px 64px; }
   .rare-swap-copy h1 { font-size: clamp(66px, 20vw, 94px); }
   .rare-swap-card { padding: 16px; box-shadow: 7px 7px 0 var(--ink); }

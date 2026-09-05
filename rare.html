@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Check whether an Ultra Rares holder wallet is marked for RARE." />
-    <title>$RARE — Ultra Rares</title>
-    <link rel="icon" type="image/png" href="assets/banner-2.png" />
+    <meta name="description" content="$RARE is under construction while Ultra Rares and the upcoming Super Rare mint remain available on OpenSea." />
+    <title>$RARE Under Construction — Ultra Rares</title>
+    <link rel="icon" type="image/png" href="assets/rare-token.png" />
     <script>document.documentElement.classList.replace('no-js', 'js');</script>
-    <link rel="stylesheet" href="styles.css?v=69" />
+    <link rel="stylesheet" href="styles.css?v=70" />
   </head>
-  <body class="rare-page rare-market-page home-loading">
-    <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading RARE"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Loading Live Market</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
+  <body class="rare-page rare-construction-page home-loading">
+    <div class="home-loader" data-home-loader role="status" aria-live="polite" aria-label="Loading RARE"><div class="home-loader-inner"><div class="home-loader-mark"><img src="assets/rare-token.png" alt="$RARE token" /><span class="home-loader-orbit" aria-hidden="true"></span></div><strong>$RARE</strong><small>Collection update</small><button type="button" data-loader-sound aria-pressed="true">Sound: on</button><span class="home-loader-progress" aria-hidden="true"><i></i></span></div></div>
     <header class="site-header">
       <a class="wordmark" href="index.html" aria-label="Ultra Rares home"><img src="assets/banner-2.png" alt="" /></a>
       <nav aria-label="Primary navigation">
@@ -20,153 +20,23 @@
         <a class="nav-link" href="https://opensea.io/collection/ultra-rares-robinhood/activity" target="_blank" rel="noopener noreferrer">OpenSea</a>
       </nav>
     </header>
-
-    <aside class="stats-rail rare-gme-rail" aria-label="GME distribution statistics">
-      <div class="stats-rail-heading"><span class="ticker-live-dot"></span>GME rewards</div>
-      <div class="gme-detail-grid">
-        <div class="gme-market-volume">
-          <div class="volume-stat"><span>$RARE total volume</span><strong data-rare-total-volume>—</strong><small>All-time across every $RARE pool</small></div>
-        </div>
-        <div><span>Paid to holders</span><strong data-gme-distributed>—</strong></div>
-        <div><span>Next round</span><strong data-gme-next>—</strong></div>
-        <div><span>Rounds paid</span><strong data-gme-rounds>—</strong></div>
-        <div><span>Creator earned</span><strong data-gme-creator>—</strong></div>
-        <div><span>Min balance</span><strong data-gme-min>—</strong></div>
-        <div><span>Fee split</span><strong data-gme-split>—</strong><small>Holders / creator / platform</small></div>
-        <div class="rare-holder-total"><span>$RARE holders</span><strong data-rare-holder-count>—</strong><small>Total unique holder wallets</small></div>
-      </div>
-      <a class="gme-source-link" href="https://lemon.fun/terminal/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb" target="_blank" rel="noopener noreferrer">Live details on Lemon.fun ↗</a>
-      <p class="live-status" data-rare-activity-status role="status">Loading live $RARE activity…</p>
-    </aside>
-
-    <aside class="sales-ticker rare-transfer-ticker" aria-label="Live RARE token transactions">
-      <div class="ticker-heading"><span><span class="ticker-live-dot"></span>$RARE transactions</span><button type="button" data-trade-sound aria-pressed="false" title="Turn transaction pop sounds on or off">Sound: off</button></div>
-      <div class="ticker-window">
-        <div class="ticker-track" data-rare-transfers></div>
-      </div>
-      <div class="trade-bubble-layer" data-trade-bubbles aria-hidden="true"></div>
-      <a class="ticker-footer" href="https://robinhoodchain.blockscout.com/token/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb" target="_blank" rel="noopener noreferrer">All transactions ↗</a>
-    </aside>
-
-    <main class="rare-main">
-      <section class="rare-swap" aria-labelledby="rare-swap-title">
-        <div class="rare-swap-copy">
-          <p class="eyebrow">Live on Robinhood Chain</p>
-          <h1 id="rare-swap-title">Swap $RARE<br />for ETH.</h1>
-          <p>Connect your wallet, preview the live market rate, then review and sign the trade through the active $RARE liquidity venue.</p>
-          <div class="rare-swap-trust">
-            <span>DEXSCREENER QUOTE</span>
-            <span>SUSHISWAP V3 EXECUTION</span>
-            <span>YOU KEEP CUSTODY</span>
-          </div>
-        </div>
-
-        <div class="rare-swap-card" data-rare-swap>
-          <div class="rare-swap-card-head">
-            <div><span>Swap</span><strong>$RARE → ETH</strong></div>
-            <button type="button" data-swap-connect>Connect wallet</button>
-          </div>
-
-          <div class="swap-asset-box">
-            <label for="swap-rare-amount">You sell</label>
-            <div class="swap-asset-input">
-              <input id="swap-rare-amount" data-swap-amount type="number" min="0" step="any" inputmode="decimal" placeholder="0.00" autocomplete="off" />
-              <span class="swap-token-pill"><img src="assets/rare-token.png" alt="" />$RARE</span>
-            </div>
-            <div class="swap-balance-row"><small>Balance: <b data-swap-rare-balance>—</b></small><button type="button" data-swap-max>MAX</button></div>
-          </div>
-
-          <div class="swap-direction" aria-hidden="true">↓</div>
-
-          <div class="swap-asset-box swap-output-box">
-            <span>You receive (estimated)</span>
-            <div class="swap-asset-input"><output data-swap-output>0.000000 ETH</output><span class="swap-token-pill swap-eth-pill">Ξ ETH</span></div>
-            <small>Wallet ETH: <b data-swap-eth-balance>—</b></small>
-          </div>
-
-          <div class="swap-market-grid">
-            <div><span>Live rate</span><strong data-swap-rate>Loading…</strong></div>
-            <div><span>Pool liquidity</span><strong data-swap-liquidity>Loading…</strong></div>
-            <div><span>Venue</span><strong data-swap-venue>SushiSwap V3</strong></div>
-            <div><span>Network</span><strong>Robinhood Chain</strong></div>
-          </div>
-
-          <div class="swap-slippage" aria-label="Slippage preference">
-            <span>Slippage</span>
-            <button type="button" data-swap-slippage="0.5">0.5%</button>
-            <button type="button" class="is-active" data-swap-slippage="1">1%</button>
-            <button type="button" data-swap-slippage="2">2%</button>
-          </div>
-
-          <button class="swap-submit" type="button" data-swap-submit disabled>Enter an amount</button>
-          <p class="swap-status" data-swap-status role="status" aria-live="polite">Live quote loading…</p>
-          <p class="swap-fine-print">Indicative quote only. The final price, route, price impact and minimum received are shown by Sushi before you sign. This site never takes custody of your funds.</p>
+    <main class="rare-construction-main">
+      <section class="rare-construction-hero" aria-labelledby="rare-construction-title">
+        <div class="rare-construction-mark" aria-hidden="true"><img src="assets/rare-token.png" alt="" /></div>
+        <p class="eyebrow">Important $RARE update</p>
+        <h1 id="rare-construction-title">$RARE IS<br />UNDER<br />CONSTRUCTION.</h1>
+        <p class="rare-construction-lead">The $RARE contract will change soon. Trading, swapping, vault, launch, and utility tools are temporarily removed from public view while the next version is prepared.</p>
+        <div class="construction-status"><i aria-hidden="true"></i><span>New contract coming soon</span></div>
+      </section>
+      <section class="collection-focus" aria-labelledby="collection-focus-title">
+        <div class="collection-focus-heading"><p class="eyebrow">The focus right now</p><h2 id="collection-focus-title">COLLECT<br />THE ART.</h2></div>
+        <div class="collection-focus-grid">
+          <article><span>01 · Live collection</span><h3>Ultra Rares</h3><p>View the original Ultra Rare collection and verified activity on OpenSea.</p><a href="https://opensea.io/collection/ultra-rares-robinhood" target="_blank" rel="noopener noreferrer">View Ultra Rares ↗</a></article>
+          <article class="super-rare-coming"><span>02 · More art coming</span><h3>Super Rare</h3><p>New hand-drawn Super Rares are being created for collectors to mint. Mint details will appear here when the new contract is ready.</p><a href="https://opensea.io/collection/superraretoken" target="_blank" rel="noopener noreferrer">View Super Rare ↗</a></article>
         </div>
       </section>
-
-      <section class="rare-chart" aria-labelledby="rare-chart-title">
-        <div class="rare-chart-heading">
-          <div>
-            <p class="eyebrow">Live $RARE market</p>
-            <h2 id="rare-chart-title">Watch the<br />chart.</h2>
-          </div>
-          <div class="rare-chart-links">
-            <a href="https://dexscreener.com/robinhood/0x8ec9c76ed191fb03397637acee1ce928426beb80" target="_blank" rel="noopener noreferrer">Official DexScreener ↗</a>
-            <a href="https://lemon.fun/terminal/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb" target="_blank" rel="noopener noreferrer">Open on Lemon.fun ↗</a>
-          </div>
-        </div>
-        <div class="rare-chart-frame">
-          <iframe
-            src="https://lemon.fun/terminal/0x1d522a4c3e1f3d97b585903474b2544cf9feeffb"
-            title="$RARE live token chart on Lemon.fun"
-            loading="lazy"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allow="clipboard-write; fullscreen"
-          ></iframe>
-        </div>
-        <p class="roadmap-disclaimer">Live market data and trading tools are provided by Lemon.fun. Always verify the token contract before trading.</p>
-      </section>
-
-      <section class="rare-gme-note" aria-labelledby="gme-note-title">
-        <p class="eyebrow">Trade / accumulate / reward</p>
-        <h2 id="gme-note-title">Every $RARE trade<br />builds toward $GME.</h2>
-        <p>Trading fees are intended to help the project accumulate $GME for the holder rewards treasury. This does not give traders direct ownership of $GME; rewards depend on the published distribution program.</p>
-      </section>
-
-      <section class="rare-roadmap" aria-label="Live market-cap goal">
-        <div class="market-goal">
-          <div class="market-goal-now">
-            <span>Current market cap</span>
-            <strong data-rare-market-cap>Loading…</strong>
-            <small data-rare-market-status>Checking the live DEX market</small>
-          </div>
-          <div class="goal-track" aria-label="Progress toward one million dollar market cap">
-            <div class="goal-fill" data-goal-fill></div>
-            <span class="rare-goal-marker" data-goal-marker title="$RARE live market-cap position">
-              <img src="https://cdn.dexscreener.com/cms/images/eAnRpxERpMRHGDxC?width=160&amp;height=160&amp;quality=95&amp;format=auto" alt="$RARE token" />
-              <small data-goal-marker-cap>Loading…</small>
-            </span>
-            <span class="dex-marker" data-ath-marker title="Highest recorded market cap"><b data-ath-value>$70K</b></span>
-          </div>
-          <div class="goal-scale"><span>$0</span><strong>$1M goal</strong></div>
-        </div>
-
-        <div class="milestone-grid" aria-label="RARE market-cap milestones">
-          <div class="dex-milestone is-complete"><span>Milestone achieved <span class="sr-only">Completed</span></span><strong>$70K</strong><small>DEX payment completed</small></div>
-          <div class="first-claims-milestone"><span>Open Vault</span><strong>$100K</strong></div>
-          <div class="mystery-milestone"><span>?????</span><strong>$300K</strong><small>?????</small></div>
-        </div>
-        <p class="roadmap-disclaimer">Market-cap data is supplied by a third-party DEX feed and can change quickly. Milestones describe the project roadmap, not a promise of token value or returns.</p>
-      </section>
-
     </main>
-
-    <footer>
-      <p>Ultra Rares © 2026</p>
-      <p><a href="index.html">Back to the collection ↗</a></p>
-    </footer>
+    <footer><p>Ultra Rares © 2026</p><p>$RARE contract update pending</p></footer>
     <script src="loader.js?v=1"></script>
-    <script src="rare.js?v=27"></script>
-    <script src="rare-swap.js?v=1"></script>
   </body>
 </html>
