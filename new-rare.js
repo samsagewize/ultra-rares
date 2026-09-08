@@ -27,7 +27,7 @@
     track.replaceChildren(...rows); seen = incoming;
   };
   const refresh = async () => {
-    try { const response = await fetch('/api/new-rare-activity', { cache: 'no-store' }); if (!response.ok) throw new Error();
+    try { const response = await fetch('/api/rare-activity', { cache: 'no-store' }); if (!response.ok) throw new Error();
       const payload = await response.json(); render(payload.transfers || []); state.textContent = 'LIVE'; state.classList.remove('is-retrying');
     } catch (_) { state.textContent = 'RETRYING'; state.classList.add('is-retrying'); }
   };

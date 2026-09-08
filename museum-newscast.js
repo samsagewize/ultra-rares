@@ -21,7 +21,7 @@
   async function refresh() {
     const [nftResult, rareResult, superResult, vaultResult] = await Promise.allSettled([
       fetch('/api/collection-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
-      fetch('/api/new-rare-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
+      fetch('/api/rare-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/super-rare-stats', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/live-auctions', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
     ]);
