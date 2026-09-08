@@ -21,7 +21,7 @@
   async function refresh() {
     const [nftResult, rareResult, superResult, vaultResult] = await Promise.allSettled([
       fetch('/api/collection-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
-      fetch('/api/rare-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
+      fetch('/api/new-rare-activity', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/super-rare-stats', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
       fetch('/api/live-auctions', { headers: { accept: 'application/json' } }).then((response) => response.ok ? response.json() : Promise.reject()),
     ]);
@@ -40,8 +40,8 @@
       nftResult.value.activity.forEach((sale) => items.push(makeItem(`NFT SOLD · ULTRA RARE #${sale.tokenId} · ${sale.priceNative ?? '—'} ${sale.priceSymbol || 'ETH'} · TO ${sale.buyer}`, 'nft', sale.itemUrl)));
     }
     if (rareResult.status === 'fulfilled') {
-      rareResult.value.transfers.filter((transfer) => transfer.side === 'burn').slice(0, 5).forEach((burn) => items.push(makeItem(`$RARE BURNED · ${rareAmount(burn.value, burn.decimals)} $RARE · PERMANENT`, 'burn', burn.url)));
-      rareResult.value.transfers.filter((transfer) => transfer.side === 'buy').slice(0, 10).forEach((buy) => items.push(makeItem(`$RARE BUY · ${rareAmount(buy.value, buy.decimals)} $RARE · ${short(buy.to)}`, 'buy', buy.url)));
+      rareResult.value.transfers.filter((transfer) => transfer.side === 'buy').slice(0, 10).forEach((buy) => items.push(makeItem(`NEW $RARE BUY · ${rareAmount(buy.value, buy.decimals)} $RARE · ${short(buy.to)}`, 'buy', buy.url)));
+      rareResult.value.transfers.filter((transfer) => transfer.side === 'sell').slice(0, 6).forEach((sell) => items.push(makeItem(`NEW $RARE SELL · ${rareAmount(sell.value, sell.decimals)} $RARE · ${short(sell.from)}`, 'status', sell.url)));
     }
     if (!items.length) items.push(makeItem('LIVE MARKET TAPE RETRYING · VIEW $RARE MARKET', 'status', 'rare.html'));
     track.replaceChildren(...items, ...items.map((item) => item.cloneNode(true)));

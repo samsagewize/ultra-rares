@@ -15,13 +15,13 @@
     const incoming = new Set(items.map((item) => `${item.hash}:${item.logIndex}`));
     const rows = items.map((item) => {
       const key = `${item.hash}:${item.logIndex}`; const link = document.createElement('a');
-      link.className = `ticker-item rare-transfer-item new-rare-transfer${seen.size && !seen.has(key) ? ' is-new-trade-pop' : ''}`;
+      link.className = `ticker-item rare-transfer-item new-rare-transfer is-rare-${item.side || 'transfer'}${seen.size && !seen.has(key) ? ' is-new-trade-pop' : ''}`;
       link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
       const icon = document.createElement('span'); icon.className = 'rare-token-icon';
       const logo = document.createElement('img'); logo.src = 'assets/rare-token.png'; logo.alt = ''; icon.append(logo);
       const body = document.createElement('span'); const value = document.createElement('strong'); value.textContent = formatAmount(item.value, item.decimals);
       const route = document.createElement('small'); route.textContent = `${short(item.from)} → ${short(item.to)}`;
-      const time = document.createElement('small'); time.textContent = `CONFIRMED · ${new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+      const time = document.createElement('small'); time.textContent = `${item.side === 'buy' ? 'BUY' : item.side === 'sell' ? 'SELL' : 'TRANSFER'} · ${new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
       body.append(value, route, time); link.append(icon, body); return link;
     });
     track.replaceChildren(...rows); seen = incoming;
