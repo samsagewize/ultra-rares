@@ -18,6 +18,7 @@
       const listing = root.querySelector('[data-super-listing]');
       if (frame) frame.src = `super-rare-frame.html?token=${encodeURIComponent(data.featuredTokenId)}&url=${encodeURIComponent(data.featuredUrl)}&image=${encodeURIComponent(data.featuredImageUrl || '')}`;
       if (link) link.href = data.featuredUrl;
+      if (link) link.textContent = `SUPER RARE #${data.featuredTokenId} · VIEW ON OPENSEA ↗`;
       if (listing) listing.href = data.featuredUrl;
       set('token', `DAILY ARTWORK · #${data.featuredTokenId}`);
       set('listing-token', `#${data.featuredTokenId}`);
